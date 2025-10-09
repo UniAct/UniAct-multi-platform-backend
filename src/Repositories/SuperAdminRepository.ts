@@ -2,7 +2,7 @@ import { PrismaClient, SuperAdmin } from "@prisma/client";
 const prisma = new PrismaClient();
 
 class SuperAdminRepository {
-  public static async CreateSuperAdmin(
+  public static async Create(
     username: string,
     email: string,
     password: string
@@ -35,6 +35,17 @@ class SuperAdminRepository {
     });
   }
 
+  public static async IsExists(username: string, email: string): Promise<SuperAdmin | null> {
+      return await prisma.superAdmin.findFirst({
+          where: {
+              OR: [
+                  { username },
+                  { email }
+              ]
+          }
+      });
+  }
+
   public static async GetAllSuperAdmins(): Promise<SuperAdmin[]> {
     try {
       return await prisma.superAdmin.findMany({
@@ -46,24 +57,10 @@ class SuperAdminRepository {
     }
   }
 
-  public static async DeactivateSuperAdmin(username: string): Promise<SuperAdmin> {
+  public static async ActivateSuperAdmin(email: string): Promise<SuperAdmin> {
     try {
       const admin = await prisma.superAdmin.update({
-        where: { username },
-        data: { is_active: false },
-      });
-      return admin;
-    } catch (err: any) {
-      console.error("Error Deactivating SuperAdmin:", err);
-      throw err;
-    }
-  }
-
-  public static async ActivateSuperAdmin(username: string): Promise<SuperAdmin> {
-    try {
-      console.log("username: " , username);
-      const admin = await prisma.superAdmin.update({
-        where: { username },
+        where: { email },
         data: { is_active: true },
       });
       return admin;

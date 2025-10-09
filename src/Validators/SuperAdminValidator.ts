@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import { ValidatePassword } from "./PasswordPolicy";
 
 class SuperAdminValidator {
   public static CreateSuperAdmin() {
@@ -18,8 +19,12 @@ class SuperAdminValidator {
       body("password")
         .notEmpty()
         .withMessage("Password is required")
-        .isLength({ min: 8 })
-        .withMessage("Password must be at least 8 characters long"),
+        .custom((value) => {
+          const error = ValidatePassword(value);
+          if (error) 
+            throw new Error(error);
+          return true;
+        }),
     ];
   }
 
@@ -30,6 +35,26 @@ class SuperAdminValidator {
         .withMessage("Username parameter is required")
         .isLength({ min: 3 })
         .withMessage("Username must be at least 3 characters long"),
+    ];
+  }
+
+  public static Login() {
+    return [
+      body("email")
+        .notEmpty()
+        .withMessage("Username is required")
+        .isLength({ min: 3 })
+        .withMessage("Username must be at least 3 characters long"),
+      
+      body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+        .custom((value) => {
+          const error = ValidatePassword(value);
+          if (error) 
+            throw new Error(error);
+          return true;
+        }),
     ];
   }
 }
