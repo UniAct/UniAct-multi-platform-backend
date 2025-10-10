@@ -1,41 +1,33 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { TokenPayload } from "../Interfaces/TokenPayload";
+import JwtService from "../Utils/JwtService";
 
 
-const IsAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+export default function IsAuthenticated(req: Request, res: Response, next: NextFunction){
   try {
     const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
+    const token = authHeader?.split(" ")[1];
 
     if (!token) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         status: JSendStatus.FAIL,
-        data: {
-          message: "No token provided",
-        },
+        data: { message: "No token provided" },
       });
     }
 
-    const secret = process.env.JWT_KEY;
-    if (!secret) 
-      throw new Error("JWT_KEY is not defined in environment variables");
-
-    const decoded = jwt.verify(token, secret) as TokenPayload;
+    const decoded : TokenPayload = JwtService.Verify(token); 
 
     req.user = decoded;
 
     next();
-  } catch (err) {
+  } catch (err: any) {
+    const isExpired = err.name === "TokenExpiredError";
     return res.status(StatusCodes.FORBIDDEN).json({
       status: JSendStatus.ERROR,
-      data: {
-        message: "Invalid or expired token",
-      },
+      data: { message: isExpired ? "Token expired" : "Invalid token" },
     });
   }
-};
+}
 
-export default IsAuthenticated;

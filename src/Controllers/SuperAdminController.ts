@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import SuperAdminService from "../Services/SuperAdminService";
 import JSendStatus from "../Enums/Jsend";
 import { SuperAdmin } from "@prisma/client";
-import { SendMail } from "../Services/MailService/Mailer";
+import { MailService } from "../Services/MailService/MailService";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
-import JwtService from "../Services/JwtService";
+import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
 
 class SuperAdminController {
@@ -15,7 +15,7 @@ class SuperAdminController {
       
       await SuperAdminService.CreateSuperAdmin(username, email, password);
 
-      await SendMail(email);
+      await MailService.SendVerificationMail(email);
 
       res.status(StatusCodes.CREATED).json({
         status: JSendStatus.SUCCESS,
@@ -114,15 +114,23 @@ class SuperAdminController {
         throw new Error("JWT_KEY or TOKEN_LIFETIME not defined in .env");
       }
 
-      const token = JwtService.sign({
+      const token = JwtService.Sign({
+        id: admin.id,
         username: admin.username,
         email: admin.email,
         role: SystemRoles.SuperAdmin
       });
 
-      res.status(StatusCodes.OK).json({
+      return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
-        data: { token, admin: { id: admin.id, username: admin.username, email: admin.email } },
+        data: {
+          token,
+          admin: {
+            id: admin.id,
+            username: admin.username,
+            email: admin.email,
+          },
+        },
       });
     }
     catch (err: any) {

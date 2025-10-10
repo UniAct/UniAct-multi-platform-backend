@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { TokenPayload } from "../Interfaces/TokenPayload";
+import JwtService from "../Utils/JwtService";
 
 export function ValidateToken (req: Request, res: Response, next: NextFunction) {
   try {
@@ -15,12 +15,9 @@ export function ValidateToken (req: Request, res: Response, next: NextFunction) 
       });
     }
 
-    const secret = process.env.JWT_KEY;
-    if (!secret) throw new Error("JWT_KEY is not defined in environment variables");
+    const decoded : TokenPayload = JwtService.Verify(token);
 
-    const decoded = jwt.verify(token, secret);
-
-    req.user = decoded as TokenPayload;
+    req.user = decoded;
 
     next();
   } catch (err) {

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import SuperAdminRoutes from "./Routes/SuperAdminRoutes"; 
 
 dotenv.config();
+
 const app = express();
 const PORT = Number(process.env.PORT);
 

@@ -1,14 +1,12 @@
-import jwt from "jsonwebtoken";
+import JwtService from "../../Utils/JwtService";
 
 export function EmailTemplate (email: string): string {
-    if (!process.env.JWT_KEY) throw new Error("JWT_KEY is not defined in environment variables");
-    if (!process.env.TOKEN_LIFETIME) throw new Error("TOKEN_LIFETIME is not defined in environment variables");
-    if (!process.env.PORT) throw new Error("PORT is not defined in environment variables");
+    if (!process.env.PORT) {
+        throw new Error("PORT is not defined in environment variables");
+    }
+    
+    const token = JwtService.Sign({ email });
 
-    const token = jwt.sign(
-        { email },
-        process.env.JWT_KEY
-    );
 
     const url = `http://localhost:${process.env.PORT}/superadmin/verify/${token}`;
 
