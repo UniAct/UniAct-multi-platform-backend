@@ -6,7 +6,7 @@ import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 
-const router = Router();
+const router : Router = Router();
 
 /**
  * Routes under this section implement Discretionary Access Control (DAC)

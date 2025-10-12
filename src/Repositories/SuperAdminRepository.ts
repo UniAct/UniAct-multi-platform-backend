@@ -44,6 +44,7 @@ class SuperAdminRepository {
               ]
           }
       });
+
   }
 
   public static async GetAllSuperAdmins(): Promise<SuperAdmin[]> {

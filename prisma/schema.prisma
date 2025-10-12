@@ -8,16 +8,18 @@ datasource db {
 }
 
 model Tenant {
-  id          Int       @id @default(autoincrement())
-  name        String
-  subdomain   String    @unique
-  db_schema   String    @unique
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @default(now())
-  is_active   Boolean   @default(false)
+  id         Int       @id @default(autoincrement())
+  name       String
+  subdomain  String    @unique
+  db_schema  String    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  is_active  Boolean   @default(false)
+
+  university_id Int?
+  university    University? @relation(fields: [university_id], references: [id], onDelete: SetNull)
 
   superAdmins SuperAdminTenant[]
-  university  University?
 }
 
 model SuperAdmin {
@@ -47,16 +49,16 @@ model SuperAdminTenant {
 }
 
 model University {
-  tenant_id        Int      @id
-  name             String
+  id               Int       @id @default(autoincrement())
+  name             String    @unique
   address          String?
   phone            String?
   email            String?
   website          String?
   established_date DateTime?
   accreditation    String?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @default(now())
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
 
-  tenant Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenants Tenant[]
 }
