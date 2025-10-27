@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Tenant } from "@prisma/client";
+import { Prisma, PrismaClient, Tenant } from "../generated/public";
 const prisma = new PrismaClient();
 
 export class TenantRepository {

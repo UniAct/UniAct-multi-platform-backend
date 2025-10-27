@@ -4,6 +4,8 @@ import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import UniversityValidator from "../Validators/UniversityValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import UniversityController from "../Controllers/UniversityController";
+import JSendStatus from "../Enums/Jsend";
+import { StatusCodes } from "http-status-codes";
 
 const router : Router = Router();
 
@@ -51,5 +53,12 @@ router.put(
   ValidateRequest,
   UniversityController.AssignTenant
 );
+
+router.all(/.*/, (req, res) => {
+    res.status(StatusCodes.NOT_FOUND).json({
+        status: JSendStatus.FAIL,
+        data: { route: "Route not found" }
+    });
+});
 
 export default router;

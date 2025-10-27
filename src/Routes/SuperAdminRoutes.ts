@@ -5,6 +5,8 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import { ValidateToken } from "../Middlewares/ValidationToken";
+import { StatusCodes } from "http-status-codes";
+import JSendStatus from "../Enums/Jsend";
 
 const router : Router = Router();
 
@@ -26,6 +28,12 @@ router.post(
 router.get("/verify/:token", 
   ValidateToken,
   SuperAdminController.Activate
+);
+
+router.get(
+  "/verify-root-account/:token",
+  ValidateToken,
+  SuperAdminController.ActivateRootAccount
 );
 
 router.post(
@@ -50,4 +58,19 @@ router.delete(
   SuperAdminController.Delete
 );
 
+router.post(
+  "/assign-root-account",
+  IsAuthenticated,
+  IsSuperAdmin,
+  ...SuperAdminValidator.AssignRootAccount(),
+  ValidateRequest,
+  SuperAdminController.AssignRootAccount
+);
+
+router.all(/.*/, (req, res) => {
+    res.status(StatusCodes.NOT_FOUND).json({
+        status: JSendStatus.FAIL,
+        data: { route: "Route not found" }
+    });
+});
 export default router;

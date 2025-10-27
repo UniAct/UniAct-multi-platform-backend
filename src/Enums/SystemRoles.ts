@@ -1,5 +1,6 @@
 enum SystemRoles {
-  SuperAdmin = "SuperAdmin"
+  SuperAdmin = "SuperAdmin",
+  RootAccount = "Root"
 }
 
 export default SystemRoles;

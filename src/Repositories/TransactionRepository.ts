@@ -1,0 +1,106 @@
+import { User } from "../generated/tenants/alexandria_national_university";
+import { SchemaManager } from "../Utils/SchemaManager";
+import SystemRoles from "../Enums/SystemRoles";
+import { RBACRepository } from "./RBACRepository";
+
+export class TransactionRepository {
+  public static async CreateRootAccount(user: Partial<User>, schema_name: string): Promise<User> {
+    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+
+    return await tenant_schema.$transaction(async (tx) => {
+
+      const existing_user = await tx.user.findFirst({
+        where: {
+          OR: [
+            { email: user.email },
+            { username: user.username },
+            { nationalId: user.nationalId },
+          ],
+        },
+      });
+
+      if (existing_user) {
+        throw new Error(
+          `User '${user.username}' or '${user.email}' or '${user.nationalId}' already exists in this university`
+        );
+      }
+
+      const root_account = await tx.user.create({
+        data: {
+          username: user.username!,
+          firstName: user.firstName!,
+          lastName: user.lastName!,
+          email: user.email!,
+          password: user.password!,
+          phone: user.phone!,
+          dateOfBirth: user.dateOfBirth!,
+          address: user.address!,
+          city: user.city!,
+          country: user.country!,
+          nationalId: user.nationalId!,
+        },
+      });
+
+      let role_existing: any = await tx.role.findUnique({
+        where: { name: SystemRoles.RootAccount },
+        include: { permissions: true, userRoles: true },
+      });
+
+      if (!role_existing) {
+        role_existing = await tx.role.create({
+          data: {
+            name: SystemRoles.RootAccount,
+            description: "Root account with full permissions",
+          },
+        });
+      }
+
+      const default_permissions = [
+        RBACRepository.RBAC.Create,
+        RBACRepository.RBAC.Read,
+        RBACRepository.RBAC.Update,
+        RBACRepository.RBAC.Delete,
+        RBACRepository.Account.Create,
+        RBACRepository.Account.Read,
+        RBACRepository.Account.Update,
+        RBACRepository.Account.Delete,
+        RBACRepository.Account.AssignRole,
+      ];
+
+      for (const perm of default_permissions) {
+        let permission = await tx.permission.findUnique({ where: { name: perm.name } });
+
+        if (!permission) {
+          permission = await tx.permission.create({
+            data: {
+              name: perm.name,
+              description: perm.description,
+            },
+          });
+        }
+
+        const role_perm_exists = await tx.rolePermission.findFirst({
+          where: { roleId: role_existing.id, permissionId: permission.id },
+        });
+
+        if (!role_perm_exists) {
+          await tx.rolePermission.create({
+            data: { roleId: role_existing.id, permissionId: permission.id },
+          });
+        }
+      }
+
+      const existing_link = await tx.userRole.findFirst({
+        where: { userId: root_account.id, roleId: role_existing.id },
+      });
+
+      if (!existing_link) {
+        await tx.userRole.create({
+          data: { userId: root_account.id, roleId: role_existing.id },
+        });
+      }
+
+      return root_account;
+    });
+  }
+}

@@ -96,4 +96,31 @@ export class HostsManager {
     const prefix = prod ? "" : "www.";
     return `${prefix}${subdomain}.${baseDomain}`;
   }
+
+  public static ValidateTenantHost(host: string): boolean {
+    try {
+      const filePath = this.HostsPath;
+
+      if (!fs.existsSync(filePath)) {
+        console.warn(`[WARN] Hosts file not found at: ${filePath}`);
+        return false;
+      }
+
+      const content = fs.readFileSync(filePath, "utf-8");
+      const lines = content.split(/\r?\n/);
+
+      const normalizedHost = host.trim().toLowerCase();
+
+      return lines.some((line) => {
+        const cleanLine = line.replace(/#.*/, "").trim().toLowerCase();
+        if (!cleanLine) return false;
+        const parts = cleanLine.split(/\s+/);
+        const foundHost = parts[1];
+        return foundHost === normalizedHost;
+      });
+    } catch (error) {
+      console.error(`[ERROR] ValidateTenantHost failed: ${(error as Error).message}`);
+      return false;
+    }
+  }
 }

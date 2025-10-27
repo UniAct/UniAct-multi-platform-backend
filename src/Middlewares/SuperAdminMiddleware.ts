@@ -10,7 +10,7 @@ export function IsSuperAdmin(req: Request, res: Response, next: NextFunction) {
     });
   }
 
-  if (req.user.role !== "SuperAdmin") {
+  if (req.user.roles?.includes("SuperAdmin")) {
     return res.status(StatusCodes.FORBIDDEN).json({
       status: JSendStatus.FAIL,
       data: { message: "Access denied" },

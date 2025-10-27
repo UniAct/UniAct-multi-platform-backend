@@ -1,18 +1,33 @@
-import { EmailTemplate } from "./MailTemplate";
 import { transporter } from "../../Utils/EmailTransporter";
+import { EmailTemplate } from "./MailTemplate";
+import dotenv from 'dotenv';
+dotenv.config();
 
-export class MailService{
-  public static async SendVerificationMail(email : string){
+export class MailService {
+  private static async SendMail(to: string, subject: string, html: string) {
     try {
-      const info = await transporter.sendMail({
+      await transporter.sendMail({
         from: `UniAct <${process.env.APPLICATION_EMAIL}>`,
-        to: email,
-        subject: "Verify Your Email",
+        to,
+        subject,
         text: "Please click the link to verify your email",
-        html: EmailTemplate(email)
+        html,
       });
     } catch (err) {
-      console.error("Failed to send email: ", err);
+      console.error("Failed to send email:", err);
     }
+  }
+
+  public static async SendVerificationSuperAdminMail(email: string) {
+    const html = EmailTemplate.SuperAdminTemplate(email);
+    await this.SendMail(email, "Verify Your Email", html);
+  }
+
+  public static async SendVerificationRootAccountMail(
+    email: string,
+    university_name: string
+  ) {
+    const html = EmailTemplate.RootAccountTemplate(email, university_name);
+    await this.SendMail(email, "Verify Your Email", html);
   }
 }

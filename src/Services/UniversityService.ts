@@ -1,4 +1,4 @@
-import { Prisma, University, Tenant } from "@prisma/client";
+import { Prisma, University, Tenant } from "../generated/public";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { TenantRepository } from "../Repositories/TenantRepository";
 import { Pool } from "pg";
@@ -26,10 +26,26 @@ export class UniversityService {
     return university;
   }
 
+  public static async GetByName(university_name: string): Promise<University> {
+    const university = await UniversityRepository.GetByName(university_name);
+    if (!university) 
+      throw new Error(`University with name ${university} not found.`);
+
+    return university;
+  }
+
   public static async GetByNameWithTenants(id: number): Promise<University> {
     const university = await UniversityRepository.GetByIdWithTenants(id);
     if (!university) 
       throw new Error(`University with ID ${id} not found.`);
+
+    return university;
+  }
+
+  public static async GetWithTenants(university_name: string) : Promise<(University & { tenants: Tenant[] })> {
+    const university = await UniversityRepository.GetByNameWithTenants(university_name);
+    if (!university) 
+      throw new Error(`University with name ${university_name} not found.`);
 
     return university;
   }
@@ -76,7 +92,7 @@ export class UniversityService {
 
     const schema_manager = new SchemaManager(pool);
 
-    await schema_manager.CreateSchema(university.name);
+    await schema_manager.CreateSchema(tenant.db_schema);
     
     console.log(`[INFO] Tenant ${updatedTenant.name} assigned to university ${university.name}`);
     return updatedTenant;

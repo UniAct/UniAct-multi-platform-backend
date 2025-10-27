@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { TenantService } from "../Services/TenantService";
-import { Tenant } from "@prisma/client";
+import { Tenant } from "../generated/public";
 
 class TenantController {
   public static async Create(req: Request, res: Response) {

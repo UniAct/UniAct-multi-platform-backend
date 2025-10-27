@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../src/generated/public"
 }
 
 datasource db {
@@ -8,13 +9,13 @@ datasource db {
 }
 
 model Tenant {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  subdomain  String    @unique
-  db_schema  String    @unique
-  created_at DateTime  @default(now())
-  updated_at DateTime  @default(now())
-  is_active  Boolean   @default(false)
+  subdomain  String   @unique
+  db_schema  String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  is_active  Boolean  @default(false)
 
   university_id Int?
   university    University? @relation(fields: [university_id], references: [id], onDelete: SetNull)
@@ -23,12 +24,12 @@ model Tenant {
 }
 
 model SuperAdmin {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
-  email      String    @unique
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  email      String   @unique
   password   String
-  created_at DateTime  @default(now())
-  is_active  Boolean   @default(false)
+  created_at DateTime @default(now())
+  is_active  Boolean  @default(false)
 
   tenants SuperAdminTenant[]
 
@@ -37,12 +38,12 @@ model SuperAdmin {
 }
 
 model SuperAdminTenant {
-  tenant_id       Int
-  super_admin_id  Int
-  assigned_at     DateTime @default(now())
+  tenant_id      Int
+  super_admin_id Int
+  assigned_at    DateTime @default(now())
 
-  tenant      Tenant      @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  superAdmin  SuperAdmin  @relation(fields: [super_admin_id], references: [id], onDelete: Cascade)
+  tenant     Tenant     @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  superAdmin SuperAdmin @relation(fields: [super_admin_id], references: [id], onDelete: Cascade)
 
   @@id([tenant_id, super_admin_id])
   @@index([super_admin_id], map: "idx_superadmintenant_superadmin")

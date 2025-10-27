@@ -1,16 +1,8 @@
+import { JwtPayload } from "jsonwebtoken";
 import JwtService from "../../Utils/JwtService";
-
-export function EmailTemplate (email: string): string {
-    if (!process.env.PORT) {
-        throw new Error("PORT is not defined in environment variables");
-    }
-    
-    const token = JwtService.Sign({ email });
-
-
-    const url = `http://localhost:${process.env.PORT}/superadmin/verify/${token}`;
-
-    return `
+export class EmailTemplate {
+    private static Template(url : string) : string {
+        return `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -229,4 +221,27 @@ export function EmailTemplate (email: string): string {
         </body>
         </html>
         `;
-};
+    }
+
+    private static GenerateUrl(route: string, payload: JwtPayload): string {
+        const port = process.env.PORT;
+        if (!port) 
+            throw new Error("PORT is not defined in environment variables");
+
+        const token = JwtService.Sign(payload);
+        return `http://localhost:${port}/${route}/${token}`;
+    }
+
+    public static SuperAdminTemplate(email: string) : string {
+        const url = this.GenerateUrl("superadmin/verify", { email });
+        return this.Template(url);
+    }
+
+    public static RootAccountTemplate(email: string, university_name: string) : string {
+        const url = this.GenerateUrl("superadmin/verify-root-account", {
+            email,
+            university_name,
+        });
+        return this.Template(url);
+    }
+}

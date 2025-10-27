@@ -1,4 +1,4 @@
-import { Prisma, Tenant } from "@prisma/client";
+import { Prisma, Tenant } from "../generated/public";
 import { TenantRepository } from "../Repositories/TenantRepository";
 import { HostsManager } from "../Utils/HostManager";
 
@@ -50,6 +50,16 @@ export class TenantService {
     if (!tenant) {
       throw new Error(`Tenant with ID ${id} not found.`);
     }
+    return tenant;
+  }
+
+  public static async GetBySubdomain(subdomain: string): Promise<Tenant> {
+    const tenant: Tenant | null = await TenantRepository.GetBySubdomain(subdomain);
+
+    if (!tenant) {
+      throw new Error(`Tenant with subdomain '${subdomain}' not found.`);
+    }
+
     return tenant;
   }
 }

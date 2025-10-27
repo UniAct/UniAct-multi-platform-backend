@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { UniversityService } from "../Services/UniversityService";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
-import { University } from "@prisma/client";
+import { University } from "../generated/public";
 
 class UniversityController {
 

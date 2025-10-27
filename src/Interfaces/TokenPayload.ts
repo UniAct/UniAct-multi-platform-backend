@@ -4,5 +4,7 @@ export interface TokenPayload extends JwtPayload {
   id?: number;
   username?: string;
   email?: string;
-  role?: string;
+  roles?: string[];
+  permissions? : string[];
+  university_name? : string
 }

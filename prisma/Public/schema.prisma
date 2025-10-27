@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/public"   
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// TODO: move db_schema to University relation
+model Tenant {
+  id         Int       @id @default(autoincrement())
+  name       String
+  subdomain  String    @unique
+  db_schema  String    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  is_active  Boolean   @default(false)
+
+  university_id Int?
+  university    University? @relation(fields: [university_id], references: [id], onDelete: SetNull)
+
+  superAdmins SuperAdminTenant[]
+}
+
+model SuperAdmin {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  email      String    @unique
+  password   String
+  created_at DateTime  @default(now())
+  is_active  Boolean   @default(false)
+
+  tenants SuperAdminTenant[]
+
+  @@index([username], map: "idx_superadmin_username")
+  @@index([email], map: "idx_superadmin_email")
+}
+
+model SuperAdminTenant {
+  tenant_id       Int
+  super_admin_id  Int
+  assigned_at     DateTime @default(now())
+
+  tenant      Tenant      @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  superAdmin  SuperAdmin  @relation(fields: [super_admin_id], references: [id], onDelete: Cascade)
+
+  @@id([tenant_id, super_admin_id])
+  @@index([super_admin_id], map: "idx_superadmintenant_superadmin")
+}
+
+model University {
+  id               Int       @id @default(autoincrement())
+  name             String    @unique
+  address          String?
+  phone            String?
+  email            String?
+  website          String?
+  established_date DateTime?
+  accreditation    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+
+  tenants Tenant[]
+}

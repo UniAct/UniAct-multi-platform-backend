@@ -1,5 +1,4 @@
-import { Prisma, PrismaClient, University, Tenant } from "@prisma/client";
-
+import { Prisma, PrismaClient, University, Tenant } from "../generated/public";
 const prisma = new PrismaClient();
 
 export class UniversityRepository {
@@ -22,6 +21,13 @@ export class UniversityRepository {
   public static async GetByIdWithTenants(id: number): Promise<University | null> {
     return await prisma.university.findUnique({
       where: { id },
+      include: { tenants: true },
+    });
+  }
+
+  public static async GetByNameWithTenants(name: string) : Promise<(University & { tenants: Tenant[] }) | null> {
+    return await prisma.university.findUnique({
+      where: { name },
       include: { tenants: true },
     });
   }

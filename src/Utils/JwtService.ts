@@ -1,6 +1,8 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { TokenPayload } from "../Interfaces/TokenPayload";
+import dotenv from 'dotenv';
 
+dotenv.config();
 export default class JwtService {
   private static readonly secret = process.env.JWT_KEY;
   private static readonly expiresIn: SignOptions["expiresIn"] = (process.env.TOKEN_LIFETIME || "24h") as SignOptions["expiresIn"];

@@ -7,7 +7,7 @@ import JwtService from "../Utils/JwtService";
 export function ValidateToken (req: Request, res: Response, next: NextFunction) {
   try {
     const { token } = req.params;
-
+    
     if (!token) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: JSendStatus.FAIL,
@@ -18,7 +18,6 @@ export function ValidateToken (req: Request, res: Response, next: NextFunction) 
     const decoded : TokenPayload = JwtService.Verify(token);
 
     req.user = decoded;
-
     next();
   } catch (err) {
     return res.status(StatusCodes.FORBIDDEN).json({
