@@ -1,0 +1,44 @@
+@baseUrl = http://localhost:3000
+
+###
+POST {{baseUrl}}/user/login
+Host: www.anu.local
+Content-Type: application/json
+
+{
+  "email": "markmagdy148@gmail.com",
+  "password": "aaAA11!!"
+}
+
+
+### Create Staff Account (with file upload)
+POST {{baseUrl}}/user/account/staff
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Host: www.anu.local
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="data"
+Content-Type: application/json
+
+{
+  "username": "mark_staff",
+  "first_name": "Mark",
+  "last_name": "Magdy",
+  "email": "markcython123@example.com",
+  "password": "aaAA11!!",
+  "phone": "01234567890",
+  "date_of_birth": "1998-06-25",
+  "address": "123 Main St",
+  "city": "Cairo",
+  "country": "Egypt",
+  "national_id": "29806251234567",
+  "position": "HR Assistant",
+  "hireDate": "2023-05-01",
+  "salary": 12000.0
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cv"; filename="Mark_Magdy_Ayoub.pdf"
+Content-Type: application/pdf
+
+< D:/cv/Mark_Magdy_Ayoub.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

@@ -7,7 +7,7 @@ export class TransactionRepository {
   public static async CreateRootAccount(user: Partial<User>, schema_name: string): Promise<User> {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
 
-    return await tenant_schema.$transaction(async (tx) => {
+    return await tenant_schema.$transaction(async (tx : any) => {
 
       const existing_user = await tx.user.findFirst({
         where: {

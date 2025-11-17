@@ -1,4 +1,3 @@
-// SuperAdminRoutes.ts
 import { Router } from "express";
 import SuperAdminController from "../Controllers/SuperAdminController";
 import SuperAdminValidator from "../Validators/SuperAdminValidator";
@@ -92,7 +91,7 @@ const router: Router = Router();
 
 /**
  * @swagger
- * /api/super-admin/register:
+ *  /superadmin/register:
  *   post:
  *     summary: Register a new super admin
  *     description: Creates a new super admin account and sends a verification email. Requires authentication and super admin privileges.
@@ -175,7 +174,7 @@ router.post(
 
 /**
  * @swagger
- * /api/super-admin/verify/{token}:
+ * /superadmin/verify/{token}:
  *   get:
  *     summary: Verify and activate super admin account
  *     description: Activates a super admin account using the verification token sent via email
@@ -227,7 +226,7 @@ router.get("/verify/:token", ValidateToken, SuperAdminController.Activate);
 
 /**
  * @swagger
- * /api/super-admin/verify-root-account/{token}:
+ * /superadmin/verify-root-account/{token}:
  *   get:
  *     summary: Verify and activate root account
  *     description: Activates a root account for a specific university using the verification token
@@ -271,7 +270,7 @@ router.get(
 
 /**
  * @swagger
- * /api/super-admin/login:
+ *  /superadmin/login:
  *   post:
  *     summary: Super admin login
  *     description: Authenticates a super admin and returns a JWT token
@@ -367,7 +366,7 @@ router.post(
 
 /**
  * @swagger
- * /api/super-admin:
+ *  /superadmin:
  *   get:
  *     summary: Get all super admins
  *     description: Retrieves a list of all super admin accounts. Requires authentication and super admin privileges.
@@ -412,7 +411,7 @@ router.get("/", IsAuthenticated, IsSuperAdmin, SuperAdminController.GetAll);
 
 /**
  * @swagger
- * /api/super-admin/{username}:
+ *  /superadmin/{username}:
  *   delete:
  *     summary: Delete a super admin
  *     description: Deletes a super admin account by username. Requires authentication and super admin privileges.
@@ -488,7 +487,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/super-admin/assign-root-account:
+ *  /superadmin/assign-root-account:
  *   post:
  *     summary: Assign a root account to a university
  *     description: Creates a root account with full permissions for a specific university tenant. The account is created with the RootAccount role and assigned default RBAC and Account management permissions. Requires authentication and super admin privileges.

@@ -2,7 +2,7 @@ import { Pool, PoolClient } from 'pg';
 import { readFile, writeFile, mkdir, access } from 'fs/promises';
 import path from 'path';
 import { constants } from 'fs';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/tenants/alexandria_national_university';
 
 export class SchemaManager {
     private pool: Pool;
@@ -119,6 +119,7 @@ export class SchemaManager {
         console.log(`[INFO] Using Prisma client for schema: ${schema_name}`);
         console.log(`[DEBUG] Database URL source: ${tenant_url ? env_var_name : 'DATABASE_SCHEMA_URL (fallback)'}`);
 
+        // TODO: there are critical issue here
         return new PrismaClient({
             datasources: {
                 db: {

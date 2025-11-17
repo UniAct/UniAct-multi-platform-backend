@@ -22,7 +22,7 @@ export async function TenantResolver(
 
     // Ensure the host exists in system hosts file
     if (!HostsManager.ValidateTenantHost(cleanHost)) {
-      console.error(`[ERROR] Host '${cleanHost}' not found in system hosts file.`);
+    console.error(`[ERROR] Host '${cleanHost}' not found in system hosts file.`);
       return res.status(400).json({
         status: "fail",
         message: `Access Denied`,

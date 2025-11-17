@@ -42,6 +42,7 @@ export class HostsManager {
       }
 
       const newEntry = `\n${ip}   ${domain}`;
+      console.log(newEntry);
       fs.appendFileSync(filePath, newEntry);
       console.log(`[OK] Added ${domain} → ${ip} to hosts file.`);
     } catch (error) {

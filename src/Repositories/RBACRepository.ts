@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Role , Permission , RolePermission} from "../generated/tenants/alexandria_national_university";
 import { SchemaManager } from "../Utils/SchemaManager";
 
@@ -29,6 +30,7 @@ export class RBACRepository {
         select: { name: true },
       });
     tenant_schema.$disconnect();
+    // @ts-ignore
     return roles.map((r) => r.name);
   }
 
@@ -50,6 +52,7 @@ export class RBACRepository {
         distinct: ["id"],
       });
     tenant_schema.$disconnect();
+    // @ts-ignore
     return permissions.map((p) => p.name);
   }
 
@@ -88,6 +91,7 @@ export class RBACRepository {
       description: role.description,
       createdAt: role.createdAt,
       updatedAt: role.updatedAt,
+      // @ts-ignore
       permissions: role.permissions.map((rp) => rp.permission.name),
     };
   }
@@ -171,6 +175,7 @@ export class RBACRepository {
     const prisma = SchemaManager.GetTenantPrismaClient(schema_name);
 
     try {
+      // @ts-ignore
       return await prisma.$transaction(async (tx) => {
         await tx.rolePermission.deleteMany({
           where: { roleId: role_id },
@@ -214,13 +219,14 @@ export class RBACRepository {
     });
 
     await tenant_schema.$disconnect();
-
+    // @ts-ignore
     const formatted = roles.map((role) => ({
       id: role.id,
       name: role.name,
       description: role.description,
       createdAt: role.createdAt,
       updatedAt: role.updatedAt,
+      // @ts-ignore
       permissions: role.permissions.map((rp) => rp.permission.name),
     }));
 
@@ -256,7 +262,7 @@ export class RBACRepository {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
 
     try {
-      const result = await tenant_schema.$transaction(async (tx) => {
+      const result = await tenant_schema.$transaction(async (tx: Prisma.TransactionClient) => {
         await tx.userRole.deleteMany({
           where: { userId: user_id },
         });

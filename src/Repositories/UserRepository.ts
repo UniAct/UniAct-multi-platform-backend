@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { User } from "../generated/tenants/alexandria_national_university";
 import { IStaffAccount } from "../Interfaces/StaffAccount";
 import { SchemaManager } from "../Utils/SchemaManager"; // adjust path to your SchemaManager
@@ -116,7 +117,7 @@ export class UserRepository {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
 
     try {
-      const createdAccount = await tenant_schema.$transaction(async (tx) => {
+      const createdAccount = await tenant_schema.$transaction(async (tx: Prisma.TransactionClient) => {
         const newUser = await tx.user.create({
           data: {
             username: staff.username,
