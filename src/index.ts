@@ -7,6 +7,8 @@ import UserRoutes from "./Routes/UserRoutes";
 import RBACRoutes from "./Routes/RBACRoutes";
 import JSendStatus from "./Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
+import swaggerUi from "swagger-ui-express";
+import { SwaggerSpec } from "./Utils/SwaggerConfig";
 
 dotenv.config();
 
@@ -22,6 +24,9 @@ app.use("/university", UniversityRoutes);
 app.use("/user", UserRoutes);
 app.use("/rbac" , RBACRoutes);
 
+if (process.env.NODE_ENV?.toLowerCase() === "development") 
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(SwaggerSpec));
+
 app.all(/.*/, (req, res) => {
     res.status(StatusCodes.NOT_FOUND).json({
         status: JSendStatus.FAIL,
@@ -30,5 +35,5 @@ app.all(/.*/, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server Running On Port ${PORT}`);
+    console.log(`Server Running On Port ${PORT}`);
 });
