@@ -3,6 +3,7 @@ import {PrismaClient , SuperAdmin, Tenant, University} from "../generated/public
 import { SchemaManager } from "../Utils/SchemaManager";
 import { UniversityService } from "../Services/UniversityService";
 import { TransactionService } from "../Services/Transaction";
+import { TenantRepository } from "./TenantRepository";
 
 const public_schema = new PrismaClient();
 
@@ -108,6 +109,10 @@ class SuperAdminRepository {
       const tenant = university_with_tenants.tenants[FIRST_TENANT_SCHEMA];
 
       const root_account = await TransactionService.CreateRootAccount(user , tenant.db_schema);
+
+      // Activate the tenant when root account is assigned
+      await TenantRepository.Activate(tenant.id);
+      console.log(`[INFO] Tenant ${tenant.name} activated after root account assignment`);
 
       return root_account;
     } catch (err: any) {

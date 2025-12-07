@@ -90,14 +90,13 @@ class SuperAdminController {
     try {
       const email = req.user?.email;
       const university_name = req.user?.university_name;
+      const token = req.params.token;
 
       await SuperAdminService.ActivateRootAccount(email! , university_name!);
 
-      // TODO: Return HTML Page Instead Of Json
-      return res.status(StatusCodes.OK).json({
-        status: JSendStatus.SUCCESS,
-        data: { message: `Root account for ${university_name} activated successfully.` },
-      });
+      // Redirect to frontend verification page with success
+      const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(university_name!)}`);
     } catch (err: any) {
       console.error("Activation failed:", err);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -147,12 +146,14 @@ class SuperAdminController {
 
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
+        message: "Login successful.",
         data: {
           token,
-          admin: {
+          user: {
             id: admin.id,
             username: admin.username,
             email: admin.email,
+            roles: ['SuperAdmin'],
           },
         },
       });

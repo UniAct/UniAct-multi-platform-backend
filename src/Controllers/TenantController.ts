@@ -7,9 +7,17 @@ import { Tenant } from "../generated/public";
 class TenantController {
   public static async Create(req: Request, res: Response) {
     try {
-      const { name, subdomain, db_schema }: { name: string; subdomain: string; db_schema: string } = req.body;
+      const { name, subdomain, db_schema, address, phone, email, website } = req.body;
 
-      const tenant = await TenantService.CreateTenant({ name, subdomain, db_schema });
+      const tenant = await TenantService.CreateTenant({
+        name,
+        subdomain,
+        db_schema,
+        address,
+        phone,
+        email,
+        website,
+      });
 
       res.status(StatusCodes.CREATED).json({
         status: JSendStatus.SUCCESS,
