@@ -46,7 +46,7 @@ app.use(TenantResolver);
 
 // Root health check
 app.get('/', (req, res) => {
-    res.status(200).json({
+    res.status(StatusCodes.ACCEPTED).json({
         status: 'success',
         message: 'UniAct Backend API Running',
         environment: process.env.NODE_ENV,
@@ -96,7 +96,7 @@ app.all(/.*/, (req, res) => {
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error('Unhandled error:', err);
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         status: 'error',
         message: 'Internal Server Error',
         error: process.env.NODE_ENV === 'development' ? err.message : undefined

@@ -1,23 +1,18 @@
 import { Prisma, Tenant } from "../generated/public";
 import { TenantRepository } from "../Repositories/TenantRepository";
+import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { UniversityService } from "./UniversityService";
 import { HostsManager } from "../Utils/HostManager";
 import { SchemaManager } from "../Utils/SchemaManager";
+import { TenantCreateData } from "../Interfaces/TenantPayload";
 import { Pool } from 'pg';
-
-interface TenantCreateData extends Prisma.TenantCreateInput {
-  address?: string;
-  phone?: string;
-  email?: string;
-  website?: string;
-}
 
 export class TenantService {
   public static async CreateTenant(data: TenantCreateData): Promise<Tenant> {
     const existing = await TenantRepository.GetBySubdomain(data.subdomain);
-    if (existing) 
+    if (existing)
       throw new Error("Subdomain already in use.");
-    
+
 
     const existing_name = await TenantRepository.GetByName(data.name);
     if (existing_name.length > 0) {
@@ -25,34 +20,17 @@ export class TenantService {
       console.warn(`[WARN] Duplicate tenant name detected: ${data.name}`);
     }
 
-    // Create corresponding University record first
-    let university;
-    try {
-      const universityCreateData: Prisma.UniversityCreateInput = {
-        name: data.name,
-        address: data.address,
-        phone: data.phone,
-        email: data.email,
-        website: data.website,
-      };
-
-      university = await UniversityService.Create(universityCreateData);
-      console.log(`[INFO] University record created: ${data.name}`);
-    } catch (universityError: any) {
-      console.error(`[ERROR] Failed to create University record:`, universityError.message);
-      // Don't continue if University creation fails
-      throw new Error(`Failed to create University record: ${universityError.message}`);
-    }
-
-    // Now create Tenant linked to University
+    // Create Tenant (university_id is optional, can be set separately)
     const tenantData: Prisma.TenantCreateInput = {
       name: data.name,
       subdomain: data.subdomain,
       db_schema: data.db_schema,
       is_active: true,
-      university: {
-        connect: { id: university.id }
-      }
+      ...(data.university_id && {
+        university: {
+          connect: { id: data.university_id }
+        }
+      })
     };
 
     const tenant = await TenantRepository.Create(tenantData);
@@ -71,13 +49,13 @@ export class TenantService {
 
       const pool = new Pool({ connectionString });
       const schemaManager = new SchemaManager(pool);
-      
+
       // Use the db_schema provided in the request
       const schemaName = data.db_schema;
 
       await schemaManager.CreateSchema(schemaName);
       console.log(`[INFO] Schema created for tenant: ${schemaName}`);
-      
+
       await pool.end();
     } catch (schemaError: any) {
       console.error(`[ERROR] Failed to create schema for tenant ${tenant.name}:`, schemaError.message);
@@ -92,8 +70,8 @@ export class TenantService {
   }
 
   public static async DeleteTenant(id: number): Promise<Tenant> {
-    const tenant : Tenant | null = await TenantRepository.GetById(id);
-    if (!tenant) 
+    const tenant: Tenant | null = await TenantRepository.GetById(id);
+    if (!tenant)
       throw new Error(`Tenant with ID ${id} not found.`);
 
     // Delete the tenant schema from database
@@ -105,10 +83,10 @@ export class TenantService {
 
       const pool = new Pool({ connectionString });
       const schemaManager = new SchemaManager(pool);
-      
+
       await schemaManager.DeleteSchema(tenant.db_schema);
       console.log(`[INFO] Schema deleted for tenant: ${tenant.db_schema}`);
-      
+
       await pool.end();
     } catch (schemaError: any) {
       console.error(`[ERROR] Failed to delete schema for tenant ${tenant.name}:`, schemaError.message);
@@ -116,15 +94,15 @@ export class TenantService {
     }
 
     // Delete University record
-    try {
-      const university = await UniversityService.GetByName(tenant.name);
-      if (university) {
-        // Note: UniversityService might not have a delete method, 
-        // so we'll delete it directly via repository if available
-        console.log(`[INFO] Cleaning up University record for tenant`);
+    if (tenant.university_id) {
+      try {
+        console.log(`[INFO] Deleting University record (ID: ${tenant.university_id})`);
+        await UniversityRepository.Delete(tenant.university_id);
+        console.log(`[SUCCESS] ✓ University record deleted`);
+      } catch (universityError: any) {
+        console.warn(`[WARN] Could not delete University record:`, universityError.message);
+        // Don't fail the entire deletion if university deletion fails
       }
-    } catch (universityError: any) {
-      console.warn(`[WARN] Could not delete University record:`, universityError.message);
     }
 
     // Remove domain
@@ -135,15 +113,15 @@ export class TenantService {
     await TenantRepository.Delete(id);
     console.log(`[INFO] Tenant deleted: ${tenant.name} (${domain})`);
 
-    return tenant; 
+    return tenant;
   }
 
-  public static async GetAll() : Promise<Tenant[]> {
+  public static async GetAll(): Promise<Tenant[]> {
     return await TenantRepository.GetAll();
   }
-  
+
   public static async GetById(id: number): Promise<Tenant> {
-    const tenant : Tenant | null = await TenantRepository.GetById(id);
+    const tenant: Tenant | null = await TenantRepository.GetById(id);
     if (!tenant) {
       throw new Error(`Tenant with ID ${id} not found.`);
     }

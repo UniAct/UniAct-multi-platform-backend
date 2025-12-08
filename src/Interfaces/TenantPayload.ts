@@ -5,3 +5,20 @@ export interface TenantPayload {
   subdomain: string;
   university_id: number;
 }
+
+export interface UniversityCreateData {
+  name: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  established_date?: string;
+  accreditation?: string;
+}
+
+export interface TenantCreateData {
+  name: string;
+  subdomain: string;
+  db_schema: string;
+  university_id?: number;
+}
