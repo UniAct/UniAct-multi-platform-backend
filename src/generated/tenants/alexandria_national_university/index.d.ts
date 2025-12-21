@@ -980,8 +980,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.19.0
-   * Query Engine version: 2ba551f319ab1df4bc874a89965d8b3641056773
+   * Prisma Client JS version: 6.17.0
+   * Query Engine version: c0aafc03b8ef6cdced8654b9a817999e02457d6a
    */
   export type PrismaVersion = {
     client: string
@@ -994,7 +994,6 @@ export namespace Prisma {
    */
 
 
-  export import Bytes = runtime.Bytes
   export import JsonObject = runtime.JsonObject
   export import JsonArray = runtime.JsonArray
   export import JsonValue = runtime.JsonValue
@@ -48013,11 +48012,11 @@ export namespace Prisma {
 
   export type FacultyWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    name?: string
     AND?: FacultyWhereInput | FacultyWhereInput[]
     OR?: FacultyWhereInput[]
     NOT?: FacultyWhereInput | FacultyWhereInput[]
     universityId?: IntFilter<"Faculty"> | number
-    name?: StringFilter<"Faculty"> | string
     description?: StringNullableFilter<"Faculty"> | string | null
     deanId?: IntNullableFilter<"Faculty"> | number | null
     establishedDate?: DateTimeNullableFilter<"Faculty"> | Date | string | null
@@ -48026,7 +48025,7 @@ export namespace Prisma {
     dean?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
     programs?: ProgramListRelationFilter
     regulations?: RegulationListRelationFilter
-  }, "id">
+  }, "id" | "name">
 
   export type FacultyOrderByWithAggregationInput = {
     id?: SortOrder
@@ -48115,11 +48114,11 @@ export namespace Prisma {
 
   export type ProgramWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    name?: string
     AND?: ProgramWhereInput | ProgramWhereInput[]
     OR?: ProgramWhereInput[]
     NOT?: ProgramWhereInput | ProgramWhereInput[]
     facultyId?: IntFilter<"Program"> | number
-    name?: StringFilter<"Program"> | string
     description?: StringNullableFilter<"Program"> | string | null
     headId?: IntNullableFilter<"Program"> | number | null
     phone?: StringNullableFilter<"Program"> | string | null
@@ -48140,7 +48139,7 @@ export namespace Prisma {
     academicLoadSemesters?: AcademicLoadSemesterListRelationFilter
     academicLoadGPAs?: AcademicLoadGPAListRelationFilter
     classSessions?: ClassSessionListRelationFilter
-  }, "id">
+  }, "id" | "name">
 
   export type ProgramOrderByWithAggregationInput = {
     id?: SortOrder

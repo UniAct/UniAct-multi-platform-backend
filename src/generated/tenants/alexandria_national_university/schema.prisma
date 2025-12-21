@@ -211,7 +211,7 @@ model Staff {
 model Faculty {
   id              Int       @id @default(autoincrement())
   universityId    Int       @map("university_id")
-  name            String    @db.VarChar(255)
+  name            String    @unique @db.VarChar(255)
   description     String?
   deanId          Int?      @map("dean_id")
   establishedDate DateTime? @map("established_date") @db.Date
@@ -235,7 +235,7 @@ model Faculty {
 model Program {
   id                    Int               @id @default(autoincrement())
   facultyId             Int               @map("faculty_id")
-  name                  String            @db.VarChar(255)
+  name                  String            @unique @db.VarChar(255)
   description           String?
   headId                Int?              @map("head_id")
   phone                 String?           @db.VarChar(20)

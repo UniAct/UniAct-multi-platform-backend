@@ -4,6 +4,7 @@ import { SchemaManager } from "../Utils/SchemaManager";
 
 export class RBACRepository {
   //! put your permissions here
+
   public static Account = class {
     static Read    = { name: "account.read",    description: "Read user account information" };
     static Create  = { name: "account.create",  description: "Create user accounts" };
@@ -17,6 +18,20 @@ export class RBACRepository {
     static Create  = { name: "rbac.create",  description: "Create roles and permissions" };
     static Update  = { name: "rbac.update",  description: "Update existing roles and permissions" };
     static Delete  = { name: "rbac.delete",  description: "Delete roles and permissions" };
+  };
+
+  public static Program = class {
+    static Read   = { name: "program.read",   description: "Read program information" };
+    static Create = { name: "program.create", description: "Create new programs" };
+    static Update = { name: "program.update", description: "Update program information" };
+    static Delete = { name: "program.delete", description: "Delete programs" };
+  };
+
+  public static Faculty = class {
+    static Read   = { name: "faculty.read",   description: "Read faculty information" };
+    static Create = { name: "faculty.create", description: "Create new faculties" };
+    static Update = { name: "faculty.update", description: "Update faculty information" };
+    static Delete = { name: "faculty.delete", description: "Delete faculties" };
   };
 
   public static async GetUserRoles(user_id : number , schema_name : string) : Promise<string[]>{

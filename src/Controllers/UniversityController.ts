@@ -7,8 +7,7 @@ import { University } from "../generated/public";
 class UniversityController {
 
   public static async Create(req: Request, res: Response) {
-    try {
-      const {
+    const {
         name,
         address,
         phone,
@@ -25,6 +24,8 @@ class UniversityController {
         established_date?: string;
         accreditation?: string;
       } = req.body;
+    try {
+      
 
       const university = await UniversityService.Create({
         name,

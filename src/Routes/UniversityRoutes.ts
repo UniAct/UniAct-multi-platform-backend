@@ -245,8 +245,6 @@ const router: Router = Router();
  */
 router.post(
   "/create",
-  IsAuthenticated,
-  IsSuperAdmin,
   ...UniversityValidator.Create(),
   ValidateRequest,
   UniversityController.Create
@@ -298,7 +296,7 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/JSendError'
  */
-router.get("/", IsAuthenticated, IsSuperAdmin, UniversityController.GetAll);
+router.get("/", UniversityController.GetAll);
 
 /**
  * @swagger
@@ -440,8 +438,6 @@ router.get("/", IsAuthenticated, IsSuperAdmin, UniversityController.GetAll);
  */
 router.get(
   "/:id",
-  IsAuthenticated,
-  IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   UniversityController.GetById
@@ -449,8 +445,6 @@ router.get(
 
 router.delete(
   "/:id",
-  IsAuthenticated,
-  IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   UniversityController.Delete
@@ -544,8 +538,6 @@ router.delete(
  */
 router.put(
   "/assign",
-  IsAuthenticated,
-  IsSuperAdmin,
   ...UniversityValidator.AssignTenant(),
   ValidateRequest,
   UniversityController.AssignTenant

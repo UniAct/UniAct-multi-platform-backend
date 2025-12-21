@@ -6,11 +6,13 @@ import TenantRoutes from "./Routes/TenantRoutes";
 import UniversityRoutes from "./Routes/UniversityRoutes";
 import UserRoutes from "./Routes/UserRoutes";
 import RBACRoutes from "./Routes/RBACRoutes";
+import ProgramRoutes from "./Routes/ProgramRoutes";
 import { TenantResolver } from "./Middlewares/TenantResolver";
 import JSendStatus from "./Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import swaggerUi from "swagger-ui-express";
 import { SwaggerSpec } from "./Utils/SwaggerConfig";
+import MainRouter from "./Routes/MainRouter";
 
 dotenv.config();
 
@@ -56,20 +58,7 @@ app.get('/', (req, res) => {
 
 // ==================== API ROUTES ====================
 
-// SuperAdmin Routes
-app.use('/api/superadmin', SuperAdminRoutes);
-
-// Tenant Management Routes (SuperAdmin only)
-app.use('/api/tenant', TenantRoutes);
-
-// University Routes
-app.use('/api/university', UniversityRoutes);
-
-// User Routes (Staff/Student endpoints)
-app.use('/api/user', UserRoutes);
-
-// RBAC Routes (Role/Permission management)
-app.use('/api/rbac', RBACRoutes);
+app.use("/api",MainRouter)
 
 // ==================== SWAGGER DOCUMENTATION ====================
 

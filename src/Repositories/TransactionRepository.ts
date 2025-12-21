@@ -56,15 +56,28 @@ export class TransactionRepository {
       }
 
       const default_permissions = [
+        //RBAC permissions
         RBACRepository.RBAC.Create,
         RBACRepository.RBAC.Read,
         RBACRepository.RBAC.Update,
         RBACRepository.RBAC.Delete,
+        //account permissions
         RBACRepository.Account.Create,
         RBACRepository.Account.Read,
         RBACRepository.Account.Update,
         RBACRepository.Account.Delete,
         RBACRepository.Account.AssignRole,
+        //faculty permissions
+        RBACRepository.Faculty.Create,
+        RBACRepository.Faculty.Read,
+        RBACRepository.Faculty.Update,
+        RBACRepository.Faculty.Delete,
+        //program permissions
+        RBACRepository.Program.Create,
+        RBACRepository.Program.Read,
+        RBACRepository.Program.Update,
+        RBACRepository.Program.Delete,
+
       ];
 
       for (const perm of default_permissions) {

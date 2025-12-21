@@ -105,7 +105,7 @@ export class UserService {
     return permissions;
   }
 
-  public static async CreateStaffAccount(staff: IStaffAccount, schema_name: string) {
+  public static async CreateStaffAccount(staff: IStaffAccount , schema_name: string) {
     const username = staff.username;
     const email = staff.email;
     const nationalId = staff.national_id;

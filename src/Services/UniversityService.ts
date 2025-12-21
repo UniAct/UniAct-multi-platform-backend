@@ -5,6 +5,7 @@ import { Pool } from "pg";
 import { SchemaManager } from "../Utils/SchemaManager";
 
 export class UniversityService {
+  
   public static async Create(
     data: Prisma.UniversityCreateInput
   ): Promise<University> {
