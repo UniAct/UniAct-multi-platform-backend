@@ -5,11 +5,7 @@ export class programService{
 
 
     static async CreateProgram(programData : Prisma.ProgramCreateInput){
-
-        const existingProgram = await prisma.program.findUnique({where:{name:programData.name}})
-        if(existingProgram){
-            throw new Error(`Program with name ${existingProgram.name} already exists`);
-        }
+        
         const newProgram = await prisma.program.create({data:programData});
         console.log(`[INFO] Program created successfully: ${newProgram.name}`);
         return newProgram;
@@ -22,10 +18,8 @@ export class programService{
 
     static async DeleteProgramById(id:number){
 
-        const program = await prisma.program.findUnique({ where:{id}});
-        if(!program){
-            throw new Error (`Program with Id ${id} is not found`);
-        }
+        const program = await prisma.program.findUniqueOrThrow({ where:{id}});
+        
         await prisma.program.delete({where:{id}});
         console.log(`[INFO] Program deleted ${program.name}` );
 

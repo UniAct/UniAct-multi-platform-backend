@@ -1,71 +1,79 @@
 import { Prisma } from "@prisma/client";
-import { Role , Permission , RolePermission} from "../generated/tenants/alexandria_national_university";
+import { Role, Permission, RolePermission } from "../generated/tenants/alexandria_national_university";
 import { SchemaManager } from "../Utils/SchemaManager";
 
+
+  //under test function to generate the (resource.permission) automatically instead of repeated code
+
+function CRUD(resource: string) {
+  return {
+    Create: { name: `${resource}.create`, description: `Create ${resource}` },
+    Read: { name: `${resource}.read`, description: `Read ${resource}` },
+    Update: { name: `${resource}.update`, description: `Update ${resource}` },
+    Delete: { name: `${resource}.delete`, description: `Delete ${resource}` },
+  };
+}
+
+
 export class RBACRepository {
+
   //! put your permissions here
+  
+  public static Program = CRUD("program")
+
+  public static Faculty = CRUD("faculty")
+
+
 
   public static Account = class {
-    static Read    = { name: "account.read",    description: "Read user account information" };
-    static Create  = { name: "account.create",  description: "Create user accounts" };
-    static Update  = { name: "account.update",  description: "Update user account information" };
-    static Delete  = { name: "account.delete",  description: "Delete user accounts" };
-    static AssignRole  = { name: "account.assign_role",  description: "Assign roles to user accounts" };
+    static Read = { name: "account.read", description: "Read user account information" };
+    static Create = { name: "account.create", description: "Create user accounts" };
+    static Update = { name: "account.update", description: "Update user account information" };
+    static Delete = { name: "account.delete", description: "Delete user accounts" };
+    static AssignRole = { name: "account.assign_role", description: "Assign roles to user accounts" };
   };
 
   public static RBAC = class {
-    static Read    = { name: "rbac.read",    description: "Read all roles and permissions" };
-    static Create  = { name: "rbac.create",  description: "Create roles and permissions" };
-    static Update  = { name: "rbac.update",  description: "Update existing roles and permissions" };
-    static Delete  = { name: "rbac.delete",  description: "Delete roles and permissions" };
+    static Read = { name: "rbac.read", description: "Read all roles and permissions" };
+    static Create = { name: "rbac.create", description: "Create roles and permissions" };
+    static Update = { name: "rbac.update", description: "Update existing roles and permissions" };
+    static Delete = { name: "rbac.delete", description: "Delete roles and permissions" };
   };
 
-  public static Program = class {
-    static Read   = { name: "program.read",   description: "Read program information" };
-    static Create = { name: "program.create", description: "Create new programs" };
-    static Update = { name: "program.update", description: "Update program information" };
-    static Delete = { name: "program.delete", description: "Delete programs" };
-  };
 
-  public static Faculty = class {
-    static Read   = { name: "faculty.read",   description: "Read faculty information" };
-    static Create = { name: "faculty.create", description: "Create new faculties" };
-    static Update = { name: "faculty.update", description: "Update faculty information" };
-    static Delete = { name: "faculty.delete", description: "Delete faculties" };
-  };
 
-  public static async GetUserRoles(user_id : number , schema_name : string) : Promise<string[]>{
+  public static async GetUserRoles(user_id: number, schema_name: string): Promise<string[]> {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
     const roles = await tenant_schema.role.findMany({
-        where: {
-          userRoles: {
-            some: { userId: user_id },
-          },
+      where: {
+        userRoles: {
+          some: { userId: user_id },
         },
-        select: { name: true },
-      });
+      },
+      select: { name: true },
+    });
     tenant_schema.$disconnect();
     // @ts-ignore
     return roles.map((r) => r.name);
   }
 
-  public static async GetUserPermissions(user_id : number , schema_name : string) : Promise<string[]>{
+  public static async GetUserPermissions(user_id: number, schema_name: string): Promise<string[]> {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
     const permissions = await tenant_schema.permission.findMany({
-        where: {
-          rolePermissions: {
-            some: {
-              role: {
-                userRoles: {
-                  some: { userId: user_id },
-                },
+      where: {
+        rolePermissions: {
+          some: {
+            role: {
+              userRoles: {
+                some: { userId: user_id },
               },
             },
           },
         },
-        select: { name: true },
-        distinct: ["id"],
-      });
+      },
+      select: { name: true },
+      distinct: ["id"],
+    });
     tenant_schema.$disconnect();
     // @ts-ignore
     return permissions.map((p) => p.name);
@@ -89,7 +97,7 @@ export class RBACRepository {
         permissions: {
           include: {
             permission: {
-              select: { name: true }, 
+              select: { name: true },
             },
           },
         },
@@ -111,7 +119,7 @@ export class RBACRepository {
     };
   }
 
-  public static async GetRoleByName(role_name : string , schema_name: string){
+  public static async GetRoleByName(role_name: string, schema_name: string) {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
     const role = await tenant_schema.role.findUnique({ where: { name: role_name } });
     tenant_schema.$disconnect();
@@ -136,11 +144,11 @@ export class RBACRepository {
   }
 
   public static async GetAllPermissions(schema_name: string): Promise<{ name: string; description: string | null }[]> {
-  const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
 
-  const permissions = await tenant_schema.permission.findMany({
-    select: { name: true, description: true },
-  });
+    const permissions = await tenant_schema.permission.findMany({
+      select: { name: true, description: true },
+    });
 
     tenant_schema.$disconnect();
     return permissions;
@@ -226,7 +234,7 @@ export class RBACRepository {
         permissions: {
           include: {
             permission: {
-              select: { name: true }, 
+              select: { name: true },
             },
           },
         },
@@ -248,7 +256,7 @@ export class RBACRepository {
     return formatted;
   }
 
-  public static async GetRolesByNames(role_names: string[], schema_name: string) : Promise<Role[]> {
+  public static async GetRolesByNames(role_names: string[], schema_name: string): Promise<Role[]> {
     const prisma = SchemaManager.GetTenantPrismaClient(schema_name);
 
     try {
