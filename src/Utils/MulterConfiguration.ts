@@ -2,14 +2,15 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const upload_dir = "uploads/cv";
-if (!fs.existsSync(upload_dir)) {
-  fs.mkdirSync(upload_dir, { recursive: true });
+const uploadDir = path.join(process.cwd(), "uploads", "cv");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, upload_dir);
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
