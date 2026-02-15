@@ -2,6 +2,7 @@ import { JwtPayload } from "jsonwebtoken";
 import JwtService from "../../Utils/JwtService";
 export class EmailTemplate {
     private static Template(url: string): string {
+        console.log("url detected: " + url)
         return `
         <!DOCTYPE html>
         <html lang="en">
@@ -229,11 +230,12 @@ export class EmailTemplate {
             throw new Error("PORT is not defined in environment variables");
 
         const token = JwtService.Sign(payload);
+        console.log(`http://localhost:${port}/${route}/${token}`);
         return `http://localhost:${port}/${route}/${token}`;
     }
 
     public static SuperAdminTemplate(email: string): string {
-        const url = this.GenerateUrl("superadmin/verify", { email });
+        const url = this.GenerateUrl("api/superadmin/verify", { email });
         return this.Template(url);
     }
 

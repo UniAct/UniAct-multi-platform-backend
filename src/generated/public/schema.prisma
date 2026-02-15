@@ -8,46 +8,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO: move db_schema to University relation
-model Tenant {
-  id         Int      @id @default(autoincrement())
-  name       String
-  subdomain  String   @unique
-  db_schema  String   @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
-  is_active  Boolean  @default(false)
-
-  university_id Int?
-  university    University? @relation(fields: [university_id], references: [id], onDelete: SetNull)
-
-  superAdmins SuperAdminTenant[]
-}
-
 model SuperAdmin {
   id         Int      @id @default(autoincrement())
   username   String   @unique
   email      String   @unique
   password   String
-  created_at DateTime @default(now())
   is_active  Boolean  @default(false)
-
-  tenants SuperAdminTenant[]
+  created_at DateTime @default(now())
 
   @@index([username], map: "idx_superadmin_username")
   @@index([email], map: "idx_superadmin_email")
-}
-
-model SuperAdminTenant {
-  tenant_id      Int
-  super_admin_id Int
-  assigned_at    DateTime @default(now())
-
-  tenant     Tenant     @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  superAdmin SuperAdmin @relation(fields: [super_admin_id], references: [id], onDelete: Cascade)
-
-  @@id([tenant_id, super_admin_id])
-  @@index([super_admin_id], map: "idx_superadmintenant_superadmin")
 }
 
 model University {
@@ -59,8 +29,8 @@ model University {
   website          String?
   established_date DateTime?
   accreditation    String?
+  db_schema        String    @unique
+  is_active        Boolean   @default(false)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @default(now())
-
-  tenants Tenant[]
 }

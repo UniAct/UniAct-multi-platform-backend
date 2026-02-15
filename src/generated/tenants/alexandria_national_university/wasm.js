@@ -677,7 +677,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\graduation_project\\clone\\web-backend\\src\\generated\\tenants\\alexandria_national_university",
+      "value": "D:\\graduation_project\\clone2\\web-backend\\src\\generated\\tenants\\alexandria_national_university",
       "fromEnvVar": null
     },
     "config": {
@@ -691,12 +691,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\graduation_project\\clone\\web-backend\\prisma\\Tenant\\alexandria_national_university\\schema.prisma",
+    "sourceFilePath": "D:\\graduation_project\\clone2\\web-backend\\prisma\\Tenant\\alexandria_national_university\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../../prisma/Tenant/alexandria_national_university",
   "clientVersion": "6.19.0",
@@ -705,7 +704,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

@@ -5,18 +5,18 @@ import { SchemaManager } from "../Utils/SchemaManager";
 export class RBACRepository {
   //! put your permissions here
   public static Account = class {
-    static Read    = { name: "account.read",    description: "Read user account information" };
-    static Create  = { name: "account.create",  description: "Create user accounts" };
-    static Update  = { name: "account.update",  description: "Update user account information" };
-    static Delete  = { name: "account.delete",  description: "Delete user accounts" };
-    static AssignRole  = { name: "account.assign_role",  description: "Assign roles to user accounts" };
+    static Read    = { Name: "account.read",    Description: "Read user account information" };
+    static Create  = { Name: "account.create",  Description: "Create user accounts" };
+    static Update  = { Name: "account.update",  Description: "Update user account information" };
+    static Delete  = { Name: "account.delete",  Description: "Delete user accounts" };
+    static AssignRole  = { Name: "account.assign_role",  Description: "Assign roles to user accounts" };
   };
 
-  public static RBAC = class {
-    static Read    = { name: "rbac.read",    description: "Read all roles and permissions" };
-    static Create  = { name: "rbac.create",  description: "Create roles and permissions" };
-    static Update  = { name: "rbac.update",  description: "Update existing roles and permissions" };
-    static Delete  = { name: "rbac.delete",  description: "Delete roles and permissions" };
+  public static Role = class {
+    static Read    = { Name: "role.read",    Description: "Read all roles and permissions" };
+    static Create  = { Name: "role.create",  Description: "Create roles and permissions" };
+    static Update  = { Name: "role.update",  Description: "Update existing roles and permissions" };
+    static Delete  = { Name: "role.delete",  Description: "Delete roles and permissions" };
   };
 
   public static async GetUserRoles(user_id : number , schema_name : string) : Promise<string[]>{

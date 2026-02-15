@@ -138,7 +138,6 @@ export class UserRepository {
           data: {
             userId: newUser.id,
             position: staff.position!,
-            cvPath: staff.cv,
             hireDate: new Date(staff.hireDate),
             salary: staff.salary,
           },

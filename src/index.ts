@@ -2,15 +2,14 @@ import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
 import SuperAdminRoutes from "./Routes/SuperAdminRoutes";
-import TenantRoutes from "./Routes/TenantRoutes";
 import UniversityRoutes from "./Routes/UniversityRoutes";
 import UserRoutes from "./Routes/UserRoutes";
 import RBACRoutes from "./Routes/RBACRoutes";
-import { TenantResolver } from "./Middlewares/TenantResolver";
 import JSendStatus from "./Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import swaggerUi from "swagger-ui-express";
 import { SwaggerSpec } from "./Utils/SwaggerConfig";
+import multer from "multer";
 
 dotenv.config();
 
@@ -39,9 +38,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// TENANT RESOLVER - Must come before route handlers
-app.use(TenantResolver);
-
 // ==================== ROOT ROUTE ====================
 
 // Root health check
@@ -59,9 +55,6 @@ app.get('/', (req, res) => {
 // SuperAdmin Routes
 app.use('/api/superadmin', SuperAdminRoutes);
 
-// Tenant Management Routes (SuperAdmin only)
-app.use('/api/tenant', TenantRoutes);
-
 // University Routes
 app.use('/api/university', UniversityRoutes);
 
@@ -78,6 +71,7 @@ if (process.env.NODE_ENV?.toLowerCase() === "development") {
     console.log('Swagger docs available at http://localhost:3000/api-docs');
 }
 
+
 // ==================== 404 HANDLER ====================
 
 app.all(/.*/, (req, res) => {
@@ -90,6 +84,18 @@ app.all(/.*/, (req, res) => {
             hint: "Ensure route is prefixed with /api (e.g., /api/user instead of /user)"
         }
     });
+});
+
+// ==================== Multer-specific error handler ====================
+
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err instanceof multer.MulterError || err.message?.includes("PDF")) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+        status: JSendStatus.FAIL,
+        message: err.message,
+        });
+    }
+    next(err);
 });
 
 // ==================== ERROR HANDLER ====================

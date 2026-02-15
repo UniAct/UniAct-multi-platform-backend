@@ -9,11 +9,12 @@ import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
 import SuperAdminRepository from "../Repositories/SuperAdminRepository";
 import { User } from "../generated/tenants/alexandria_national_university";
-
+import {Prisma} from "../generated/public";
+import {Prisma as TenantPrisma} from "../generated/tenants/alexandria_national_university";
 class SuperAdminController {
   public static async Register(req: Request, res: Response) {
     try {
-      const { username, email, password }: { username: string; email: string; password: string } = req.body;
+      const { username, email, password } : Prisma.SuperAdminCreateInput = req.body;
       
       await SuperAdminService.CreateSuperAdmin(username, email, password);
 
@@ -192,43 +193,41 @@ class SuperAdminController {
 
   public static async AssignRootAccount(req: Request, res: Response) {
     try {
+      const schema = req.db_schema;
       const {
-        university_name,
         username,
-        first_name,
-        last_name,
+        firstName,
+        lastName,
         email,
         password,
         phone,
-        date_of_birth,
+        dateOfBirth,
         address,
         city,
         country,
-        national_id,
-      } = req.body;
+        nationalId,
+      } : TenantPrisma.UserCreateInput = req.body;
 
       const hashed_password = await bcrypt.hash(password, 10);
 
       const user: Partial<User> = {
         username,
-        firstName: first_name,
-        lastName: last_name,
+        firstName,
+        lastName,
         email,
         password: hashed_password,
         phone,
-        dateOfBirth: new Date(date_of_birth),
+        dateOfBirth: new Date(dateOfBirth),
         address,
         city,
         country,
-        nationalId: national_id,
+        nationalId,
       };
 
-      const result = await SuperAdminRepository.AssignRootAccount(
-        university_name,
+      await SuperAdminService.AssignRootAccount(
+        schema!,
         user
       );
-
-      await MailService.SendVerificationRootAccountMail(email , university_name);
 
       res.status(StatusCodes.CREATED).json({
         status: JSendStatus.SUCCESS,

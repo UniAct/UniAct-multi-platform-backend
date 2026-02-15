@@ -121,30 +121,13 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.TenantScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  subdomain: 'subdomain',
-  db_schema: 'db_schema',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  is_active: 'is_active',
-  university_id: 'university_id'
-};
-
 exports.Prisma.SuperAdminScalarFieldEnum = {
   id: 'id',
   username: 'username',
   email: 'email',
   password: 'password',
-  created_at: 'created_at',
-  is_active: 'is_active'
-};
-
-exports.Prisma.SuperAdminTenantScalarFieldEnum = {
-  tenant_id: 'tenant_id',
-  super_admin_id: 'super_admin_id',
-  assigned_at: 'assigned_at'
+  is_active: 'is_active',
+  created_at: 'created_at'
 };
 
 exports.Prisma.UniversityScalarFieldEnum = {
@@ -156,6 +139,8 @@ exports.Prisma.UniversityScalarFieldEnum = {
   website: 'website',
   established_date: 'established_date',
   accreditation: 'accreditation',
+  db_schema: 'db_schema',
+  is_active: 'is_active',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -177,9 +162,7 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  Tenant: 'Tenant',
   SuperAdmin: 'SuperAdmin',
-  SuperAdminTenant: 'SuperAdminTenant',
   University: 'University'
 };
 

@@ -7,9 +7,9 @@ export class RBACController {
   public static async CreateRole(req: Request, res: Response) {
     try {
       const { name, description }: { name: string; description: string } = req.body;
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const role = await RBACService.CreateRole(name, description, tenant?.schema_name!);
+      const role = await RBACService.CreateRole(name, description, tenant!);
 
       res.status(StatusCodes.CREATED).json({
         status: JSendStatus.SUCCESS,
@@ -34,9 +34,9 @@ export class RBACController {
   public static async GetRole(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const role = await RBACService.GetRole(id, tenant?.schema_name!);
+      const role = await RBACService.GetRole(id, tenant!);
 
       if (!role) {
         return res.status(StatusCodes.NOT_FOUND).json({
@@ -59,9 +59,9 @@ export class RBACController {
 
   public static async GetAllRole(req: Request, res: Response) {
     try {
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const roles = await RBACService.GetAllRole(tenant?.schema_name!);
+      const roles = await RBACService.GetAllRole(tenant!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -79,9 +79,9 @@ export class RBACController {
     try {
       const id = Number(req.params.id);
       const { name, description }: { name: string; description: string } = req.body;
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const updatedRole = await RBACService.UpdateRole(id, name, description, tenant?.schema_name!);
+      const updatedRole = await RBACService.UpdateRole(id, name, description, tenant!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -106,9 +106,9 @@ export class RBACController {
   public static async DeleteRole(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const deletedRole = await RBACService.DeleteRole(id, tenant?.schema_name!);
+      const deletedRole = await RBACService.DeleteRole(id, tenant!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -132,9 +132,9 @@ export class RBACController {
 
   public static async ReadPermissions(req: Request, res: Response) {
     try {
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const permissions = await RBACService.GetAllPermissions(tenant?.schema_name!);
+      const permissions = await RBACService.GetAllPermissions(tenant!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -152,9 +152,9 @@ export class RBACController {
   public static async ReadPermissionsById(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
-      const permission = await RBACService.GetPermissionById(id, tenant?.schema_name!);
+      const permission = await RBACService.GetPermissionById(id, tenant!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -172,12 +172,12 @@ export class RBACController {
     try {
       const role_id = Number(req.params.id);
       const { permissions }: { permissions: string[] } = req.body;
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
 
       const updatedRole = await RBACService.AssignPermissionsToRole(
         role_id,
         permissions,
-        tenant?.schema_name!
+        tenant!
       );
 
       res.status(StatusCodes.OK).json({
@@ -195,14 +195,14 @@ export class RBACController {
 
   public static async AssignRoleToUser(req: Request, res: Response) {
     try {
-      const tenant = req.tenant;
+      const tenant = req.db_schema;
       const { id } = req.params;
       const { role_names } = req.body; 
 
       const result = await RBACService.AssignRoleToUser(
         parseInt(id),
         role_names,
-        tenant?.schema_name!
+        tenant!
       );
 
       return res.status(StatusCodes.OK).json({

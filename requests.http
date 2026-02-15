@@ -12,33 +12,29 @@ Content-Type: application/json
 
 
 ### Create Staff Account (with file upload)
-POST {{baseUrl}}/user/account/staff
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-Host: www.anu.local
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidGVuYW50X25hbWUiOiJhbGV4YW5kcmlhIG5hdGlvbmFsIHVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwicm9sZS5yZWFkIiwicm9sZS51cGRhdGUiLCJyb2xlLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsImFjY291bnQuYXNzaWduX3JvbGUiXSwiaWF0IjoxNzcxMTY3OTkyLCJleHAiOjE3NzEyNTQzOTJ9.ZlfUzkRXO8fbFPSTQuTiB3cZXth7Fpy1IdGhWj3OpEo
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="data"
+POST {{baseUrl}}/api/user/account/staff
 Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Tenant-Id: Alexandria National University
 
 {
-  "username": "mark_staff",
-  "first_name": "Mark",
-  "last_name": "Magdy",
-  "email": "markcython123@example.com",
+  "username": "ahmed_salem",
+  "first_name": "Ahmed",
+  "last_name": "Salem",
+  "email": "ahmed.salem@example.com",
   "password": "aaAA11!!",
-  "phone": "01234567890",
-  "date_of_birth": "1998-06-25",
-  "address": "123 Main St",
-  "city": "Cairo",
+  "phone": "+201112223344",
+  "date_of_birth": "1995-11-20",
+  "address": "45 El Nasr Road",
+  "city": "Alexandria",
   "country": "Egypt",
-  "national_id": "29806251234567",
-  "position": "HR Assistant",
-  "hireDate": "2023-05-01",
-  "salary": 12000.0
+  "national_id": "29511204567891",
+  "position": "HR Specialist",
+  "hireDate": "2024-09-15",
+  "salary": "9200.00"
 }
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="cv"; filename="Mark_Magdy_Ayoub.pdf"
-Content-Type: application/pdf
 
-< D:/cv/Mark_Magdy_Ayoub.pdf
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+

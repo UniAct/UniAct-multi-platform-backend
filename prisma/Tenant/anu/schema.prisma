@@ -1,12 +1,12 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../../../src/generated/tenants/alexandria_national_university"
+  output = "../../../src/generated/tenants/anu"
 }
 
 datasource db {
   provider = "postgresql"
-  url = env("ALEXANDRIA_NATIONAL_UNIVERSITY_SCHEMA_URL")
+  url = env("ANU_SCHEMA_URL")
 }
 
 // ============================================================================================================

@@ -77,7 +77,7 @@ export class SchemaManager {
 
             // Copy migrations from alexandria_national_university template
             try {
-                const source_migrations_path = path.join(__dirname, './../../prisma/Tenant/alexandria_national_university/migrations');
+                const source_migrations_path = path.join(__dirname, './../../prisma/Template/migrations');
                 const dest_migrations_path = path.join(tenant_folder, 'migrations');
                 
                 await cp(source_migrations_path, dest_migrations_path, { recursive: true });

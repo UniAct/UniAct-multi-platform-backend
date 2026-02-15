@@ -3,12 +3,14 @@ import { UniversityService } from "../Services/UniversityService";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import { University } from "../generated/public";
-
+import { Prisma } from "../generated/public";
+import { Pool } from "pg";
+import { SchemaManager } from "../Utils/SchemaManager";
 class UniversityController {
 
   public static async Create(req: Request, res: Response) {
     try {
-      const {
+      let {
         name,
         address,
         phone,
@@ -16,15 +18,8 @@ class UniversityController {
         website,
         established_date,
         accreditation,
-      }: {
-        name: string;
-        address?: string;
-        phone?: string;
-        email?: string;
-        website?: string;
-        established_date?: string;
-        accreditation?: string;
-      } = req.body;
+        db_schema
+      }: Prisma.UniversityCreateInput= req.body;
 
       const university = await UniversityService.Create({
         name,
@@ -34,6 +29,8 @@ class UniversityController {
         website,
         established_date: established_date ? new Date(established_date) : undefined,
         accreditation,
+        db_schema,  
+        is_active: true
       });
 
       res.status(StatusCodes.CREATED).json({
@@ -113,24 +110,88 @@ class UniversityController {
       });
     }
   }
-
-  public static async AssignTenant(req: Request, res: Response) {
+  public static async Activate(req: Request, res: Response) {
     try {
-      const { tenant_id, university_id } = req.body;
-      const tenant = await UniversityService.AssignUniversityToTenant(tenant_id, university_id);
+      const id = parseInt(req.params.id);
 
-      res.status(StatusCodes.OK).json({
+      const university = await UniversityService.Activate(id);
+
+      return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
-        data: tenant,
-        message: `Tenant assigned to university successfully.`,
+        data: university,
+        message: "University activated successfully!",
       });
     } catch (err: any) {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        status: JSendStatus.FAIL,
-        data: { message: err.message },
+      if (err.message.includes("does not exist")) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: JSendStatus.FAIL,
+          data: { message: err.message },
+        });
+      }
+
+      if (err.message.includes("already active")) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          status: JSendStatus.FAIL,
+          data: { message: err.message },
+        });
+      }
+
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: JSendStatus.ERROR,
+        message: err.message || "Internal Server Error",
       });
     }
   }
+
+
+  public static async Deactivate(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id);
+
+      const university = await UniversityService.Deactivate(id);
+
+      return res.status(StatusCodes.OK).json({
+        status: JSendStatus.SUCCESS,
+        data: university,
+        message: "University deactivated successfully!",
+      });
+    } catch (err: any) {
+      if (err.message.includes("does not exist")) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: JSendStatus.FAIL,
+          data: { message: err.message },
+        });
+      }
+
+      if (err.message.includes("already inactive")) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          status: JSendStatus.FAIL,
+          data: { message: err.message },
+        });
+      }
+
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: JSendStatus.ERROR,
+        message: err.message || "Internal Server Error",
+      });
+    }
+  }
+
+  public static async List(req: Request, res: Response) {
+    try {
+      const universities = await UniversityService.ListNames();
+      return res.status(StatusCodes.OK).json({
+        status: JSendStatus.SUCCESS,
+        data: universities,
+      });
+    } catch (err: any) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        status: JSendStatus.ERROR,
+        message: err.message || "Internal Server Error",
+      });
+    }
+  }
+
 }
 
 export default UniversityController;

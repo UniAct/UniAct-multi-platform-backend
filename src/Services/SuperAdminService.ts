@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 import SuperAdminRepository from "../Repositories/SuperAdminRepository";
-import { SuperAdmin } from "../generated/public";
+import { SuperAdmin, University } from "../generated/public";
+import { User } from "../generated/tenants/alexandria_national_university";
+import { TransactionService } from "./Transaction";
+import { MailService } from "./MailService/MailService";
+import { UniversityRepository } from "../Repositories/UniversityRepository";
 
 class SuperAdminService {
   public static async CreateSuperAdmin(
@@ -45,6 +49,25 @@ class SuperAdminService {
     const root_account = await SuperAdminRepository.ActivateRootAccount(email , university_name);
     if (!root_account) throw new Error("Root Account Not Found");
     return root_account;
+  }
+
+  public static async AssignRootAccount(db_schema: string,user: Partial<User>){
+    try {
+      const root_account = await TransactionService.CreateRootAccount(
+        user,
+        db_schema
+      );
+
+      const university_name = await UniversityRepository.GetUniversityNameBySchema(db_schema)
+
+      await MailService.SendVerificationRootAccountMail(user.email! , university_name!);
+
+      return root_account;
+    } catch (err: any) {
+      console.error("Error Assigning Root Account:", err);
+      throw err;
+    }
+    
   }
 }
 

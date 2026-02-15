@@ -93,30 +93,13 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.TenantScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  subdomain: 'subdomain',
-  db_schema: 'db_schema',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  is_active: 'is_active',
-  university_id: 'university_id'
-};
-
 exports.Prisma.SuperAdminScalarFieldEnum = {
   id: 'id',
   username: 'username',
   email: 'email',
   password: 'password',
-  created_at: 'created_at',
-  is_active: 'is_active'
-};
-
-exports.Prisma.SuperAdminTenantScalarFieldEnum = {
-  tenant_id: 'tenant_id',
-  super_admin_id: 'super_admin_id',
-  assigned_at: 'assigned_at'
+  is_active: 'is_active',
+  created_at: 'created_at'
 };
 
 exports.Prisma.UniversityScalarFieldEnum = {
@@ -128,6 +111,8 @@ exports.Prisma.UniversityScalarFieldEnum = {
   website: 'website',
   established_date: 'established_date',
   accreditation: 'accreditation',
+  db_schema: 'db_schema',
+  is_active: 'is_active',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -149,9 +134,7 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  Tenant: 'Tenant',
   SuperAdmin: 'SuperAdmin',
-  SuperAdminTenant: 'SuperAdminTenant',
   University: 'University'
 };
 /**
@@ -165,7 +148,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\graduation_project\\clone\\web-backend\\src\\generated\\public",
+      "value": "D:\\graduation_project\\clone2\\web-backend\\src\\generated\\public",
       "fromEnvVar": null
     },
     "config": {
@@ -179,7 +162,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\graduation_project\\clone\\web-backend\\prisma\\Public\\schema.prisma",
+    "sourceFilePath": "D:\\graduation_project\\clone2\\web-backend\\prisma\\Public\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -201,13 +184,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../src/generated/public\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// TODO: move db_schema to University relation\nmodel Tenant {\n  id         Int      @id @default(autoincrement())\n  name       String\n  subdomain  String   @unique\n  db_schema  String   @unique\n  created_at DateTime @default(now())\n  updated_at DateTime @default(now())\n  is_active  Boolean  @default(false)\n\n  university_id Int?\n  university    University? @relation(fields: [university_id], references: [id], onDelete: SetNull)\n\n  superAdmins SuperAdminTenant[]\n}\n\nmodel SuperAdmin {\n  id         Int      @id @default(autoincrement())\n  username   String   @unique\n  email      String   @unique\n  password   String\n  created_at DateTime @default(now())\n  is_active  Boolean  @default(false)\n\n  tenants SuperAdminTenant[]\n\n  @@index([username], map: \"idx_superadmin_username\")\n  @@index([email], map: \"idx_superadmin_email\")\n}\n\nmodel SuperAdminTenant {\n  tenant_id      Int\n  super_admin_id Int\n  assigned_at    DateTime @default(now())\n\n  tenant     Tenant     @relation(fields: [tenant_id], references: [id], onDelete: Cascade)\n  superAdmin SuperAdmin @relation(fields: [super_admin_id], references: [id], onDelete: Cascade)\n\n  @@id([tenant_id, super_admin_id])\n  @@index([super_admin_id], map: \"idx_superadmintenant_superadmin\")\n}\n\nmodel University {\n  id               Int       @id @default(autoincrement())\n  name             String    @unique\n  address          String?\n  phone            String?\n  email            String?\n  website          String?\n  established_date DateTime?\n  accreditation    String?\n  created_at       DateTime  @default(now())\n  updated_at       DateTime  @default(now())\n\n  tenants Tenant[]\n}\n",
-  "inlineSchemaHash": "0254f401fae2afbd86ce94514e92d14d89005c877037b19fff6f764d3661d859",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../../src/generated/public\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel SuperAdmin {\n  id         Int      @id @default(autoincrement())\n  username   String   @unique\n  email      String   @unique\n  password   String\n  is_active  Boolean  @default(false)\n  created_at DateTime @default(now())\n\n  @@index([username], map: \"idx_superadmin_username\")\n  @@index([email], map: \"idx_superadmin_email\")\n}\n\nmodel University {\n  id               Int       @id @default(autoincrement())\n  name             String    @unique\n  address          String?\n  phone            String?\n  email            String?\n  website          String?\n  established_date DateTime?\n  accreditation    String?\n  db_schema        String    @unique\n  is_active        Boolean   @default(false)\n  created_at       DateTime  @default(now())\n  updated_at       DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "8d1e7e280ea17122c61e9cf5be8465eb32a0f52464b2e6f89bbe8dcd3375df06",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Tenant\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subdomain\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"db_schema\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"is_active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"university_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"university\",\"kind\":\"object\",\"type\":\"University\",\"relationName\":\"TenantToUniversity\"},{\"name\":\"superAdmins\",\"kind\":\"object\",\"type\":\"SuperAdminTenant\",\"relationName\":\"SuperAdminTenantToTenant\"}],\"dbName\":null},\"SuperAdmin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"is_active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"tenants\",\"kind\":\"object\",\"type\":\"SuperAdminTenant\",\"relationName\":\"SuperAdminToSuperAdminTenant\"}],\"dbName\":null},\"SuperAdminTenant\":{\"fields\":[{\"name\":\"tenant_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"super_admin_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"assigned_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"tenant\",\"kind\":\"object\",\"type\":\"Tenant\",\"relationName\":\"SuperAdminTenantToTenant\"},{\"name\":\"superAdmin\",\"kind\":\"object\",\"type\":\"SuperAdmin\",\"relationName\":\"SuperAdminToSuperAdminTenant\"}],\"dbName\":null},\"University\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"website\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"established_date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"accreditation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"tenants\",\"kind\":\"object\",\"type\":\"Tenant\",\"relationName\":\"TenantToUniversity\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"SuperAdmin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"University\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"website\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"established_date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"accreditation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"db_schema\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),
