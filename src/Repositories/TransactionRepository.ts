@@ -2,12 +2,12 @@ import { User } from "../generated/tenants/alexandria_national_university";
 import { SchemaManager } from "../Utils/SchemaManager";
 import SystemRoles from "../Enums/SystemRoles";
 import { RBACRepository } from "./RBACRepository";
+import { Prisma } from "../generated/tenants/alexandria_national_university";
 
 export class TransactionRepository {
   public static async CreateRootAccount(user: Partial<User>, schema_name: string): Promise<User> {
     const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-
-    return await tenant_schema.$transaction(async (tx : any) => {
+    return await tenant_schema.$transaction(async (tx : Prisma.TransactionClient) => {
 
       const existing_user = await tx.user.findFirst({
         where: {
@@ -21,10 +21,10 @@ export class TransactionRepository {
 
       if (existing_user) {
         throw new Error(
-          `User '${user.username}' or '${user.email}' or '${user.nationalId}' already exists in this university`
+          `Username or Email or NationalId already exists in this university`
         );
       }
-
+      console.log(user);
       const root_account = await tx.user.create({
         data: {
           username: user.username!,
@@ -56,12 +56,10 @@ export class TransactionRepository {
       }
 
       const default_permissions = [
-        //RBAC permissions
-        RBACRepository.RBAC.Create,
-        RBACRepository.RBAC.Read,
-        RBACRepository.RBAC.Update,
-        RBACRepository.RBAC.Delete,
-        //account permissions
+        RBACRepository.Role.Create,
+        RBACRepository.Role.Read,
+        RBACRepository.Role.Update,
+        RBACRepository.Role.Delete,
         RBACRepository.Account.Create,
         RBACRepository.Account.Read,
         RBACRepository.Account.Update,
@@ -81,13 +79,13 @@ export class TransactionRepository {
       ];
 
       for (const perm of default_permissions) {
-        let permission = await tx.permission.findUnique({ where: { name: perm.name } });
+        let permission = await tx.permission.findUnique({ where: { name: perm.Name } });
 
         if (!permission) {
           permission = await tx.permission.create({
             data: {
-              name: perm.name,
-              description: perm.description,
+              name: perm.Name,
+              description: perm.Description,
             },
           });
         }

@@ -1,9 +1,10 @@
 import { User } from "../generated/tenants/alexandria_national_university";
-import {PrismaClient , SuperAdmin, Tenant, University} from "../generated/public"
+import {PrismaClient , SuperAdmin, University} from "../generated/public"
 import { SchemaManager } from "../Utils/SchemaManager";
 import { UniversityService } from "../Services/UniversityService";
 import { TransactionService } from "../Services/Transaction";
-import { TenantRepository } from "./TenantRepository";
+import { UniversityRepository } from "./UniversityRepository";
+import { MailService } from "../Services/MailService/MailService";
 
 const public_schema = new PrismaClient();
 
@@ -94,25 +95,17 @@ class SuperAdminRepository {
   }
 
   public static async AssignRootAccount(
-    university_name: string,
+    db_schema: string,
     user: Partial<User>
   ) {
     try {
-      const university_with_tenants : University & { tenants: Tenant[] } 
-        = await UniversityService.GetWithTenants(university_name);
 
-      if (!university_with_tenants) throw new Error(`University '${university_name}' not found`);
-      if (!university_with_tenants.tenants || university_with_tenants.tenants.length === 0)
-        throw new Error(`No tenant schema found for university '${university_name}'`);
+      const root_account = await TransactionService.CreateRootAccount(
+        user,
+        db_schema
+      );
 
-      const FIRST_TENANT_SCHEMA = 0;
-      const tenant = university_with_tenants.tenants[FIRST_TENANT_SCHEMA];
-
-      const root_account = await TransactionService.CreateRootAccount(user , tenant.db_schema);
-
-      // Activate the tenant when root account is assigned
-      await TenantRepository.Activate(tenant.id);
-      console.log(`[INFO] Tenant ${tenant.name} activated after root account assignment`);
+      await MailService.SendVerificationRootAccountMail(user.email! , db_schema);
 
       return root_account;
     } catch (err: any) {
@@ -124,21 +117,15 @@ class SuperAdminRepository {
   public static async ActivateRootAccount(email: string, university_name: string) {
     try {
       const university = await public_schema.university.findUnique({
-        where: { name: university_name },
-        include: { tenants: true },
+        where: { name: university_name }
       });
 
       if (!university) 
         throw new Error(`University '${university_name}' not found`);
-      
 
-      const tenant = university.tenants[0];
+      const db_schema = university.db_schema;
 
-      if (!tenant) 
-        throw new Error(`No tenant found for university '${university_name}'`);
-      
-
-      const tenant_schema = SchemaManager.GetTenantPrismaClient(tenant.db_schema);
+      const tenant_schema = SchemaManager.GetTenantPrismaClient(db_schema);
 
       const root_account = await tenant_schema.user.update({
         where: { email },

@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, University, Tenant } from "../generated/public";
+import { Prisma, PrismaClient, University } from "../generated/public";
 const prisma = new PrismaClient();
 
 export class UniversityRepository {
@@ -18,23 +18,18 @@ export class UniversityRepository {
     });
   }
 
-  public static async GetByIdWithTenants(id: number): Promise<University | null> {
-    return await prisma.university.findUnique({
-      where: { id },
-      include: { tenants: true },
-    });
-  }
-
-  public static async GetByNameWithTenants(name: string) : Promise<(University & { tenants: Tenant[] }) | null> {
-    return await prisma.university.findUnique({
-      where: { name },
-      include: { tenants: true },
-    });
-  }
-
   public static async GetAll(): Promise<University[]> {
     return await prisma.university.findMany();
   }
+
+  public static async ListNames(): Promise<string[]> {
+    const universities = await prisma.university.findMany({
+      select: { name: true },
+    });
+
+    return universities.map(u => u.name);
+  }
+
 
   public static async Update(
     id: number,
@@ -52,23 +47,37 @@ export class UniversityRepository {
     });
   }
 
-  public static async GetTenants(universityId: number): Promise<Tenant[]> {
+  public static async GetBySchema(
+    db_schema: string
+  ): Promise<University | null> {
+    return await prisma.university.findUnique({
+      where: { db_schema },
+    });
+  }
+
+  public static async Activate(id: number): Promise<University> {
+    return await prisma.university.update({
+      where: { id },
+      data: { is_active: true },
+    });
+  }
+
+  public static async Deactivate(id: number): Promise<University> {
+    return await prisma.university.update({
+      where: { id },
+      data: { is_active: false },
+    });
+  }
+
+  public static async GetUniversityNameBySchema(
+    db_schema: string
+  ): Promise<string | null> {
     const university = await prisma.university.findUnique({
-      where: { id: universityId },
-      include: { tenants: true },
-    });
-    return university?.tenants ?? [];
-  }
-
-  public static async AssignTenant(
-    tenant_id: number,
-    university_id: number
-  ): Promise<Tenant> {
-    const updatedTenant = await prisma.tenant.update({
-      where: { id: tenant_id },
-      data: { university_id  , is_active: true},
+      where: { db_schema },
+      select: { name: true },
     });
 
-    return updatedTenant;
+    return university?.name ?? null;
   }
+
 }

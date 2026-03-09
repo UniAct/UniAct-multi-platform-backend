@@ -11,7 +11,7 @@ export interface IStaffAccount {
   country?: string;
   national_id: string;
   position?: string;
-  cv?: string; 
+  cv?: string | undefined; 
   hireDate: string | Date;
   salary?: number | string | null;
 }

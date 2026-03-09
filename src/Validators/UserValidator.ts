@@ -94,15 +94,6 @@ export default class UserValidator {
         .optional()
         .isDecimal({ decimal_digits: "0,2" })
         .withMessage("Salary must be a valid decimal number"),
-
-      body("cv")
-        .optional()
-        .custom((value, { req }) => {
-          if (req.file && req.file.mimetype !== "application/pdf") {
-            throw new Error("CV must be a PDF file");
-          }
-          return true;
-        }),
     ];
   }
 }

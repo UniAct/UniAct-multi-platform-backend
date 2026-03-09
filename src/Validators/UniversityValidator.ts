@@ -8,40 +8,53 @@ export default class UniversityValidator {
         .exists({ checkFalsy: true })
         .withMessage("University name is required.")
         .isString()
-        .withMessage("University name must be a string."),
+        .withMessage("University name must be a valid string."),
 
       body("address")
-        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Address is required.")
         .isString()
-        .withMessage("Address must be a string."),
+        .withMessage("Address must be a valid string."),
 
       body("phone")
-        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Phone number is required.")
         .isString()
-        .withMessage("Phone must be a string."),
+        .withMessage("Phone number must be a valid string."),
 
       body("email")
-        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Email address is required.")
         .isEmail()
-        .withMessage("Email must be a valid email address."),
+        .withMessage("Please provide a valid email address."),
 
       body("website")
-        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Website is required.")
         .isURL()
-        .withMessage("Website must be a valid URL."),
+        .withMessage("Please provide a valid website URL."),
 
       body("established_date")
-        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Established date is required.")
         .isISO8601()
-        .toDate()
-        .withMessage("Established date must be a valid date."),
+        .withMessage("Established date must be in ISO 8601 format (YYYY-MM-DD).")
+        .toDate(),
 
       body("accreditation")
-        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Accreditation is required.")
         .isString()
-        .withMessage("Accreditation must be a string."),
+        .withMessage("Accreditation must be a valid string."),
+
+      body("db_schema")
+        .exists({ checkFalsy: true })
+        .withMessage("Database schema is required.")
+        .isString()
+        .withMessage("Database schema must be a valid string."),
     ];
   }
+
 
   public static IdParam() {
     return [

@@ -1,27 +1,27 @@
 import { Prisma, PrismaClient } from "../generated/tenants/alexandria_national_university";
 
 const prisma = new PrismaClient();
-export class FacultyService{
+export class FacultyService {
 
-    static async CreateFaculty(FacultyData: Prisma.FacultyCreateInput){
-                
-        const newFaculty = await prisma.faculty.create({data:FacultyData});
+    static async CreateFaculty(FacultyData: Prisma.FacultyCreateInput) {
+
+        const newFaculty = await prisma.faculty.create({ data: FacultyData });
         console.log(`[INFO] Faculty created successfully: ${FacultyData.name}`)
         return newFaculty;
     }
 
-    static async GetAllFaculties(){
+    static async GetAllFaculties() {
         return await prisma.faculty.findMany();
     }
 
-    static async GetFacultyById(id:number){
+    static async GetFacultyById(id: number) {
 
-        const faculty = await prisma.faculty.findUniqueOrThrow({where:{id}});
+        const faculty = await prisma.faculty.findUniqueOrThrow({ where: { id } });
         return faculty;
     }
 
-    static async DeleteFaculty(id:number){
-       await prisma.faculty.delete({where:{id}});
+    static async DeleteFaculty(id: number) {
+        await prisma.faculty.delete({ where: { id } });
     }
 
 }

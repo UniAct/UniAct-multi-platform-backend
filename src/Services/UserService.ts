@@ -4,6 +4,10 @@ import { UserRepository } from "../Repositories/UserRepository";
 import { SchemaManager } from "../Utils/SchemaManager";
 import {IStaffAccount} from "../Interfaces/StaffAccount"
 import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
+import JSendStatus from "../Enums/Jsend";
+import { UniversityRepository } from "../Repositories/UniversityRepository";
+import JwtService from "../Utils/JwtService";
 export class UserService {
 
   public static async GetAllUsers(schema_name: string): Promise<User[]> {
@@ -126,5 +130,87 @@ export class UserService {
     );
 
     return createdStaff;
+  }
+
+  public static async Login(
+    email: string,
+    password: string,
+    db_schema: string,
+    tenant_name: string
+  ) {
+    const user = await this.GetUserByEmail(email, db_schema);
+    if (!user) {
+      return {
+        status: StatusCodes.UNAUTHORIZED,
+        body: {
+          status: JSendStatus.FAIL,
+          message: "Invalid email or password.",
+        },
+      };
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return {
+        status: StatusCodes.UNAUTHORIZED,
+        body: {
+          status: JSendStatus.FAIL,
+          message: "Invalid email or password.",
+        },
+      };
+    }
+
+    if (!user.isVerified) {
+      return {
+        status: StatusCodes.FORBIDDEN,
+        body: {
+          status: JSendStatus.FAIL,
+          data: {
+            message: "Your email has not been verified yet. Please check your inbox.",
+          },
+        },
+      };
+    }
+
+    const roles = await this.GetUserRoles(user.id, db_schema);
+    const permissions = await this.GetUserPermissions(user.id, db_schema);
+
+    if (!roles || roles.length === 0) {
+      console.warn(`[Security] Login attempt for user ${user.id} with no roles`);
+      return {
+        status: StatusCodes.FORBIDDEN,
+        body: {
+          status: JSendStatus.FAIL,
+          message: "User account has no roles assigned. Please contact administrator.",
+        },
+      };
+    }
+
+    const token = JwtService.Sign({
+      id: user.id,
+      email: user.email,
+      tenant_name: tenant_name,
+      roles,
+      permissions,
+    });
+
+    return {
+      status: StatusCodes.OK,
+      body: {
+        status: JSendStatus.SUCCESS,
+        message: "Login successful.",
+        data: {
+          token,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            roles,
+          },
+        },
+      },
+    };
   }
 }

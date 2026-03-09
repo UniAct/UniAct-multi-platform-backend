@@ -60,13 +60,6 @@ class SuperAdminValidator {
 
   public static AssignRootAccount() {
     return [
-      body("university_name")
-        .notEmpty()
-        .withMessage("University name is required")
-        .isString()
-        .withMessage("University name must be a string")
-        .trim(),
-
       body("username")
         .notEmpty()
         .withMessage("Username is required")
@@ -75,14 +68,14 @@ class SuperAdminValidator {
         .matches(/^[a-zA-Z0-9_-]+$/)
         .withMessage("Username can only contain letters, numbers, underscores, and hyphens"),
 
-      body("first_name")
+      body("firstName")
         .notEmpty()
         .withMessage("First name is required")
         .isLength({ min: 2, max: 100 })
         .withMessage("First name must be between 2 and 100 characters")
         .trim(),
 
-      body("last_name")
+      body("lastName")
         .notEmpty()
         .withMessage("Last name is required")
         .isLength({ min: 2, max: 100 })
@@ -116,7 +109,7 @@ class SuperAdminValidator {
         .isLength({ max: 15 })
         .withMessage("Phone number must not exceed 15 characters"),
 
-      body("date_of_birth")
+      body("dateOfBirth")
         .notEmpty()
         .withMessage("Date of birth is required")
         .isISO8601()
@@ -161,7 +154,7 @@ class SuperAdminValidator {
         .withMessage("Country must be between 2 and 100 characters")
         .trim(),
 
-      body("national_id")
+      body("nationalId")
         .notEmpty()
         .withMessage("National ID is required")
         .isLength({ min: 5, max: 50 })
