@@ -3,14 +3,19 @@ import { TenantResolver } from "../Middlewares/TenantResolver";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import ProgramController from "../Controllers/ProgramController";
+import ProgramValidator from "../Validators/ProgramValidator";
+import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
+import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
+import { RBACRepository } from "../Repositories/RBACRepository";
 const router = Router();
 
 
 router.post(
     "/create",
     IsAuthenticated,
-    IsSuperAdmin,
-    //TO DO : VALIDATION ON THE CREATE DATA
+    RequirePermission(RBACRepository.Program.Create.Name),
+    ...ProgramValidator.Create(),
+    ValidateRequest,
     ProgramController.CreateProgram
 )
 
@@ -18,15 +23,15 @@ router.get(
     "/",
     IsAuthenticated,
     TenantResolver,
-    IsSuperAdmin,
     ProgramController.GetAllPrograms
 )
 
 router.delete(
     "/:id",
     IsAuthenticated,
-    IsSuperAdmin,
-    //TO DO : VALIDATION ON THE SENT ID
+    RequirePermission(RBACRepository.Program.Delete.Name),
+    ...ProgramValidator.IdParam(),
+    ValidateRequest,
     ProgramController.Delete
 )
 

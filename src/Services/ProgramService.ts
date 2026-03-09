@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient,Program } from "../generated/tenants/alexandria_national_university";
+import { Prisma, PrismaClient } from "../generated/tenants/anu";
+import { NotFoundError } from "../Types/Errors";
 
 const prisma = new PrismaClient
 export class programService{
@@ -16,15 +17,22 @@ export class programService{
         return await prisma.program.findMany();
     }
 
+    static async GetProgramById(id:number){
+
+        const program = await prisma.program.findUnique({where:{id}});
+        if(!program){
+            throw new NotFoundError("This program doesn't exist");
+        }
+    }
+
     static async DeleteProgramById(id:number){
 
-        const program = await prisma.program.findUniqueOrThrow({ where:{id}});
-        
+        const program = await prisma.program.findUnique({ where:{id}});
+        if(!program){
+            throw new NotFoundError("This program doesn't exist");
+        }
         await prisma.program.delete({where:{id}});
         console.log(`[INFO] Program deleted ${program.name}` );
 
     }
-
-   
-
 }

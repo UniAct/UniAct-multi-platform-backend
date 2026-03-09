@@ -1,4 +1,4 @@
-import { User } from "../generated/tenants/alexandria_national_university";
+import { User } from "../generated/tenants/anu";
 import {PrismaClient , SuperAdmin, University} from "../generated/public"
 import { SchemaManager } from "../Utils/SchemaManager";
 import { UniversityService } from "../Services/UniversityService";

@@ -1,4 +1,4 @@
-import { User } from "../generated/tenants/alexandria_national_university";
+import { User } from "../generated/tenants/anu";
 import { TransactionRepository } from "../Repositories/TransactionRepository";
 import { SchemaManager } from "../Utils/SchemaManager";
 

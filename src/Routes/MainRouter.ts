@@ -1,6 +1,5 @@
 import { Router } from "express";
 import SuperAdminRoutes from "./SuperAdminRoutes";
-import TenantRoutes from "./TenantRoutes";
 import UniversityRoutes from "./UniversityRoutes";
 import UserRoutes from "./UserRoutes";
 import RBACRoutes from "./RBACRoutes";
@@ -12,10 +11,6 @@ const router = Router();
 
 // SuperAdmin Routes
 router.use('/superadmin', );
-
-// Tenant Management Routes (SuperAdmin only)
-router.use('/tenant', TenantRoutes);
-
 // University Routes
 // Youssef: i added these 2 middleware here instead of typing them in all of the routes inside
 router.use('/university', IsAuthenticated, IsSuperAdmin, UniversityRoutes);

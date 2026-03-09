@@ -1,4 +1,4 @@
-import { Prisma , User , Permission , Role} from "../generated/tenants/alexandria_national_university";
+import { Prisma , User , Permission , Role} from "../generated/tenants/anu";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { UserRepository } from "../Repositories/UserRepository";
 import { SchemaManager } from "../Utils/SchemaManager";

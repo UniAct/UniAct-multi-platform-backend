@@ -1,0 +1,34 @@
+import { Request, Response, NextFunction } from "express";
+import { Prisma } from "../generated/public";
+import { AppError } from "../Types/Errors";
+import JSendStatus from "../Enums/Jsend";
+import { handlePrismaError } from "../Utils/prismaErrorHandler";
+import { StatusCodes } from "http-status-codes";
+
+export function ErrorHandler(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+
+  // Custom application errors
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      status: JSendStatus.FAIL,
+      message: err.message,
+    });
+  }
+
+  // Prisma unique constraint
+  if (err instanceof Prisma.PrismaClientKnownRequestError){
+      handlePrismaError(err,res)
+  }
+
+  // fallback
+  console.error(err);
+   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      status: JSendStatus.ERROR,
+      message: err.message || "Internal Server Error",
+   });
+}

@@ -1,7 +1,7 @@
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { UserRepository } from "../Repositories/UserRepository";
 import { SchemaManager } from "../Utils/SchemaManager";
-import { Permission, Role } from "../generated/tenants/alexandria_national_university";
+import { Permission, Role } from "../generated/tenants/anu";
 
 export class RBACService {
   public static async CreateRole(name: string, description: string, schema_name: string): Promise<Role> {

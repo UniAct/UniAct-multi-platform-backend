@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import SuperAdminRepository from "../Repositories/SuperAdminRepository";
 import { SuperAdmin, University } from "../generated/public";
-import { User } from "../generated/tenants/alexandria_national_university";
+import { User } from "../generated/tenants/anu";
 import { TransactionService } from "./Transaction";
 import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";

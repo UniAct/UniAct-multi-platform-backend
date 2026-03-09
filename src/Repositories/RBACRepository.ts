@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { Role, Permission, RolePermission } from "../generated/tenants/alexandria_national_university";
+import { Role, Permission, RolePermission } from "../generated/tenants/anu";
 import { SchemaManager } from "../Utils/SchemaManager";
 
 
@@ -7,10 +7,10 @@ import { SchemaManager } from "../Utils/SchemaManager";
 
 function CRUD(resource: string) {
   return {
-    Create: { name: `${resource}.create`, description: `Create ${resource}` },
-    Read: { name: `${resource}.read`, description: `Read ${resource}` },
-    Update: { name: `${resource}.update`, description: `Update ${resource}` },
-    Delete: { name: `${resource}.delete`, description: `Delete ${resource}` },
+    Create: { Name: `${resource}.create`, description: `Create ${resource}` },
+    Read: { Name: `${resource}.read`, description: `Read ${resource}` },
+    Update: { Name: `${resource}.update`, description: `Update ${resource}` },
+    Delete: { Name: `${resource}.delete`, description: `Delete ${resource}` },
   };
 }
 

@@ -1,19 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
-import SuperAdminRoutes from "./Routes/SuperAdminRoutes";
-import UniversityRoutes from "./Routes/UniversityRoutes";
-import UserRoutes from "./Routes/UserRoutes";
-import RBACRoutes from "./Routes/RBACRoutes";
-import ProgramRoutes from "./Routes/ProgramRoutes";
-import { TenantResolver } from "./Middlewares/TenantResolver";
 import JSendStatus from "./Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import swaggerUi from "swagger-ui-express";
 import { SwaggerSpec } from "./Utils/SwaggerConfig";
 import MainRouter from "./Routes/MainRouter";
 import multer from "multer";
-
+import { ErrorHandler } from "./Middlewares/ErrorHandler";
 
 dotenv.config();
 
@@ -41,7 +35,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(ErrorHandler);
 // ==================== ROOT ROUTE ====================
 
 // Root health check

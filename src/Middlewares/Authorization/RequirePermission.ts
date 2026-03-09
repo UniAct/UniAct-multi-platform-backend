@@ -10,7 +10,7 @@ export const RequirePermission =
       if (!user?.id || !user.permissions?.includes(permission)) {
         return res.status(StatusCodes.FORBIDDEN).json({
           status: JSendStatus.FAIL,
-          data: { message: "Access denied" }, 
+          data: { message: "Access denied" },
         });
       }
 

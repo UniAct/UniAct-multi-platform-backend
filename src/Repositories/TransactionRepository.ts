@@ -1,8 +1,8 @@
-import { User } from "../generated/tenants/alexandria_national_university";
+import { User } from "../generated/tenants/anu";
 import { SchemaManager } from "../Utils/SchemaManager";
 import SystemRoles from "../Enums/SystemRoles";
 import { RBACRepository } from "./RBACRepository";
-import { Prisma } from "../generated/tenants/alexandria_national_university";
+import { Prisma } from "../generated/tenants/anu";
 
 export class TransactionRepository {
   public static async CreateRootAccount(user: Partial<User>, schema_name: string): Promise<User> {
