@@ -2,14 +2,13 @@ import { Request, Response } from "express";
 import { UserService } from "../Services/UserService";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { IStaffAccount } from "../Interfaces/StaffAccount";
 
 
 export class UserController {
   public static async Login(req: Request, res: Response) {
     try {
-      const db_schema = req.db_schema!;
+      const db_schema = req.schema_name!;
       const tenant_name = req.tenant_name!;
       const { email, password } = req.body;
 
@@ -31,7 +30,7 @@ export class UserController {
   //! TODO: Verify staff email
   public static async CreateStaffAccount(req: Request, res: Response) {
     try {
-      const db_schema = req.db_schema;
+      const db_schema = req.schema_name;
       const data : IStaffAccount = req.body;
 
       const result = await UserService.CreateStaffAccount(

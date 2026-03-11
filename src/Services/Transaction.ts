@@ -1,9 +1,13 @@
-import { User } from "../generated/tenants/anu";
+
+import { Prisma } from "@prisma/client";
 import { TransactionRepository } from "../Repositories/TransactionRepository";
-import { SchemaManager } from "../Utils/SchemaManager";
+import { getTenantClient } from "../Utils/prismaClient";
+
 
 export class TransactionService {
-  public static async CreateRootAccount(user : Partial<User> , schema_name : string) : Promise<User>{
-    return await TransactionRepository.CreateRootAccount(user , schema_name);
+  public static async CreateRootAccount(user : Prisma.UserCreateInput , schema_name : string){
+    
+    const prisma = getTenantClient(schema_name)
+    return await TransactionRepository.CreateRootAccount(user , prisma);
   }   
 }

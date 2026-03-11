@@ -1,18 +1,22 @@
 import bcrypt from "bcrypt";
 import SuperAdminRepository from "../Repositories/SuperAdminRepository";
-import { SuperAdmin, University } from "../generated/public";
-import { User } from "../generated/tenants/anu";
+import {Prisma } from "@prisma/client"
+import { SuperAdmin } from "@prisma/client"
 import { TransactionService } from "./Transaction";
 import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
+import { getTenantClient } from "../Utils/prismaClient";
 
 class SuperAdminService {
   public static async CreateSuperAdmin(
     username: string,
     email: string,
-    password: string
+    password: string,
+    schema_name:string
   ): Promise<SuperAdmin> {
-    const existing = await SuperAdminRepository.IsExists(username , email);
+
+    const prisma = getTenantClient(schema_name);
+    const existing = await SuperAdminRepository.IsExists(username , email, prisma);
     if (existing) 
       throw new Error("Email or Username already exist");
 
@@ -21,44 +25,56 @@ class SuperAdminService {
     return await SuperAdminRepository.Create(
       username,
       email,
-      hashedPassword
+      hashedPassword,
+      prisma
     );
   }
 
-  public static async GetSuperAdminByEmail(email : string) : Promise<SuperAdmin | null> {
-    return await SuperAdminRepository.FindByEmail(email);
+  public static async GetSuperAdminByEmail(email : string,schema_name:string) : Promise<SuperAdmin | null> {
+
+    const prisma = getTenantClient(schema_name);
+    return await SuperAdminRepository.FindByEmail(email,prisma);
   }
 
-  public static async GetAllSuperAdmins(): Promise<SuperAdmin[]> {
-    return await SuperAdminRepository.GetAllSuperAdmins();
+  public static async GetAllSuperAdmins(schema_name:string): Promise<SuperAdmin[]> {
+
+    const prisma = getTenantClient(schema_name);
+    return await SuperAdminRepository.GetAllSuperAdmins(prisma);
   }
 
-  public static async ActivateSuperAdmin(email: string): Promise<SuperAdmin> {
-    const admin = await SuperAdminRepository.ActivateSuperAdmin(email);
+  public static async ActivateSuperAdmin(email: string, schema_name:string): Promise<SuperAdmin> {
+
+    const prisma = getTenantClient(schema_name);
+    const admin = await SuperAdminRepository.ActivateSuperAdmin(email,prisma);
     if (!admin) throw new Error("SuperAdmin Not Found");
     return admin;
   }
 
-  public static async DeleteSuperAdmin(username: string): Promise<SuperAdmin> {
-    const admin = await SuperAdminRepository.DeleteSuperAdmin(username);
+  public static async DeleteSuperAdmin(username: string,schema_name:string): Promise<SuperAdmin> {
+
+    const prisma = getTenantClient(schema_name);
+    const admin = await SuperAdminRepository.DeleteSuperAdmin(username,prisma);
     if (!admin) throw new Error("SuperAdmin Not Found");
     return admin;
   }
 
-  public static async ActivateRootAccount(email : string , university_name : string){
-    const root_account = await SuperAdminRepository.ActivateRootAccount(email , university_name);
+  public static async ActivateRootAccount(email : string , university_name : string, schema_name:string){
+
+    const prisma = getTenantClient(schema_name);
+    const root_account = await SuperAdminRepository.ActivateRootAccount(email , university_name, prisma);
     if (!root_account) throw new Error("Root Account Not Found");
     return root_account;
   }
 
-  public static async AssignRootAccount(db_schema: string,user: Partial<User>){
+  public static async AssignRootAccount(schema_name: string,user: Prisma.UserCreateInput){
     try {
       const root_account = await TransactionService.CreateRootAccount(
         user,
-        db_schema
+        schema_name
       );
 
-      const university_name = await UniversityRepository.GetUniversityNameBySchema(db_schema)
+      const prisma = getTenantClient(schema_name);
+      const university_name = await UniversityRepository.GetUniversityNameBySchema(schema_name,prisma)
 
       await MailService.SendVerificationRootAccountMail(user.email! , university_name!);
 

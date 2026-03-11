@@ -1,22 +1,20 @@
 import { Request, Response } from "express";
 import SuperAdminService from "../Services/SuperAdminService";
 import JSendStatus from "../Enums/Jsend";
-import { SuperAdmin } from "../generated/public";
+import { SuperAdmin,Prisma } from "@prisma/client";
+import { Prisma as templatePrisma } from "@prisma/client";
 import { MailService } from "../Services/MailService/MailService";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
-import SuperAdminRepository from "../Repositories/SuperAdminRepository";
-import { User } from "../generated/tenants/alexandria_national_university";
-import {Prisma} from "../generated/public";
-import {Prisma as TenantPrisma} from "../generated/tenants/alexandria_national_university";
+
 class SuperAdminController {
   public static async Register(req: Request, res: Response) {
     try {
       const { username, email, password } : Prisma.SuperAdminCreateInput = req.body;
       
-      await SuperAdminService.CreateSuperAdmin(username, email, password);
+      await SuperAdminService.CreateSuperAdmin(username, email, password, req.schema_name!);
 
       await MailService.SendVerificationSuperAdminMail(email);
 
@@ -41,7 +39,7 @@ class SuperAdminController {
 
   public static async GetAll(req: Request, res: Response) {
     try {
-      const admins : SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins();
+      const admins : SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(req.schema_name!);
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
         data: admins,
@@ -65,7 +63,7 @@ class SuperAdminController {
         });
       }
 
-      const admin = await SuperAdminService.ActivateSuperAdmin(email);
+      const admin = await SuperAdminService.ActivateSuperAdmin(email, req.schema_name!);
 
       // TODO: Return HTML Page Instead Of Json
       res.status(StatusCodes.OK).json({
@@ -93,7 +91,7 @@ class SuperAdminController {
       const university_name = req.user?.university_name;
       const token = req.params.token;
 
-      await SuperAdminService.ActivateRootAccount(email! , university_name!);
+      await SuperAdminService.ActivateRootAccount(email! , university_name!,req.schema_name!);
 
       // Redirect to frontend verification page with success
       const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -110,7 +108,7 @@ class SuperAdminController {
   public static async Login(req : Request , res : Response){
     try{
       const {email , password} : {email : string , password : string} = req.body;
-      const admin = await SuperAdminService.GetSuperAdminByEmail(email);
+      const admin = await SuperAdminService.GetSuperAdminByEmail(email,req.schema_name!);
       if (!admin) {
         return res.status(StatusCodes.NOT_FOUND).json({
           status: JSendStatus.FAIL,
@@ -170,7 +168,7 @@ class SuperAdminController {
   public static async Delete(req: Request, res: Response) {
     try {
       const { username } = req.params;
-      const admin = await SuperAdminService.DeleteSuperAdmin(username);
+      const admin = await SuperAdminService.DeleteSuperAdmin(username,req.schema_name!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -193,7 +191,7 @@ class SuperAdminController {
 
   public static async AssignRootAccount(req: Request, res: Response) {
     try {
-      const schema = req.db_schema;
+      const schema = req.schema_name;
       const {
         username,
         firstName,
@@ -206,11 +204,11 @@ class SuperAdminController {
         city,
         country,
         nationalId,
-      } : TenantPrisma.UserCreateInput = req.body;
+      } : templatePrisma.UserCreateInput = req.body;
 
       const hashed_password = await bcrypt.hash(password, 10);
 
-      const user: Partial<User> = {
+      const user: templatePrisma.UserCreateInput = {
         username,
         firstName,
         lastName,

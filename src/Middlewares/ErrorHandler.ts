@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Prisma } from "../generated/public";
+import { Prisma } from "@prisma/client";
 import { AppError } from "../Types/Errors";
 import JSendStatus from "../Enums/Jsend";
 import { handlePrismaError } from "../Utils/prismaErrorHandler";

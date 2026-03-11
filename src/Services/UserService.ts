@@ -1,18 +1,19 @@
-import { Prisma , User , Permission , Role} from "../generated/tenants/anu";
+import { User } from "@prisma/client";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { UserRepository } from "../Repositories/UserRepository";
-import { SchemaManager } from "../Utils/SchemaManager";
 import {IStaffAccount} from "../Interfaces/StaffAccount"
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
-import { UniversityRepository } from "../Repositories/UniversityRepository";
 import JwtService from "../Utils/JwtService";
+import { getTenantClient } from "../Utils/prismaClient";
+
 export class UserService {
 
   public static async GetAllUsers(schema_name: string): Promise<User[]> {
     try {
-      const users = await UserRepository.GetAllUsers(schema_name);
+      const prisma = getTenantClient(schema_name);
+      const users = await UserRepository.GetAllUsers(prisma);
       return users;
     } catch (err: any) {
       console.error("Error fetching users:", err.message);
@@ -22,7 +23,8 @@ export class UserService {
 
   public static async GetUserById(id: number, schema_name: string): Promise<User> {
     try {
-      const user = await UserRepository.GetUserById(id, schema_name);
+      const prisma = getTenantClient(schema_name);
+      const user = await UserRepository.GetUserById(id, prisma);
       if (!user) {
         throw new Error(`User with ID ${id} not found.`);
       }
@@ -38,7 +40,8 @@ export class UserService {
     schema_name: string
   ): Promise<User | null> {
     try {
-      const existingUser = await UserRepository.GetUserByFields(user, schema_name);
+      const prisma = getTenantClient(schema_name);
+      const existingUser = await UserRepository.GetUserByUniqueFields(user, prisma);
 
       if (!existingUser) {
         console.warn(
@@ -59,7 +62,8 @@ export class UserService {
 
   public static async GetUserByEmail(email: string, schema_name: string): Promise<User | null> {
     try {
-      const user: User | null = await UserRepository.GetUserByEmail(email, schema_name);
+      const prisma = getTenantClient(schema_name);
+      const user: User | null = await UserRepository.GetUserByEmail(email, prisma);
       if (!user) {
         console.warn(`[WARN] No user found with email '${email}' in schema '${schema_name}'`);
         return null;
@@ -75,7 +79,8 @@ export class UserService {
 
   public static async UpdateUser(id: number, updateData: Partial<User>, schema_name: string): Promise<User> {
     try {
-      const updatedUser = await UserRepository.UpdateUser(id, updateData, schema_name);
+      const prisma = getTenantClient(schema_name);
+      const updatedUser = await UserRepository.UpdateUser(id, updateData, prisma);
       return updatedUser;
     } catch (err: any) {
       console.error("Error updating user:", err.message);
@@ -85,7 +90,8 @@ export class UserService {
 
   public static async DeleteUser(id: number, schema_name: string): Promise<User> {
     try {
-      const deletedUser = await UserRepository.DeleteUser(id, schema_name);
+      const prisma = getTenantClient(schema_name);
+      const deletedUser = await UserRepository.DeleteUser(id, prisma);
       return deletedUser;
     } catch (err: any) {
       console.error("Error deleting user:", err.message);
@@ -97,7 +103,9 @@ export class UserService {
     user_id: number,
     schema_name: string
   ): Promise<string[]> {
-    const roles = await RBACRepository.GetUserRoles(user_id , schema_name);
+
+    const prisma = getTenantClient(schema_name);
+    const roles = await RBACRepository.GetUserRoles(user_id , prisma);
     return roles;
   }
 
@@ -105,18 +113,20 @@ export class UserService {
     user_id: number,
     schema_name: string
   ): Promise<string[]> {
-    const permissions = await RBACRepository.GetUserPermissions(user_id , schema_name);
+    const prisma = getTenantClient(schema_name);
+    const permissions = await RBACRepository.GetUserPermissions(user_id , prisma);
     return permissions;
   }
 
   public static async CreateStaffAccount(staff: IStaffAccount , schema_name: string) {
+    const prisma = getTenantClient(schema_name);
     const username = staff.username;
     const email = staff.email;
     const nationalId = staff.national_id;
 
-    const existing = await UserRepository.GetStaffByFields(
+    const existing = await UserRepository.GetUserByUniqueFields(
       { username, email, nationalId },
-      schema_name
+      prisma
     );
 
     if (existing)
@@ -126,7 +136,7 @@ export class UserService {
 
     const createdStaff = await UserRepository.CreateStaffAccount(
       { ...staff, password: hashed_password }, 
-      schema_name
+      prisma
     );
 
     return createdStaff;

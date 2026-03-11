@@ -5,11 +5,13 @@ import FacultyValidator from "../Validators/FacultyVaildator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
+import { TenantResolver } from "../Middlewares/TenantResolver";
 
 const router = Router();
 //Create Faculty
 router.post(
     "/",
+    TenantResolver,
     IsAuthenticated,
     RequirePermission(RBACRepository.Faculty.Create.Name),
 
@@ -17,15 +19,15 @@ router.post(
     ...FacultyValidator.Create(),
     ValidateRequest,
     //
-
      FacultyController.CreateFaculty
 );
 
 //Get All Faculties
-router.get("/", FacultyController.GetAllFaculties),
+router.get("/",TenantResolver, FacultyController.GetAllFaculties),
 
 //Get Faculty By Id
 router.get("/:id",
+    TenantResolver,
     ...FacultyValidator.IdParam(),
     ValidateRequest,
     FacultyController.GetFacultyById
@@ -33,6 +35,7 @@ router.get("/:id",
 
 //Delete a faculty
 router.delete("/:id",
+    TenantResolver,
     IsAuthenticated,
     RequirePermission(RBACRepository.Faculty.Delete.Name),
     ...FacultyValidator.IdParam(),

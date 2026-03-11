@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
+import { getTenantClient } from "../Utils/prismaClient";
 
 const TENANT_HEADER = "x-tenant-id";
 
@@ -20,8 +21,8 @@ export async function TenantResolver(
         data: { message: "X-Tenant-Id header is required" },
       });
     }
-
-    const university = await UniversityRepository.GetByName(tenant);
+    const prisma = getTenantClient("public");
+    const university = await UniversityRepository.GetByName(tenant,prisma);
 
     if (!university) {
       return res.status(StatusCodes.NOT_FOUND).json({
@@ -40,7 +41,7 @@ export async function TenantResolver(
     }
 
     req.tenant_name = university.name;
-    req.db_schema = university.db_schema;
+    req.schema_name = university.db_schema;
     req.bucket_name = university.db_schema;
 
     next();

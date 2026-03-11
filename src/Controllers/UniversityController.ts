@@ -2,10 +2,8 @@ import { Request, Response } from "express";
 import { UniversityService } from "../Services/UniversityService";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
-import { University } from "../generated/public";
-import { Prisma } from "../generated/public";
-import { Pool } from "pg";
-import { SchemaManager } from "../Utils/SchemaManager";
+import { Prisma,PrismaClient,University } from "@prisma/client"
+
 class UniversityController {
 
   public static async Create(req: Request, res: Response) {
@@ -31,7 +29,7 @@ class UniversityController {
         accreditation,
         db_schema,  
         is_active: true
-      });
+      },req.schema_name!);
 
       res.status(StatusCodes.CREATED).json({
         status: JSendStatus.SUCCESS,
@@ -56,7 +54,7 @@ class UniversityController {
 
   public static async GetAll(req: Request, res: Response) {
     try {
-      const universities : University[] = await UniversityService.GetAll();
+      const universities : University[] = await UniversityService.GetAll(req.schema_name!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -73,7 +71,7 @@ class UniversityController {
   public static async GetById(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      const university = await UniversityService.GetById(id);
+      const university = await UniversityService.GetById(id, req.schema_name!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -90,7 +88,7 @@ class UniversityController {
   public static async Delete(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      const deletedUniversity = await UniversityService.DeleteUniversity(id);
+      const deletedUniversity = await UniversityService.DeleteUniversity(id, req.schema_name!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -114,7 +112,7 @@ class UniversityController {
     try {
       const id = parseInt(req.params.id);
 
-      const university = await UniversityService.Activate(id);
+      const university = await UniversityService.Activate(id, req.schema_name!);
 
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -148,7 +146,7 @@ class UniversityController {
     try {
       const id = parseInt(req.params.id);
 
-      const university = await UniversityService.Deactivate(id);
+      const university = await UniversityService.Deactivate(id, req.schema_name!);
 
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -179,7 +177,7 @@ class UniversityController {
 
   public static async List(req: Request, res: Response) {
     try {
-      const universities = await UniversityService.ListNames();
+      const universities = await UniversityService.ListNames(req.schema_name!);
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
         data: universities,

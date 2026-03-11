@@ -35,8 +35,8 @@ router.post(
 //! send email for verification
 router.post(
   "/account/staff",
-  IsAuthenticated,
   TenantResolver,
+  IsAuthenticated,
   RequirePermission(RBACRepository.Account.Create.Name),
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,

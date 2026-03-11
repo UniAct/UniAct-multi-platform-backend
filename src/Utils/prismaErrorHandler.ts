@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
-import { Prisma } from "../generated/public";
+import { Prisma } from "@prisma/client";
 import { ConflictError, NotFoundError } from "../Types/Errors";
 
 //this function is used to handle any catch part instead of handling each error individually in each catch statment 

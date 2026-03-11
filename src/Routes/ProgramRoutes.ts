@@ -12,6 +12,7 @@ const router = Router();
 
 router.post(
     "/create",
+    TenantResolver,
     IsAuthenticated,
     RequirePermission(RBACRepository.Program.Create.Name),
     ...ProgramValidator.Create(),
@@ -21,8 +22,8 @@ router.post(
 
 router.get(
     "/",
-    IsAuthenticated,
     TenantResolver,
+    IsAuthenticated,
     ProgramController.GetAllPrograms
 )
 

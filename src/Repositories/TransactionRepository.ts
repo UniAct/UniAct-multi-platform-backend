@@ -1,13 +1,11 @@
-import { User } from "../generated/tenants/anu";
-import { SchemaManager } from "../Utils/SchemaManager";
+import { User,Prisma, PrismaClient } from "@prisma/client";
 import SystemRoles from "../Enums/SystemRoles";
 import { RBACRepository } from "./RBACRepository";
-import { Prisma } from "../generated/tenants/anu";
 
 export class TransactionRepository {
-  public static async CreateRootAccount(user: Partial<User>, schema_name: string): Promise<User> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    return await tenant_schema.$transaction(async (tx : Prisma.TransactionClient) => {
+  public static async CreateRootAccount(user: Prisma.UserCreateInput, prisma: PrismaClient): Promise<User> {
+    
+    return await prisma.$transaction(async (tx : Prisma.TransactionClient) => {
 
       const existing_user = await tx.user.findFirst({
         where: {
