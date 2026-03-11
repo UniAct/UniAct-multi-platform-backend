@@ -29,7 +29,7 @@ class UniversityController {
         accreditation,
         db_schema,  
         is_active: true
-      },req.schema_name!);
+      });
 
       res.status(StatusCodes.CREATED).json({
         status: JSendStatus.SUCCESS,
@@ -54,7 +54,7 @@ class UniversityController {
 
   public static async GetAll(req: Request, res: Response) {
     try {
-      const universities : University[] = await UniversityService.GetAll(req.schema_name!);
+      const universities : University[] = await UniversityService.GetAll();
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -71,7 +71,7 @@ class UniversityController {
   public static async GetById(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      const university = await UniversityService.GetById(id, req.schema_name!);
+      const university = await UniversityService.GetById(id, );
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -88,7 +88,7 @@ class UniversityController {
   public static async Delete(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      const deletedUniversity = await UniversityService.DeleteUniversity(id, req.schema_name!);
+      const deletedUniversity = await UniversityService.DeleteUniversity(id, );
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -112,7 +112,7 @@ class UniversityController {
     try {
       const id = parseInt(req.params.id);
 
-      const university = await UniversityService.Activate(id, req.schema_name!);
+      const university = await UniversityService.Activate(id, );
 
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -146,7 +146,7 @@ class UniversityController {
     try {
       const id = parseInt(req.params.id);
 
-      const university = await UniversityService.Deactivate(id, req.schema_name!);
+      const university = await UniversityService.Deactivate(id);
 
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -177,7 +177,7 @@ class UniversityController {
 
   public static async List(req: Request, res: Response) {
     try {
-      const universities = await UniversityService.ListNames(req.schema_name!);
+      const universities = await UniversityService.ListNames();
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
         data: universities,
