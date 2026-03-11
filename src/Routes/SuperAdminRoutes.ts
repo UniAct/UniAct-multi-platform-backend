@@ -7,13 +7,11 @@ import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
-import { TenantResolver } from "../Middlewares/TenantResolver";
 
 const router: Router = Router();
 
 router.post(
   "/register",
-  TenantResolver,
   IsAuthenticated,
   IsSuperAdmin,
   ...SuperAdminValidator.CreateSuperAdmin(),
@@ -21,18 +19,18 @@ router.post(
   SuperAdminController.Register
 );
 
-router.get("/verify/:token", TenantResolver, ValidateToken, SuperAdminController.Activate);
+router.get("/verify/:token",  ValidateToken, SuperAdminController.Activate);
 
 router.get(
   "/verify-root-account/:token",
-  TenantResolver,
+  
   ValidateToken,
   SuperAdminController.ActivateRootAccount
 );
 
 router.post(
   "/login",
-  TenantResolver,
+
   ...SuperAdminValidator.Login(),
   ValidateRequest,
   SuperAdminController.Login
@@ -42,7 +40,7 @@ router.get("/", IsAuthenticated, IsSuperAdmin, SuperAdminController.GetAll);
 
 router.delete(
   "/:username",
-  TenantResolver,
+  
   IsAuthenticated,
   IsSuperAdmin,
   ...SuperAdminValidator.UsernameParam(),
