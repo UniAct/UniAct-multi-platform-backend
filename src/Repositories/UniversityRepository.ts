@@ -1,28 +1,28 @@
-import { Prisma, PrismaClient, University } from "../generated/public";
-const prisma = new PrismaClient();
+import { Prisma,PrismaClient,University } from "@prisma/client"
 
 export class UniversityRepository {
-  public static async Create(data: Prisma.UniversityCreateInput): Promise<University> {
+  public static async Create(data: Prisma.UniversityCreateInput,prisma:PrismaClient): Promise<University> {
+
     return await prisma.university.create({ data });
   }
 
-  public static async GetById(id: number): Promise<University | null> {
+  public static async GetById(id: number,prisma: PrismaClient): Promise<University | null> {
     return await prisma.university.findUnique({
       where: { id },
     });
   }
 
-  public static async GetByName(name: string): Promise<University | null> {
+  public static async GetByName(name: string, prisma:PrismaClient): Promise<University | null> {
     return await prisma.university.findUnique({
       where: { name },
     });
   }
 
-  public static async GetAll(): Promise<University[]> {
+  public static async GetAll(prisma:PrismaClient): Promise<University[]> {
     return await prisma.university.findMany();
   }
 
-  public static async ListNames(): Promise<string[]> {
+  public static async ListNames(prisma:PrismaClient): Promise<string[]> {
     const universities = await prisma.university.findMany({
       select: { name: true },
     });
@@ -33,7 +33,8 @@ export class UniversityRepository {
 
   public static async Update(
     id: number,
-    data: Prisma.UniversityUpdateInput
+    data: Prisma.UniversityUpdateInput,
+    prisma:PrismaClient
   ): Promise<University> {
     return await prisma.university.update({
       where: { id },
@@ -41,28 +42,29 @@ export class UniversityRepository {
     });
   }
 
-  public static async Delete(id: number): Promise<void> {
+  public static async Delete(id: number,prisma: PrismaClient): Promise<void> {
     await prisma.university.delete({
       where: { id },
     });
   }
 
   public static async GetBySchema(
-    db_schema: string
+    db_schema: string,
+    prisma:PrismaClient
   ): Promise<University | null> {
     return await prisma.university.findUnique({
       where: { db_schema },
     });
   }
 
-  public static async Activate(id: number): Promise<University> {
+  public static async Activate(id: number, prisma:PrismaClient): Promise<University> {
     return await prisma.university.update({
       where: { id },
       data: { is_active: true },
     });
   }
 
-  public static async Deactivate(id: number): Promise<University> {
+  public static async Deactivate(id: number, prisma:PrismaClient): Promise<University> {
     return await prisma.university.update({
       where: { id },
       data: { is_active: false },
@@ -70,7 +72,8 @@ export class UniversityRepository {
   }
 
   public static async GetUniversityNameBySchema(
-    db_schema: string
+    db_schema:string,
+    prisma:PrismaClient
   ): Promise<string | null> {
     const university = await prisma.university.findUnique({
       where: { db_schema },

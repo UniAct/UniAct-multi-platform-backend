@@ -1,21 +1,18 @@
-import { User } from "../generated/tenants/alexandria_national_university";
-import {PrismaClient , SuperAdmin, University} from "../generated/public"
-import { SchemaManager } from "../Utils/SchemaManager";
-import { UniversityService } from "../Services/UniversityService";
+import {Prisma, PrismaClient, SuperAdmin} from "@prisma/client"
 import { TransactionService } from "../Services/Transaction";
-import { UniversityRepository } from "./UniversityRepository";
 import { MailService } from "../Services/MailService/MailService";
+import { getTenantClient } from "../Utils/prismaClient";
 
-const public_schema = new PrismaClient();
 
 class SuperAdminRepository {
   public static async Create(
     username: string,
     email: string,
-    password: string
+    password: string,
+    prisma:PrismaClient
   ): Promise<SuperAdmin> {
     try {
-      const newSuperAdmin : SuperAdmin = await public_schema.superAdmin.create({
+      const newSuperAdmin : SuperAdmin = await prisma.superAdmin.create({
         data: {
           username,
           email,
@@ -30,20 +27,20 @@ class SuperAdminRepository {
     }
   }
 
-  public static async FindByEmail(email: string): Promise<SuperAdmin | null> {
-    return await public_schema.superAdmin.findUnique({
+  public static async FindByEmail(email: string,prisma:PrismaClient): Promise<SuperAdmin | null> {
+    return await prisma.superAdmin.findUnique({
       where: { email },
     });
   }
 
-  public static async FindByUsername(username: string): Promise<SuperAdmin | null> {
-    return await public_schema.superAdmin.findUnique({
+  public static async FindByUsername(username: string, prisma:PrismaClient): Promise<SuperAdmin | null> {
+    return await prisma.superAdmin.findUnique({
       where: { username },
     });
   }
 
-  public static async IsExists(username: string, email: string): Promise<SuperAdmin | null> {
-      return await public_schema.superAdmin.findFirst({
+  public static async IsExists(username: string, email: string, prisma:PrismaClient): Promise<SuperAdmin | null> {
+      return await prisma.superAdmin.findFirst({
           where: {
               OR: [
                   { username },
@@ -54,9 +51,9 @@ class SuperAdminRepository {
 
   }
 
-  public static async GetAllSuperAdmins(): Promise<SuperAdmin[]> {
+  public static async GetAllSuperAdmins(prisma:PrismaClient): Promise<SuperAdmin[]> {
     try {
-      return await public_schema.superAdmin.findMany({
+      return await prisma.superAdmin.findMany({
         orderBy: { username: "asc" },
       });
     } catch (err: any) {
@@ -65,9 +62,9 @@ class SuperAdminRepository {
     }
   }
 
-  public static async ActivateSuperAdmin(email: string): Promise<SuperAdmin> {
+  public static async ActivateSuperAdmin(email: string,prisma:PrismaClient): Promise<SuperAdmin> {
     try {
-      const admin = await public_schema.superAdmin.update({
+      const admin = await prisma.superAdmin.update({
         where: { email },
         data: { is_active: true },
       });
@@ -78,9 +75,9 @@ class SuperAdminRepository {
     }
   }
 
-  public static async DeleteSuperAdmin(username: string): Promise<SuperAdmin> {
+  public static async DeleteSuperAdmin(username: string, prisma:PrismaClient): Promise<SuperAdmin> {
     try {
-      const deletedAdmin = await public_schema.superAdmin.delete({
+      const deletedAdmin = await prisma.superAdmin.delete({
         where: { username },
       });
       return deletedAdmin;
@@ -90,13 +87,13 @@ class SuperAdminRepository {
     }
   }
 
-  public static async CountSuperAdmins() : Promise<number> {
-    return await public_schema.superAdmin.count();
+  public static async CountSuperAdmins(prisma:PrismaClient) : Promise<number> {
+    return await prisma.superAdmin.count();
   }
 
   public static async AssignRootAccount(
     db_schema: string,
-    user: Partial<User>
+    user: Prisma.UserCreateInput
   ) {
     try {
 
@@ -114,9 +111,9 @@ class SuperAdminRepository {
     }
   }
 
-  public static async ActivateRootAccount(email: string, university_name: string) {
+  public static async ActivateRootAccount(email: string, university_name: string, prisma:PrismaClient) {
     try {
-      const university = await public_schema.university.findUnique({
+      const university = await prisma.university.findUnique({
         where: { name: university_name }
       });
 
@@ -125,9 +122,8 @@ class SuperAdminRepository {
 
       const db_schema = university.db_schema;
 
-      const tenant_schema = SchemaManager.GetTenantPrismaClient(db_schema);
 
-      const root_account = await tenant_schema.user.update({
+      const root_account = await prisma.user.update({
         where: { email },
         data: { isVerified: true },
       });

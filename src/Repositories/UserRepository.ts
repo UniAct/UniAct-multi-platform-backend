@@ -1,158 +1,112 @@
-import { Prisma } from "@prisma/client";
-import { User } from "../generated/tenants/alexandria_national_university";
+import { Prisma, PrismaClient, User } from "@prisma/client";
 import { IStaffAccount } from "../Interfaces/StaffAccount";
-import { SchemaManager } from "../Utils/SchemaManager"; // adjust path to your SchemaManager
 
 export class UserRepository {
 
-  public static async CreateUser(user_info: Omit<User, "id">, schema_name: string): Promise<User> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const user = await tenant_schema.user.create({ data: user_info });
-    await tenant_schema.$disconnect();
+  public static async CreateUser(user_info: Prisma.UserCreateInput, prisma: PrismaClient): Promise<User> {
+    const user = await prisma.user.create({ data: user_info });
     return user;
   }
 
-  public static async GetAllUsers(schema_name: string): Promise<User[]> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const users = await tenant_schema.user.findMany();
-    await tenant_schema.$disconnect();
+  public static async GetAllUsers(prisma: PrismaClient): Promise<User[]> {
+    const users = await prisma.user.findMany();
     return users;
   }
 
-  public static async GetUserById(id: number, schema_name: string): Promise<User | null> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const user = await tenant_schema.user.findUnique({ where: { id } });
-    await tenant_schema.$disconnect();
+  public static async GetUserById(id: number, prisma: PrismaClient): Promise<User | null> {
+    const user = await prisma.user.findUnique({ where: { id } });
     return user;
   }
 
-  public static async GetUserByEmail(email: string, schema_name: string): Promise<User | null> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async GetUserByEmail(email: string, prisma: PrismaClient): Promise<User | null> {
 
     try {
-      const user = await tenant_schema.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { email },
       });
 
       if (!user) {
-        console.warn(`[WARN] No user found with email '${email}' in schema '${schema_name}'.`);
+        console.warn(`[WARN] No user found with email '${email}.`);
         return null;
       }
 
       return user;
     } catch (err) {
-      console.error(`[ERROR] Failed to fetch user by email '${email}' from schema '${schema_name}':`, err);
+      console.error(`[ERROR] Failed to fetch user by email '${email}' from schema :`, err);
       throw new Error("Database error while fetching user by email.");
-    } finally {
-      await tenant_schema.$disconnect();
     }
   }
 
 
   public static async UpdateUser(
     id: number,
-    updateData: Partial<User>,
-    schema_name: string
+    updateData: Prisma.UserUpdateInput,
+    prisma: PrismaClient
   ): Promise<User> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const updatedUser = await tenant_schema.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id },
       data: updateData,
     });
-    await tenant_schema.$disconnect();
     return updatedUser;
   }
 
-  public static async DeleteUser(id: number, schema_name: string): Promise<User> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const deletedUser = await tenant_schema.user.delete({ where: { id } });
-    await tenant_schema.$disconnect();
+  public static async DeleteUser(id: number, prisma : PrismaClient): Promise<User> {
+    const deletedUser = await prisma.user.delete({ where: { id } });
     return deletedUser;
   }
 
-  public static async GetUserByFields(
-    user: Pick<User, "email" | "username" | "nationalId">,
-    schema_name: string
+  public static async GetUserByUniqueFields(
+    user: { email?: string; username?: string; nationalId?: string },
+    prisma:PrismaClient
   ): Promise<User | null> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
 
-    try {
-      const existingUser = await tenant_schema.user.findFirst({
-        where: {
-          OR: [
-            { email: user.email },
-            { username: user.username },
-            { nationalId: user.nationalId },
-          ],
-        },
-      });
-      return existingUser;
-    } finally {
-      await tenant_schema.$disconnect();
-    }
-  }
-  public static async GetStaffByFields(
-    user: {email : string , username : string , nationalId : string},
-    schema_name: string
-  ): Promise<User | null> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-
-    try {
-      const existingUser = await tenant_schema.user.findFirst({
-        where: {
-          OR: [
-            { email: user.email },
-            { username: user.username },
-            { nationalId: user.nationalId },
-          ],
-        },
-      });
-      return existingUser;
-    } finally {
-      await tenant_schema.$disconnect();
-    }
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: user.email },
+          { username: user.username },
+          { nationalId: user.nationalId },
+        ],
+      },
+    });
+    return existingUser;
   }
 
-  public static async CreateStaffAccount(staff: IStaffAccount, schema_name: string) {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async CreateStaffAccount(staff: IStaffAccount, prisma: PrismaClient) {
 
     try {
-      const createdAccount = await tenant_schema.$transaction(async (tx: Prisma.TransactionClient) => {
-        const newUser = await tx.user.create({
-          data: {
-            username: staff.username,
-            firstName: staff.first_name,
-            lastName: staff.last_name,
-            email: staff.email,
-            password: staff.password,
-            phone: staff.phone!,
-            dateOfBirth: new Date(staff.date_of_birth),
-            address: staff.address!,
-            city: staff.city!,
-            country: staff.country!,
-            nationalId: staff.national_id,
-          },
-        });
+      const createdAccount = await prisma.user.create({
+        data: {
+          username: staff.username,
+          firstName: staff.first_name,
+          lastName: staff.last_name,
+          email: staff.email,
+          password: staff.password,
+          phone: staff.phone!,
+          dateOfBirth: new Date(staff.date_of_birth),
+          address: staff.address!,
+          city: staff.city!,
+          country: staff.country!,
+          nationalId: staff.national_id,
 
-        const newStaff = await tx.staff.create({
-          data: {
-            userId: newUser.id,
-            position: staff.position!,
-            hireDate: new Date(staff.hireDate),
-            salary: staff.salary,
+          staff: {
+            create: {
+              position: staff.position!,
+              hireDate: new Date(staff.hireDate),
+              salary: staff.salary,
+            },
           },
-        });
-
-        return { user: newUser, staff: newStaff };
+        },
+        include: {
+          staff: true,
+        },
       });
 
       return createdAccount;
+
     } catch (error) {
       console.error("Error creating staff account:", error);
       throw error;
-    } finally {
-      await tenant_schema.$disconnect();
     }
   }
-
 }

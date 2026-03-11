@@ -1,9 +1,28 @@
-import { Prisma } from "@prisma/client";
-import { Role , Permission , RolePermission} from "../generated/tenants/alexandria_national_university";
-import { SchemaManager } from "../Utils/SchemaManager";
+import { Role, Permission, RolePermission, PrismaClient } from "@prisma/client"
+
+
+  //under test function to generate the (resource.permission) automatically instead of repeated code
+
+function CRUD(resource: string) {
+  return {
+    Create: { Name: `${resource}.create`, Description: `Create ${resource}` },
+    Read: { Name: `${resource}.read`, Description: `Read ${resource}` },
+    Update: { Name: `${resource}.update`, Description: `Update ${resource}` },
+    Delete: { Name: `${resource}.delete`, Description: `Delete ${resource}` },
+  };
+}
+
 
 export class RBACRepository {
+
   //! put your permissions here
+  
+  public static Program = CRUD("program")
+
+  public static Faculty = CRUD("faculty")
+
+
+
   public static Account = class {
     static Read    = { Name: "account.read",    Description: "Read user account information" };
     static Create  = { Name: "account.create",  Description: "Create user accounts" };
@@ -19,69 +38,71 @@ export class RBACRepository {
     static Delete  = { Name: "role.delete",  Description: "Delete roles and permissions" };
   };
 
-  public static async GetUserRoles(user_id : number , schema_name : string) : Promise<string[]>{
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const roles = await tenant_schema.role.findMany({
-        where: {
-          userRoles: {
-            some: { userId: user_id },
-          },
+
+
+  public static async GetUserRoles(user_id: number, prisma: PrismaClient): Promise<string[]> {
+    
+    const roles = await prisma.role.findMany({
+      where: {
+        userRoles: {
+          some: { userId: user_id },
         },
-        select: { name: true },
-      });
-    tenant_schema.$disconnect();
+      },
+      select: { name: true },
+    });
+    prisma.$disconnect();
     // @ts-ignore
     return roles.map((r) => r.name);
   }
 
-  public static async GetUserPermissions(user_id : number , schema_name : string) : Promise<string[]>{
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const permissions = await tenant_schema.permission.findMany({
-        where: {
-          rolePermissions: {
-            some: {
-              role: {
-                userRoles: {
-                  some: { userId: user_id },
-                },
+  public static async GetUserPermissions(user_id: number, prisma: PrismaClient): Promise<string[]> {
+    
+    const permissions = await prisma.permission.findMany({
+      where: {
+        rolePermissions: {
+          some: {
+            role: {
+              userRoles: {
+                some: { userId: user_id },
               },
             },
           },
         },
-        select: { name: true },
-        distinct: ["id"],
-      });
-    tenant_schema.$disconnect();
+      },
+      select: { name: true },
+      distinct: ["id"],
+    });
+    prisma.$disconnect();
     // @ts-ignore
     return permissions.map((p) => p.name);
   }
 
-  public static async CreateRole(name: string, description: string, schema_name: string): Promise<Role> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const role = await tenant_schema.role.create({
+  public static async CreateRole(name: string, description: string, prisma: PrismaClient): Promise<Role> {
+    
+    const role = await prisma.role.create({
       data: { name, description },
     });
-    tenant_schema.$disconnect();
+    prisma.$disconnect();
     return role;
   }
 
-  public static async GetRoleById(role_id: number, schema_name: string) {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async GetRoleById(role_id: number, prisma: PrismaClient) {
+    
 
-    const role = await tenant_schema.role.findUnique({
+    const role = await prisma.role.findUnique({
       where: { id: role_id },
       include: {
         permissions: {
           include: {
             permission: {
-              select: { name: true }, 
+              select: { name: true },
             },
           },
         },
       },
     });
 
-    await tenant_schema.$disconnect();
+    
 
     if (!role) return null;
 
@@ -96,59 +117,57 @@ export class RBACRepository {
     };
   }
 
-  public static async GetRoleByName(role_name : string , schema_name: string){
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const role = await tenant_schema.role.findUnique({ where: { name: role_name } });
-    tenant_schema.$disconnect();
+  public static async GetRoleByName(role_name: string, prisma: PrismaClient) {
+    
+    const role = await prisma.role.findUnique({ where: { name: role_name } });
+    prisma.$disconnect();
     return role;
   }
 
-  public static async UpdateRole(role_id: number, name: string, description: string, schema_name: string): Promise<Role> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const role = await tenant_schema.role.update({
+  public static async UpdateRole(role_id: number, name: string, description: string, prisma: PrismaClient): Promise<Role> {
+    
+    const role = await prisma.role.update({
       where: { id: role_id },
       data: { name, description },
     });
-    tenant_schema.$disconnect();
+    prisma.$disconnect();
     return role;
   }
 
-  public static async DeleteRole(role_id: number, schema_name: string): Promise<Role> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    const role = await tenant_schema.role.delete({ where: { id: role_id } });
-    tenant_schema.$disconnect();
+  public static async DeleteRole(role_id: number, prisma: PrismaClient): Promise<Role> {
+    
+    const role = await prisma.role.delete({ where: { id: role_id } });
+    prisma.$disconnect();
     return role;
   }
 
-  public static async GetAllPermissions(schema_name: string): Promise<{ name: string; description: string | null }[]> {
-  const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async GetAllPermissions(prisma: PrismaClient): Promise<{ name: string; description: string | null }[]> {
+    
 
-  const permissions = await tenant_schema.permission.findMany({
-    select: { name: true, description: true },
-  });
+    const permissions = await prisma.permission.findMany({
+      select: { name: true, description: true },
+    });
 
-    tenant_schema.$disconnect();
+    prisma.$disconnect();
     return permissions;
   }
 
-  public static async GetPermissionById(id: number, schema_name: string): Promise<Permission | null> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async GetPermissionById(id: number, prisma: PrismaClient): Promise<Permission | null> {
+    
 
-    const permission = await tenant_schema.permission.findUnique({
+    const permission = await prisma.permission.findUnique({
       where: { id },
     });
 
-    await tenant_schema.$disconnect();
+    
 
     return permission;
   }
 
   public static async GetPermissionsByNames(
     permissions: string[],
-    schema_name: string
+    prisma: PrismaClient
   ): Promise<Permission[]> {
-    const prisma = SchemaManager.GetTenantPrismaClient(schema_name);
-
     try {
       const result = await prisma.permission.findMany({
         where: {
@@ -163,16 +182,15 @@ export class RBACRepository {
       console.error("Error fetching permissions by names:", err);
       throw err;
     } finally {
-      await prisma.$disconnect();
+      
     }
   }
 
   public static async AssignPermissionsToRole(
     role_id: number,
     permissions: Permission[],
-    schema_name: string
+    prisma: PrismaClient
   ): Promise<RolePermission[]> {
-    const prisma = SchemaManager.GetTenantPrismaClient(schema_name);
 
     try {
       // @ts-ignore
@@ -198,27 +216,27 @@ export class RBACRepository {
       console.error("Error assigning permissions to role:", err);
       throw err;
     } finally {
-      await prisma.$disconnect();
+      
     }
   }
 
-  public static async GetAllRole(schema_name: string) {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async GetAllRole(prisma: PrismaClient) {
+    
 
-    const roles = await tenant_schema.role.findMany({
+    const roles = await prisma.role.findMany({
       orderBy: { id: "asc" },
       include: {
         permissions: {
           include: {
             permission: {
-              select: { name: true }, 
+              select: { name: true },
             },
           },
         },
       },
     });
 
-    await tenant_schema.$disconnect();
+    
     // @ts-ignore
     const formatted = roles.map((role) => ({
       id: role.id,
@@ -233,8 +251,7 @@ export class RBACRepository {
     return formatted;
   }
 
-  public static async GetRolesByNames(role_names: string[], schema_name: string) : Promise<Role[]> {
-    const prisma = SchemaManager.GetTenantPrismaClient(schema_name);
+  public static async GetRolesByNames(role_names: string[], prisma: PrismaClient): Promise<Role[]> {
 
     try {
       const roles = await prisma.role.findMany({
@@ -250,19 +267,19 @@ export class RBACRepository {
       console.error("Error fetching roles by names:", error);
       throw error;
     } finally {
-      await prisma.$disconnect();
+      
     }
   }
 
   public static async AssignRolesToUser(
     user_id: number,
     roles: Role[],
-    schema_name: string
+    prisma: PrismaClient
   ) {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
+    
 
     try {
-      const result = await tenant_schema.$transaction(async (tx: Prisma.TransactionClient) => {
+      const result = await prisma.$transaction(async (tx) => {
         await tx.userRole.deleteMany({
           where: { userId: user_id },
         });
@@ -290,8 +307,6 @@ export class RBACRepository {
     } catch (error) {
       console.error("Error assigning roles to user:", error);
       throw error;
-    } finally {
-      await tenant_schema.$disconnect();
-    }
+    } 
   }
 }

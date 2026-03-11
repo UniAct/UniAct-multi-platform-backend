@@ -1,26 +1,29 @@
-import { Prisma, University } from "../generated/public";
+import { Prisma,PrismaClient,University } from "@prisma/client"
 import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { Pool } from "pg";
 import { SchemaManager } from "../Utils/SchemaManager";
+import { getTenantClient } from "../Utils/prismaClient";
 
 export class UniversityService {
+  
   public static async Create(
-    data: Prisma.UniversityCreateInput
+    data: Prisma.UniversityCreateInput,
   ): Promise<University> {
-
-    const existingByName = await UniversityRepository.GetByName(data.name);
+    
+    const prisma = getTenantClient("public");
+    const existingByName = await UniversityRepository.GetByName(data.name,prisma);
     if (existingByName) {
       throw new Error(`University with name "${data.name}" already exists.`);
     }
 
-    const existingBySchema = await UniversityRepository.GetBySchema(data.db_schema);
+    const existingBySchema = await UniversityRepository.GetBySchema(data.db_schema,prisma);
     if (existingBySchema) {
       throw new Error(
         `University with db_schema "${data.db_schema}" already exists.`
       );
     }
 
-    const university = await UniversityRepository.Create(data);
+    const university = await UniversityRepository.Create(data,prisma);
 
     try {
       const pool = new Pool({
@@ -28,7 +31,7 @@ export class UniversityService {
       });
 
       const schemaManager = new SchemaManager(pool);
-      await schemaManager.CreateSchema(university.db_schema);
+      await schemaManager.createSchema(university.db_schema);
 
       console.log(
         `[INFO] University created successfully: ${university.name}`
@@ -41,15 +44,20 @@ export class UniversityService {
   }
 
   public static async GetById(id: number): Promise<University> {
-    const university = await UniversityRepository.GetById(id);
+
+    const prisma = getTenantClient("public");
+    const university = await UniversityRepository.GetById(id,prisma);
     if (!university) 
       throw new Error(`University with Id ${id} not found.`);
 
     return university;
   }
 
-  public static async GetByName(university_name: string): Promise<University> {
-    const university = await UniversityRepository.GetByName(university_name);
+  public static async GetByName(university_name: string,): Promise<University> {
+
+    const prisma = getTenantClient("public");
+    const university = await UniversityRepository.GetByName(university_name,prisma);
+
     if (!university) 
       throw new Error(`University with name ${university} not found.`);
 
@@ -57,48 +65,58 @@ export class UniversityService {
   }
 
   public static async ListNames(): Promise<string[]> {
-    return await UniversityRepository.ListNames();
+
+    const prisma = getTenantClient("public");
+    return await UniversityRepository.ListNames(prisma);
   }
 
   public static async GetAll(): Promise<University[]> {
-    return await UniversityRepository.GetAll();
+
+    const prisma = getTenantClient("public");
+    return await UniversityRepository.GetAll(prisma);
   }
 
-  public static async DeleteUniversity(id: number): Promise<University> {
-    const university = await UniversityRepository.GetById(id);
+  public static async DeleteUniversity(id: number,): Promise<University> {
+
+    const prisma = getTenantClient("public");
+    const university = await UniversityRepository.GetById(id,prisma);
     if (!university) 
       throw new Error(`University with ID ${id} not found.`);
       
     
-    await UniversityRepository.Delete(id);
+    await UniversityRepository.Delete(id,prisma);
     
     // delete the schema of that university
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL
     });
     const schema_manager = new SchemaManager(pool);
-    await schema_manager.DeleteSchema(university.db_schema);
+    await schema_manager.deleteSchema(university.db_schema);
 
     console.log(`[INFO] University deleted: ${university.name}`);
     return university;
   }
 
-  public static async Activate(id: number): Promise<University> {
-    const university = await UniversityRepository.GetById(id);
+  public static async Activate(id: number,): Promise<University> {
+
+    const prisma = getTenantClient("public");
+    const university = await UniversityRepository.GetById(id,prisma);
     if (!university) {
       throw new Error(`University with id '${id}' does not exist`);
     }
 
-    return await UniversityRepository.Activate(id);
+    return await UniversityRepository.Activate(id,prisma);
   }
 
-  public static async Deactivate(id: number): Promise<University> {
-    const university = await UniversityRepository.GetById(id);
+  public static async Deactivate(id: number,): Promise<University> {
+
+    const prisma = getTenantClient("public");
+    const university = await UniversityRepository.GetById(id,prisma);
     if (!university) {
       throw new Error(`University with id '${id}' does not exist`);
     }
 
-    return await UniversityRepository.Deactivate(id);
+    return await UniversityRepository.Deactivate(id,prisma);
   }
 
   

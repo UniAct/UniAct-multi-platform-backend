@@ -1,13 +1,11 @@
-import { User } from "../generated/tenants/alexandria_national_university";
-import { SchemaManager } from "../Utils/SchemaManager";
+import { User,Prisma, PrismaClient } from "@prisma/client";
 import SystemRoles from "../Enums/SystemRoles";
 import { RBACRepository } from "./RBACRepository";
-import { Prisma } from "../generated/tenants/alexandria_national_university";
 
 export class TransactionRepository {
-  public static async CreateRootAccount(user: Partial<User>, schema_name: string): Promise<User> {
-    const tenant_schema = SchemaManager.GetTenantPrismaClient(schema_name);
-    return await tenant_schema.$transaction(async (tx : Prisma.TransactionClient) => {
+  public static async CreateRootAccount(user: Prisma.UserCreateInput, prisma: PrismaClient): Promise<User> {
+    
+    return await prisma.$transaction(async (tx : Prisma.TransactionClient) => {
 
       const existing_user = await tx.user.findFirst({
         where: {
@@ -65,6 +63,17 @@ export class TransactionRepository {
         RBACRepository.Account.Update,
         RBACRepository.Account.Delete,
         RBACRepository.Account.AssignRole,
+        //faculty permissions
+        RBACRepository.Faculty.Create,
+        RBACRepository.Faculty.Read,
+        RBACRepository.Faculty.Update,
+        RBACRepository.Faculty.Delete,
+        //program permissions
+        RBACRepository.Program.Create,
+        RBACRepository.Program.Read,
+        RBACRepository.Program.Update,
+        RBACRepository.Program.Delete,
+
       ];
 
       for (const perm of default_permissions) {

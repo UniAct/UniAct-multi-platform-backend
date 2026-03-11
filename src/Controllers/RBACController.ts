@@ -7,7 +7,7 @@ export class RBACController {
   public static async CreateRole(req: Request, res: Response) {
     try {
       const { name, description }: { name: string; description: string } = req.body;
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const role = await RBACService.CreateRole(name, description, tenant!);
 
@@ -34,7 +34,7 @@ export class RBACController {
   public static async GetRole(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const role = await RBACService.GetRole(id, tenant!);
 
@@ -59,7 +59,7 @@ export class RBACController {
 
   public static async GetAllRole(req: Request, res: Response) {
     try {
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const roles = await RBACService.GetAllRole(tenant!);
 
@@ -79,7 +79,7 @@ export class RBACController {
     try {
       const id = Number(req.params.id);
       const { name, description }: { name: string; description: string } = req.body;
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const updatedRole = await RBACService.UpdateRole(id, name, description, tenant!);
 
@@ -106,7 +106,7 @@ export class RBACController {
   public static async DeleteRole(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const deletedRole = await RBACService.DeleteRole(id, tenant!);
 
@@ -132,7 +132,7 @@ export class RBACController {
 
   public static async ReadPermissions(req: Request, res: Response) {
     try {
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const permissions = await RBACService.GetAllPermissions(tenant!);
 
@@ -152,7 +152,7 @@ export class RBACController {
   public static async ReadPermissionsById(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const permission = await RBACService.GetPermissionById(id, tenant!);
 
@@ -172,7 +172,7 @@ export class RBACController {
     try {
       const role_id = Number(req.params.id);
       const { permissions }: { permissions: string[] } = req.body;
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
 
       const updatedRole = await RBACService.AssignPermissionsToRole(
         role_id,
@@ -195,7 +195,7 @@ export class RBACController {
 
   public static async AssignRoleToUser(req: Request, res: Response) {
     try {
-      const tenant = req.db_schema;
+      const tenant = req.schema_name;
       const { id } = req.params;
       const { role_names } = req.body; 
 

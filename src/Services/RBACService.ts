@@ -1,57 +1,63 @@
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { UserRepository } from "../Repositories/UserRepository";
-import { SchemaManager } from "../Utils/SchemaManager";
-import { Permission, Role } from "../generated/tenants/alexandria_national_university";
+import { Permission, Role} from "@prisma/client"
+import { getTenantClient } from "../Utils/prismaClient";
 
 export class RBACService {
   public static async CreateRole(name: string, description: string, schema_name: string): Promise<Role> {
-    const existingRole = await RBACRepository.GetRoleByName(name, schema_name);
+    const prisma = getTenantClient(schema_name)
+    const existingRole = await RBACRepository.GetRoleByName(name, prisma);
     if (existingRole) {
       throw new Error(`Role '${name}' already exists`);
     }
 
-    return await RBACRepository.CreateRole(name, description, schema_name);
+    return await RBACRepository.CreateRole(name, description, prisma);
   }
 
   public static async GetRole(role_id: number, schema_name: string): Promise<Role | null> {
-    return await RBACRepository.GetRoleById(role_id, schema_name);
+    const prisma = getTenantClient(schema_name)
+    return await RBACRepository.GetRoleById(role_id, prisma);
   }
 
   public static async UpdateRole(role_id: number, name: string, description: string, schema_name: string): Promise<Role> {
-    const existingRole = await RBACRepository.GetRoleById(role_id, schema_name);
+    const prisma = getTenantClient(schema_name)
+    const existingRole = await RBACRepository.GetRoleById(role_id, prisma);
     if (!existingRole) 
       throw new Error("Role not exists");
     
 
-    const duplicateRole = await RBACRepository.GetRoleByName(name, schema_name);
+    const duplicateRole = await RBACRepository.GetRoleByName(name, prisma);
     if (duplicateRole) {
       throw new Error("That role name already exists");
     }
 
-    const updatedRole = await RBACRepository.UpdateRole(role_id, name, description, schema_name);
+    const updatedRole = await RBACRepository.UpdateRole(role_id, name, description, prisma);
     return updatedRole;
   }
 
 
   public static async DeleteRole(role_id: number, schema_name: string): Promise<Role> {
-    const existingRole = await RBACRepository.GetRoleById(role_id, schema_name);
+    const prisma = getTenantClient(schema_name)
+    const existingRole = await RBACRepository.GetRoleById(role_id, prisma);
 
     if (!existingRole) 
       throw new Error("Role not exists");
     
 
-    const deletedRole = await RBACRepository.DeleteRole(role_id, schema_name);
+    const deletedRole = await RBACRepository.DeleteRole(role_id, prisma);
 
     return deletedRole;
   }
 
 
   public static async GetUserRoles(user_id: number, schema_name: string): Promise<string[]> {
-    return await RBACRepository.GetUserRoles(user_id, schema_name);
+    const prisma = getTenantClient(schema_name)
+    return await RBACRepository.GetUserRoles(user_id, prisma);
   }
 
   public static async GetAllPermissions(schema_name: string): Promise<{ name: string; description: string | null }[]> {
-    const permissions = await RBACRepository.GetAllPermissions(schema_name);
+    const prisma = getTenantClient(schema_name)
+    const permissions = await RBACRepository.GetAllPermissions(prisma);
 
     if (!permissions || permissions.length === 0) 
       throw new Error("No permissions found");
@@ -61,7 +67,8 @@ export class RBACService {
   }
 
   public static async GetPermissionById(id: number, schema_name: string): Promise<Permission> {
-    const permission : Permission | null = await RBACRepository.GetPermissionById(id, schema_name);
+    const prisma = getTenantClient(schema_name)
+    const permission : Permission | null = await RBACRepository.GetPermissionById(id, prisma);
 
     if (!permission) 
       throw new Error("Permission not found");
@@ -74,12 +81,13 @@ export class RBACService {
     permissions: string[],
     schema_name: string
   ) {
-    const role = await RBACRepository.GetRoleById(role_id, schema_name);
+    const prisma = getTenantClient(schema_name);
+    const role = await RBACRepository.GetRoleById(role_id, prisma);
     if (!role) 
       throw new Error("Role not exists");
     
 
-    const found_permissions = await RBACRepository.GetPermissionsByNames(permissions, schema_name);
+    const found_permissions = await RBACRepository.GetPermissionsByNames(permissions, prisma);
 
     if (!found_permissions || found_permissions.length === 0) 
       throw new Error("No valid permissions found");
@@ -95,7 +103,7 @@ export class RBACService {
     const updatedRole = await RBACRepository.AssignPermissionsToRole(
       role_id,
       found_permissions,
-      schema_name
+      prisma
     );
 
     if (!updatedRole) 
@@ -106,7 +114,8 @@ export class RBACService {
   }
 
   public static async GetAllRole(schema_name: string): Promise<Role[]> {
-    const roles = await RBACRepository.GetAllRole(schema_name);
+    const prisma = getTenantClient(schema_name);
+    const roles = await RBACRepository.GetAllRole( prisma);
 
     if (!roles || roles.length === 0) {
       throw new Error("No roles found");
@@ -120,10 +129,11 @@ export class RBACService {
     role_names: string[],
     schema_name: string
   ) {
-    const user = await UserRepository.GetUserById(user_id, schema_name);
+    const prisma = getTenantClient(schema_name);
+    const user = await UserRepository.GetUserById(user_id, prisma);
     if (!user) throw new Error("User not found");
 
-    const found_roles : Role[] = await RBACRepository.GetRolesByNames(role_names, schema_name);
+    const found_roles : Role[] = await RBACRepository.GetRolesByNames(role_names, prisma);
 
     if (found_roles.length !== role_names.length) {
       const foundNames = found_roles.map(r => r.name);
@@ -131,7 +141,7 @@ export class RBACService {
       throw new Error(`Some roles not found: ${missing.join(", ")}`);
     }
 
-    const updatedUser = await RBACRepository.AssignRolesToUser(user_id, found_roles, schema_name);
+    const updatedUser = await RBACRepository.AssignRolesToUser(user_id, found_roles, prisma);
 
     return updatedUser;
   }

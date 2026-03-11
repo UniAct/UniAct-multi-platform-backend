@@ -5,7 +5,7 @@ import { TenantPayload } from "../Interfaces/TenantPayload";
 declare module "express-serve-static-core" {
   interface Request {
     user?: TokenPayload; 
-    db_schema? : string;
+    schema_name? : string;
     tenant_name? : string;
     bucket_name? : string;
   }

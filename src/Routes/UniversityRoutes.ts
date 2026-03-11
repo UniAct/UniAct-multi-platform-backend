@@ -6,13 +6,14 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import UniversityController from "../Controllers/UniversityController";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
+import { TenantResolver } from "../Middlewares/TenantResolver";
 
 const router: Router = Router();
 
 router.post(
   "/create",
+  TenantResolver,
   IsAuthenticated,
-  IsSuperAdmin,
   ...UniversityValidator.Create(),
   ValidateRequest,
   UniversityController.Create
@@ -22,12 +23,10 @@ router.post(
 router.get("/list", UniversityController.List);
 
 // Admin only
-router.get("/", IsAuthenticated, IsSuperAdmin, UniversityController.GetAll);
+router.get("/",TenantResolver, IsAuthenticated, IsSuperAdmin, UniversityController.GetAll);
 
 router.get(
   "/:id",
-  IsAuthenticated,
-  IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   UniversityController.GetById
@@ -35,6 +34,7 @@ router.get(
 
 router.put(
   "/:id/activate",
+  TenantResolver,
   IsAuthenticated,
   IsSuperAdmin,
   ...UniversityValidator.IdParam(),
@@ -44,6 +44,7 @@ router.put(
 
 router.put(
   "/:id/deactivate",
+  TenantResolver,
   IsAuthenticated,
   IsSuperAdmin,
   ...UniversityValidator.IdParam(),
@@ -53,8 +54,7 @@ router.put(
 
 router.delete(
   "/:id",
-  IsAuthenticated,
-  IsSuperAdmin,
+  TenantResolver,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   UniversityController.Delete
