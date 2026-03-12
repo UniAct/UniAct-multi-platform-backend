@@ -11,17 +11,17 @@ export class UniversityService {
   ): Promise<University> {
     
     const prisma = getTenantClient("public");
-    const existingByName = await UniversityRepository.GetByName(data.name,prisma);
-    if (existingByName) {
-      throw new Error(`University with name "${data.name}" already exists.`);
-    }
+    // const existingByName = await UniversityRepository.GetByName(data.name,prisma);
+    // if (existingByName) {
+    //   throw new Error(`University with name "${data.name}" already exists.`);
+    // }
 
-    const existingBySchema = await UniversityRepository.GetBySchema(data.db_schema,prisma);
-    if (existingBySchema) {
-      throw new Error(
-        `University with db_schema "${data.db_schema}" already exists.`
-      );
-    }
+    // const existingBySchema = await UniversityRepository.GetBySchema(data.db_schema,prisma);
+    // if (existingBySchema) {
+    //   throw new Error(
+    //     `University with db_schema "${data.db_schema}" already exists.`
+    //   );
+    // }
 
     const university = await UniversityRepository.Create(data,prisma);
 
@@ -30,8 +30,7 @@ export class UniversityService {
         connectionString: process.env.DATABASE_URL,
       });
 
-      const schemaManager = new SchemaManager(pool);
-      await schemaManager.createSchema(university.db_schema);
+      await SchemaManager.createSchema(university.db_schema);
 
       console.log(
         `[INFO] University created successfully: ${university.name}`
@@ -90,8 +89,8 @@ export class UniversityService {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL
     });
-    const schema_manager = new SchemaManager(pool);
-    await schema_manager.deleteSchema(university.db_schema);
+
+    await SchemaManager.deleteSchema(university.db_schema);
 
     console.log(`[INFO] University deleted: ${university.name}`);
     return university;

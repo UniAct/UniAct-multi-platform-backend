@@ -25,7 +25,7 @@ export function handlePrismaError(err: any, res: Response) {
     
    //unique constraint failed
   if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-
+    console.log("errooorr"+ err.meta?.target)
     // Extract which field failed
     const targetFields = err.meta?.target;
     let message = "Unique constraint failed."; //default message

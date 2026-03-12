@@ -22,7 +22,7 @@ export function ErrorHandler(
 
   // Prisma unique constraint
   if (err instanceof Prisma.PrismaClientKnownRequestError){
-      handlePrismaError(err,res)
+      return handlePrismaError(err,res)
   }
 
   // fallback

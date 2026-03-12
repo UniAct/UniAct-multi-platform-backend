@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { UniversityService } from "../Services/UniversityService";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
@@ -6,7 +6,7 @@ import { Prisma,PrismaClient,University } from "@prisma/client"
 
 class UniversityController {
 
-  public static async Create(req: Request, res: Response) {
+  public static async Create(req: Request, res: Response,next: NextFunction) {
     try {
       let {
         name,
@@ -37,17 +37,7 @@ class UniversityController {
         message: "University created successfully!",
       });
     } catch (err: any) {
-      if (err.message.includes("already exists")) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          status: JSendStatus.FAIL,
-          data: { message: err.message },
-        });
-      }
-
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: err.message || "Internal Server Error",
-      });
+      next(err);
     }
   }
 

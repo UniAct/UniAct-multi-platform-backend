@@ -1,40 +1,47 @@
-import { Pool } from "pg";
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execAsync = promisify(exec);
+import { getTenantClient } from "./prismaClient";
 
 export class SchemaManager {
-  constructor(private pool: Pool) {}
 
-  async createSchema(schema: string) {
-    const client = await this.pool.connect();
+  static async createSchema(schema: string) {
 
-    try {
-      await client.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
-
-      const url = `${process.env.DATABASE_URL}?schema=${schema}`;
-
-      await execAsync(`npx prisma db push`, {
-        env: {
-          ...process.env,
-          DATABASE_URL: url
-        }
-      });
-
-      console.log(`Schema ${schema} ready`);
-    } finally {
-      client.release();
-    }
-  }
-
-  async deleteSchema(schema: string) {
-    const client = await this.pool.connect();
+    const prisma = getTenantClient("public");
 
     try {
-      await client.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
-    } finally {
-      client.release();
+
+      await prisma.$executeRawUnsafe(
+        `SELECT clone_schema('template', '${schema}')`
+      );
+
+      console.log(`[INFO] Tenant schema ${schema} created from template`);
+
+    } catch (error) {
+
+      console.error(`[ERROR] Failed creating schema ${schema}`, error);
+      throw error;
+
     }
+
   }
+
+  static async deleteSchema(schema: string) {
+
+    const prisma = getTenantClient("public");
+
+    try {
+
+      await prisma.$executeRawUnsafe(
+        `DROP SCHEMA IF EXISTS "${schema}" CASCADE`
+      );
+
+      console.log(`[INFO] Schema ${schema} deleted`);
+
+    } catch (error) {
+
+      console.error(`[ERROR] Failed deleting schema ${schema}`, error);
+      throw error;
+
+    }
+
+  }
+
 }

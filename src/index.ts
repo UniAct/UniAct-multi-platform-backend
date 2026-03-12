@@ -35,7 +35,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(ErrorHandler);
 // ==================== ROOT ROUTE ====================
 
 // Root health check
@@ -52,7 +51,7 @@ app.get('/', (req, res) => {
 
 app.use("/api",MainRouter)
 
-
+app.use(ErrorHandler)
 // ==================== SWAGGER DOCUMENTATION ====================
 
 if (process.env.NODE_ENV?.toLowerCase() === "development") {
@@ -89,14 +88,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // ==================== ERROR HANDLER ====================
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Unhandled error:', err);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: 'error',
-        message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-});
+// app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+//     console.error('Unhandled error:', err);
+//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//         status: 'error',
+//         message: 'Internal Server Error',
+//         error: process.env.NODE_ENV === 'development' ? err.message : undefined
+//     });
+// });
 
 // ==================== START SERVER ====================
 

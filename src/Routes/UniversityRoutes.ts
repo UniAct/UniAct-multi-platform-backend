@@ -12,7 +12,7 @@ const router: Router = Router();
 
 router.post(
   "/create",
-  TenantResolver,
+
   IsAuthenticated,
   ...UniversityValidator.Create(),
   ValidateRequest,
