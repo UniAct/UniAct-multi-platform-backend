@@ -6,6 +6,7 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { TenantResolver } from "../Middlewares/TenantResolver";
+import { asyncHandler } from "../Middlewares/ErrorHandler";
 
 const router = Router();
 //Create Faculty
@@ -19,7 +20,7 @@ router.post(
     ...FacultyValidator.Create(),
     ValidateRequest,
     //
-     FacultyController.CreateFaculty
+     asyncHandler(FacultyController.CreateFaculty)
 );
 
 //Get All Faculties
@@ -30,7 +31,7 @@ router.get("/:id",
     TenantResolver,
     ...FacultyValidator.IdParam(),
     ValidateRequest,
-    FacultyController.GetFacultyById
+    asyncHandler(FacultyController.GetFacultyById)
 );
 
 //Delete a faculty
@@ -40,7 +41,7 @@ router.delete("/:id",
     RequirePermission(RBACRepository.Faculty.Delete.Name),
     ...FacultyValidator.IdParam(),
     ValidateRequest,
-    FacultyController.DeleteFaculty 
+    asyncHandler(FacultyController.DeleteFaculty )
 );
 
 export default router;

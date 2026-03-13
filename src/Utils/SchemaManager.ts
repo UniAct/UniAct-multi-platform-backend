@@ -1,26 +1,47 @@
+import fs from "fs";
+import { Pool } from "pg";
 import { getTenantClient } from "./prismaClient";
 
 export class SchemaManager {
 
-  static async createSchema(schema: string) {
+  private static SNAPSHOT = fs.readFileSync("./prisma/template_snapshot.sql","utf8");
 
-    const prisma = getTenantClient("public");
+  private static pool = new Pool({connectionString: process.env.DATABASE_URL});
+
+  static async createTenant(schema: string) {
+
+    console.log(`[INFO] Starting creation of tenant schema '${schema}'...`);
+
+    const client = await this.pool.connect();
 
     try {
 
-      await prisma.$executeRawUnsafe(
-        `SELECT clone_schema('template', '${schema}')`
-      );
+      await client.query("BEGIN");
 
-      console.log(`[INFO] Tenant schema ${schema} created from template`);
+
+      // inject schema name
+      const sql = this.SNAPSHOT.replace(/__SCHEMA__/g, schema);
+      
+      // execute the entire dump
+      await client.query(sql);
+
+      await client.query("COMMIT");
+
+      console.log(`[SUCCESS] Tenant '${schema}' bootstrapped successfully.`);
 
     } catch (error) {
 
-      console.error(`[ERROR] Failed creating schema ${schema}`, error);
+      await client.query("ROLLBACK");
+
+      console.error(`[ERROR] Failed creating tenant '${schema}'`, error);
+
       throw error;
 
-    }
+    } finally {
 
+      client.release();
+
+    }
   }
 
   static async deleteSchema(schema: string) {

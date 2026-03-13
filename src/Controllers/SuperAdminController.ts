@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import SuperAdminService from "../Services/SuperAdminService";
 import JSendStatus from "../Enums/Jsend";
 import { SuperAdmin,Prisma } from "@prisma/client";
-import { Prisma as templatePrisma } from "@prisma/client";
 import { MailService } from "../Services/MailService/MailService";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
@@ -11,7 +10,7 @@ import SystemRoles from "../Enums/SystemRoles";
 
 class SuperAdminController {
   public static async Register(req: Request, res: Response) {
-    try {
+
       const { username, email, password } : Prisma.SuperAdminCreateInput = req.body;
       
       await SuperAdminService.CreateSuperAdmin(username, email, password, req.schema_name!);
@@ -22,38 +21,19 @@ class SuperAdminController {
         status: JSendStatus.SUCCESS,
         message: "SuperAdmin created and confirmation email sent!"
       });
-    } catch (err: any) {
-      if (err.message.includes("exists")) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({
-          status: JSendStatus.FAIL,
-          data: { message: err.message },
-        });
-      }
-
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: err.message || "Internal Server Error",
-      });
-    }
+    
   }
 
   public static async GetAll(req: Request, res: Response) {
-    try {
-      const admins : SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(req.schema_name!);
-      res.status(StatusCodes.OK).json({
-        status: JSendStatus.SUCCESS,
-        data: admins,
-      });
-    } catch (err: any) {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: err.message || "Internal Server Error",
-      });
-    }
+    const admins : SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(req.schema_name!);
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: admins,
+    });
   }
 
   public static async Activate(req: Request, res: Response) {
-    try {
+
       const email = req.user?.email;
 
       if (!email) {
@@ -63,32 +43,20 @@ class SuperAdminController {
         });
       }
 
-      const admin = await SuperAdminService.ActivateSuperAdmin(email, req.schema_name!);
+      const admin = await SuperAdminService.ActivateSuperAdmin(email, "public");
 
       // TODO: Return HTML Page Instead Of Json
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
         data: { message: `SuperAdmin '${admin.username}' activated successfully.`},
       });
-    } catch (err: any) {
-      if (err.message.includes("not found")) {
-        return res.status(404).json({
-          status: JSendStatus.FAIL,
-          data: { message: err.message },
-        });
-      }
-
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: err.message || "Internal Server Error",
-      });
-    }
   }
 
   public static async ActivateRootAccount(req: Request, res: Response) {
     try {
+      console.dir(req.user)
       const email = req.user?.email;
-      const university_name = req.user?.university_name;
+      const university_name = req.user?.tenant_name;
       const token = req.params.token;
 
       await SuperAdminService.ActivateRootAccount(email! , university_name!,req.schema_name!);
@@ -204,11 +172,11 @@ class SuperAdminController {
         city,
         country,
         nationalId,
-      } : templatePrisma.UserCreateInput = req.body;
+      } : Prisma.UserCreateInput = req.body;
 
       const hashed_password = await bcrypt.hash(password, 10);
 
-      const user: templatePrisma.UserCreateInput = {
+      const user: Prisma.UserCreateInput = {
         username,
         firstName,
         lastName,

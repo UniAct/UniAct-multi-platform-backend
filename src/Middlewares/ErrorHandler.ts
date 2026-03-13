@@ -5,6 +5,7 @@ import JSendStatus from "../Enums/Jsend";
 import { handlePrismaError } from "../Utils/prismaErrorHandler";
 import { StatusCodes } from "http-status-codes";
 
+
 export function ErrorHandler(
   err: any,
   req: Request,
@@ -26,9 +27,15 @@ export function ErrorHandler(
   }
 
   // fallback
-  console.error(err);
    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: JSendStatus.ERROR,
       message: err.message || "Internal Server Error",
    });
 }
+
+//This wrapper forwards async errors to Express's error middleware automatically without the need for repeating try{}catc{} every wehere on each function
+export const asyncHandler =
+  (fn: Function) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };

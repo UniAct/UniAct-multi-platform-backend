@@ -7,6 +7,7 @@ import UniversityController from "../Controllers/UniversityController";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import { TenantResolver } from "../Middlewares/TenantResolver";
+import { asyncHandler } from "../Middlewares/ErrorHandler";
 
 const router: Router = Router();
 
@@ -16,20 +17,20 @@ router.post(
   IsAuthenticated,
   ...UniversityValidator.Create(),
   ValidateRequest,
-  UniversityController.Create
+  asyncHandler(UniversityController.Create)
 );
 
 // Public
-router.get("/list", UniversityController.List);
+router.get("/list", asyncHandler(UniversityController.List));
 
 // Admin only
-router.get("/",TenantResolver, IsAuthenticated, IsSuperAdmin, UniversityController.GetAll);
+router.get("/",TenantResolver, IsAuthenticated, IsSuperAdmin, asyncHandler(UniversityController.GetAll));
 
 router.get(
   "/:id",
   ...UniversityValidator.IdParam(),
   ValidateRequest,
-  UniversityController.GetById
+  asyncHandler(UniversityController.GetById)
 );
 
 router.put(
@@ -39,7 +40,7 @@ router.put(
   IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
-  UniversityController.Activate
+  asyncHandler(UniversityController.Activate)
 );
 
 router.put(
@@ -49,7 +50,7 @@ router.put(
   IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
-  UniversityController.Deactivate
+  asyncHandler(UniversityController.Deactivate)
 );
 
 router.delete(
@@ -57,7 +58,7 @@ router.delete(
   TenantResolver,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
-  UniversityController.Delete
+  asyncHandler(UniversityController.Delete)
 );
 
 // Catch-all

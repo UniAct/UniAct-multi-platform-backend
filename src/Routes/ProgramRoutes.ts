@@ -7,6 +7,7 @@ import ProgramValidator from "../Validators/ProgramValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
+import { asyncHandler } from "../Middlewares/ErrorHandler";
 const router = Router();
 
 
@@ -17,14 +18,14 @@ router.post(
     RequirePermission(RBACRepository.Program.Create.Name),
     ...ProgramValidator.Create(),
     ValidateRequest,
-    ProgramController.CreateProgram
+    asyncHandler(ProgramController.CreateProgram)
 )
 
 router.get(
     "/",
     TenantResolver,
     IsAuthenticated,
-    ProgramController.GetAllPrograms
+    asyncHandler(ProgramController.GetAllPrograms)
 )
 
 router.delete(
@@ -33,7 +34,7 @@ router.delete(
     RequirePermission(RBACRepository.Program.Delete.Name),
     ...ProgramValidator.IdParam(),
     ValidateRequest,
-    ProgramController.Delete
+    asyncHandler(ProgramController.Delete)
 )
 
 export default router;

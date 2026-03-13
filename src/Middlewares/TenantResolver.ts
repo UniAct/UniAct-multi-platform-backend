@@ -13,7 +13,7 @@ export async function TenantResolver(
 ) {
   try {
     const tenant =
-      (req.headers[TENANT_HEADER] as string)?.toLowerCase();
+      (req.headers[TENANT_HEADER] as string)
 
     if (!tenant) {
       return res.status(StatusCodes.BAD_REQUEST).json({

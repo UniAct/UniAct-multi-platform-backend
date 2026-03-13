@@ -7,6 +7,7 @@ import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
+import { asyncHandler } from "../Middlewares/ErrorHandler";
 
 const router: Router = Router();
 
@@ -16,27 +17,26 @@ router.post(
   IsSuperAdmin,
   ...SuperAdminValidator.CreateSuperAdmin(),
   ValidateRequest,
-  SuperAdminController.Register
+  asyncHandler(SuperAdminController.Register)
 );
 
-router.get("/verify/:token",  ValidateToken, SuperAdminController.Activate);
+router.get("/verify/:token",  ValidateToken , asyncHandler( SuperAdminController.Activate));
 
 router.get(
   "/verify-root-account/:token",
-  
   ValidateToken,
-  SuperAdminController.ActivateRootAccount
-);
+  asyncHandler(SuperAdminController.ActivateRootAccount)
+ )
 
 router.post(
   "/login",
 
   ...SuperAdminValidator.Login(),
   ValidateRequest,
-  SuperAdminController.Login
+  asyncHandler(SuperAdminController.Login)
 );
 
-router.get("/", IsAuthenticated, IsSuperAdmin, SuperAdminController.GetAll);
+router.get("/", IsAuthenticated, IsSuperAdmin, asyncHandler(SuperAdminController.GetAll));
 
 router.delete(
   "/:username",
@@ -45,7 +45,7 @@ router.delete(
   IsSuperAdmin,
   ...SuperAdminValidator.UsernameParam(),
   ValidateRequest,
-  SuperAdminController.Delete
+  asyncHandler(SuperAdminController.Delete)
 );
 
 

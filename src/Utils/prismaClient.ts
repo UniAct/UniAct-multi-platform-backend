@@ -4,6 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const prismaClients: Record<string, PrismaClient> = {};
 
 export function getTenantClient(schema: string): PrismaClient {
+  console.log("SCheemaaa" + schema);
   if (!prismaClients[schema]) {
     const baseUrl = process.env.DATABASE_URL;
     if (!baseUrl) {
@@ -15,13 +16,15 @@ export function getTenantClient(schema: string): PrismaClient {
     url.searchParams.set("schema", schema);
 
     // Create the adapter with the connection string
-    const adapter = new PrismaPg({connectionString: url.toString(),});
-    
+    const adapter = new PrismaPg(
+      { connectionString: url.toString() },
+      { schema }
+    );
+
     prismaClients[schema] = new PrismaClient({
       adapter,
       log: ["error"],
     });
   }
-
   return prismaClients[schema];
 }

@@ -11,6 +11,7 @@ import SuperAdminValidator from "../Validators/SuperAdminValidator";
 import SuperAdminController from "../Controllers/SuperAdminController";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
+import { asyncHandler } from "../Middlewares/ErrorHandler";
 
 const router: Router = Router({mergeParams: true});
 
@@ -19,7 +20,7 @@ router.post(
   TenantResolver,       
   ...UserValidator.Login(),
   ValidateRequest,      
-  UserController.Login  
+  asyncHandler(UserController.Login)  
 );
 
 router.post(
@@ -29,7 +30,7 @@ router.post(
   IsSuperAdmin,
   ...SuperAdminValidator.AssignRootAccount(),
   ValidateRequest,
-  SuperAdminController.AssignRootAccount
+ asyncHandler(SuperAdminController.AssignRootAccount)
 );
 
 //! send email for verification
@@ -40,7 +41,7 @@ router.post(
   RequirePermission(RBACRepository.Account.Create.Name),
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,
-  UserController.CreateStaffAccount
+  asyncHandler(UserController.CreateStaffAccount)
 );
 
 //! TODO: Delete, Update, Read account for Student Account And Staff Account

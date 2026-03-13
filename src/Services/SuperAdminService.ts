@@ -16,9 +16,6 @@ class SuperAdminService {
   ): Promise<SuperAdmin> {
 
     const prisma = getTenantClient(schema_name);
-    const existing = await SuperAdminRepository.IsExists(username , email, prisma);
-    if (existing) 
-      throw new Error("Email or Username already exist");
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -73,7 +70,8 @@ class SuperAdminService {
         schema_name
       );
 
-      const prisma = getTenantClient(schema_name);
+
+      const prisma = getTenantClient("public");
       const university_name = await UniversityRepository.GetUniversityNameBySchema(schema_name,prisma)
 
       await MailService.SendVerificationRootAccountMail(user.email! , university_name!);

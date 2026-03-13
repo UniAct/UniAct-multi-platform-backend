@@ -10,30 +10,22 @@ import { ConflictError, NotFoundError } from "../Types/Errors";
   //P2002 is thrown if there is a unique constraint fails e.g (creating a new user with same national ID (national ID must be Unique))
   //P2025 is thrown incase of resource not found e.g (delete user where National Id = x and there is no user found with this National Id)
 
-//primsa error object has this structure 
-  /*
-  {
-  "code": "P2002",
-  "clientVersion": "...",
-  "meta": {
-    "target": ["email"] (which field failed)
-  }
-}
-  */
-
 export function handlePrismaError(err: any, res: Response) {
+
+  // Extract which field failed
+    const adapterError = err.meta?.driverAdapterError as any;
+
+    const fields :string[] |undefined = adapterError?.cause?.constraint?.fields ?? err.meta?.target ;
     
    //unique constraint failed
-  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-    console.log("errooorr"+ err.meta?.target)
-    // Extract which field failed
-    const targetFields = err.meta?.target;
+  if (err.code === "P2002") {
+
     let message = "Unique constraint failed."; //default message
 
-    if (Array.isArray(targetFields) && targetFields.length > 0) {
+    if (Array.isArray(fields) && fields.length > 0) {
       // extract faild fields , Example: ["name"] or ["name","email"]
 
-      message = `${targetFields.join(", ")} already exists.`; //e.g (name already exists) OR (name, email already exists);
+      message = ` ${err.meta?.modelName} with this ${fields.join(", ")} already exists.`; //e.g (name already exists) OR (name, email already exists);
 
     }
     //throw new ConflictError(message);
@@ -44,16 +36,19 @@ export function handlePrismaError(err: any, res: Response) {
     });
   }
 
-  // Not found (findUniqueOrThrow / delete when record doesn't exist)
-  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+  //Not Found (e.g., delete non-existent, findUniqueOrThrow)
+  if (err.code === "P2025") {
+      console.log("--------------------------------------------------------------------------------------")
+    console.dir(err);
+    // Many P2025 errors don’t include specific field names,
+    // so show model name or generic resource name
+    const model = err.meta?.modelName ?? "Resource";
 
-    // Try to include context if available
-    const model = err.meta?.model ?? "Resource"; //same idea as meta.target above 
-    
-    //throw new NotFoundError(`${model} is not found`)
+    const message = `${model} not found.`;
+
     return res.status(StatusCodes.NOT_FOUND).json({
       status: JSendStatus.FAIL,
-      data: { message: `${model} not found.` },
+      data: { message },
     });
   }
   

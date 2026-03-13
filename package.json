@@ -10,7 +10,8 @@
     "dev": "ts-node-dev src/index.ts",
     "prepare-start": "npm run build",
     "prisma:push:public": "cross-env SCHEMA=public DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
-    "prisma:push:template": "cross-env SCHEMA=template DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma"
+    "prisma:push:template": "cross-env SCHEMA=template DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
+    "db:generate:snapshot": "node scripts/generate-template-snapshot.mjs"
   },
   "keywords": [],
   "author": "",
@@ -47,6 +48,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "cross-env": "^10.1.0",
+    "dotenv-cli": "^11.0.0",
     "prisma": "^7.4.2",
     "ts-node-dev": "^2.0.0"
   }

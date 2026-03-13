@@ -23,6 +23,6 @@ router.use('/rbac', RBACRoutes);
 
 router.use('/program', ProgramRoutes);
 
-router.use("/fuculty", facultyRoutes )
+router.use("/faculty", facultyRoutes )
 
 export default router;

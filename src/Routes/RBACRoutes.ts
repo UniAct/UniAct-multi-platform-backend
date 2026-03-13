@@ -9,6 +9,7 @@ import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
+import { asyncHandler } from "../Middlewares/ErrorHandler";
 
 const router: Router = Router({mergeParams: true});
 
@@ -19,7 +20,7 @@ router.post(
   RequirePermission(RBACRepository.Role.Create.Name),
   ...RBACValidator.CreateRole(),
   ValidateRequest,
-  RBACController.CreateRole
+  asyncHandler(RBACController.CreateRole)
 );
 
 router.get(
@@ -29,7 +30,7 @@ router.get(
   RequirePermission(RBACRepository.Role.Read.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
-  RBACController.GetRole
+  asyncHandler(RBACController.GetRole)
 );
 
 router.get(
@@ -37,7 +38,7 @@ router.get(
   TenantResolver,
   IsAuthenticated,
   RequirePermission(RBACRepository.Role.Read.Name),
-  RBACController.GetAllRole
+  asyncHandler(RBACController.GetAllRole)
 );
 
 router.put(
@@ -47,7 +48,7 @@ router.put(
   RequirePermission(RBACRepository.Role.Update.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
-  RBACController.UpdateRole
+  asyncHandler(RBACController.UpdateRole)
 );
 
 router.delete(
@@ -57,7 +58,7 @@ router.delete(
   RequirePermission(RBACRepository.Role.Delete.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
-  RBACController.DeleteRole
+  asyncHandler(RBACController.DeleteRole)
 );
 
 router.get(
@@ -65,7 +66,7 @@ router.get(
   TenantResolver,
   IsAuthenticated,
   RequirePermission(RBACRepository.Role.Read.Name),
-  RBACController.ReadPermissions
+  asyncHandler(RBACController.ReadPermissions)
 );
 
 router.get(
@@ -75,7 +76,7 @@ router.get(
   RequirePermission(RBACRepository.Role.Delete.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
-  RBACController.ReadPermissionsById
+  asyncHandler(RBACController.ReadPermissionsById)
 );
 
 router.post(
@@ -85,7 +86,7 @@ router.post(
   RequirePermission(RBACRepository.Role.Create.Name),
   ...RBACValidator.AssignPermissionsToRole(),
   ValidateRequest,
-  RBACController.AssignPermissionsToRole
+  asyncHandler(RBACController.AssignPermissionsToRole)
 );
 
 router.post(
@@ -95,7 +96,7 @@ router.post(
   RequirePermission(RBACRepository.Account.AssignRole.Name),
   ...AccountValidator.AssignRoleToUser(),
   ValidateRequest,
-  RBACController.AssignRoleToUser
+  asyncHandler(RBACController.AssignRoleToUser)
 );
 
 router.all(/.*/, (req, res) => {

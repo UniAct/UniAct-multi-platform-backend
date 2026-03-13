@@ -7,7 +7,7 @@ import { Prisma,PrismaClient,University } from "@prisma/client"
 class UniversityController {
 
   public static async Create(req: Request, res: Response,next: NextFunction) {
-    try {
+    
       let {
         name,
         address,
@@ -36,9 +36,7 @@ class UniversityController {
         data: university,
         message: "University created successfully!",
       });
-    } catch (err: any) {
-      next(err);
-    }
+    
   }
 
 
@@ -76,27 +74,15 @@ class UniversityController {
   }
 
   public static async Delete(req: Request, res: Response) {
-    try {
+  
       const id = parseInt(req.params.id);
-      const deletedUniversity = await UniversityService.DeleteUniversity(id, );
+      const deletedUniversity = await UniversityService.DeleteUniversity(id);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
         data: { message: `University '${deletedUniversity.name}' deleted successfully.`, deletedUniversity },
       });
-    } catch (err: any) {
-      if (err.message.includes("not found")) {
-        return res.status(StatusCodes.NOT_FOUND).json({
-          status: JSendStatus.FAIL,
-          data: { message: err.message },
-        });
-      }
-
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: err.message || "Internal Server Error",
-      });
-    }
+    
   }
   public static async Activate(req: Request, res: Response) {
     try {
