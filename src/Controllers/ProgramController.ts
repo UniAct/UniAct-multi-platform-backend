@@ -28,7 +28,7 @@ export default class ProgramController {
     }
 
     static async GetProgramById(req:Request, res: Response){
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params.id as string);
     
         const program = await programService.GetProgramById(id, req.schema_name!);
         res.status(StatusCodes.OK).json({
@@ -39,7 +39,7 @@ export default class ProgramController {
 
     static async Delete(req: Request, res: Response) {
         
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params.id as string);
 
         await programService.DeleteProgramById(id,req.schema_name!);
         res.status(StatusCodes.OK).json({

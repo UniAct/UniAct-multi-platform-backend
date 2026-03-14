@@ -200,7 +200,7 @@ export class RBACController {
       const { role_names } = req.body; 
 
       const result = await RBACService.AssignRoleToUser(
-        parseInt(id),
+        parseInt(id as string),
         role_names,
         tenant!
       );

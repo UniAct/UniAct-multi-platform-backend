@@ -15,7 +15,7 @@ export function ValidateToken (req: Request, res: Response, next: NextFunction) 
       });
     }
 
-    const decoded : TokenPayload = JwtService.Verify(token);
+    const decoded : TokenPayload = JwtService.Verify(token as string);
 
     req.user = decoded;
     next();

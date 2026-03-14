@@ -16,9 +16,3 @@ export interface UniversityCreateData {
   accreditation?: string;
 }
 
-export interface TenantCreateData {
-  name: string;
-  subdomain: string;
-  db_schema: string;
-  university_id?: number;
-}

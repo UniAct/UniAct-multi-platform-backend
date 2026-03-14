@@ -28,18 +28,17 @@ export class FacultyController {
 
     public static async GetFacultyById(req: Request, res: Response) {
 
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params.id as string);
         const faculty = await FacultyService.GetFacultyById(id, req.schema_name!);
 
         res.status(StatusCodes.OK).json({
             status: JSendStatus.SUCCESS,
             data: faculty,
         });
-    
     }
 
     public static async DeleteFaculty(req: Request, res: Response) {
-            const id = parseInt(req.params.id);
+            const id = parseInt(req.params.id as string );
             console.log(req.schema_name);
             await FacultyService.DeleteFaculty(id, req.schema_name!);
 

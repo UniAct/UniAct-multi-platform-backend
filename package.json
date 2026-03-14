@@ -11,7 +11,9 @@
     "prepare-start": "npm run build",
     "prisma:push:public": "cross-env SCHEMA=public DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
     "prisma:push:template": "cross-env SCHEMA=template DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
-    "db:generate:snapshot": "node scripts/generate-template-snapshot.mjs"
+    "db:generate:snapshot": "node scripts/generate-template-snapshot.mjs",
+    "prisma:generate": "node ./scripts/prepare-schema-beforeGenrate.mjs"
+
   },
   "keywords": [],
   "author": "",

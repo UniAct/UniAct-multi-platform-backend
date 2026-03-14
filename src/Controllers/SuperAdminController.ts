@@ -136,7 +136,7 @@ class SuperAdminController {
   public static async Delete(req: Request, res: Response) {
     try {
       const { username } = req.params;
-      const admin = await SuperAdminService.DeleteSuperAdmin(username,req.schema_name!);
+      const admin = await SuperAdminService.DeleteSuperAdmin(username as string,req.schema_name!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,

@@ -58,7 +58,7 @@ class UniversityController {
 
   public static async GetById(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const university = await UniversityService.GetById(id, );
 
       res.status(StatusCodes.OK).json({
@@ -75,7 +75,7 @@ class UniversityController {
 
   public static async Delete(req: Request, res: Response) {
   
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string );
       const deletedUniversity = await UniversityService.DeleteUniversity(id);
 
       res.status(StatusCodes.OK).json({
@@ -86,7 +86,7 @@ class UniversityController {
   }
   public static async Activate(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
 
       const university = await UniversityService.Activate(id, );
 
@@ -120,7 +120,7 @@ class UniversityController {
 
   public static async Deactivate(req: Request, res: Response) {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
 
       const university = await UniversityService.Deactivate(id);
 
