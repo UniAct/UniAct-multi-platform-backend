@@ -111,18 +111,8 @@ class SuperAdminRepository {
     }
   }
 
-  public static async ActivateRootAccount(email: string, university_name: string, prisma:PrismaClient) {
+  public static async ActivateRootAccount(email: string , prisma:PrismaClient) {
     try {
-      const university = await prisma.university.findUnique({
-        where: { name: university_name }
-      });
-
-      if (!university) 
-        throw new Error(`University '${university_name}' not found`);
-
-      const db_schema = university.db_schema;
-
-
       const root_account = await prisma.user.update({
         where: { email },
         data: { isVerified: true },

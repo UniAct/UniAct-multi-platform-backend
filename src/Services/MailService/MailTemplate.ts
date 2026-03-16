@@ -239,10 +239,10 @@ export class EmailTemplate {
         return this.Template(url);
     }
 
-    public static RootAccountTemplate(email: string, university_name: string): string {
+    public static RootAccountTemplate(email: string , schema_name : string): string {
         const url = this.GenerateUrl("api/superadmin/verify-root-account", {
             email,
-            university_name,
+            schema_name
         });
         return this.Template(url);
     }

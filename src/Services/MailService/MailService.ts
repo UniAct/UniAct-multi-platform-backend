@@ -25,9 +25,9 @@ export class MailService {
 
   public static async SendVerificationRootAccountMail(
     email: string,
-    university_name: string
+    schema_name: string
   ) {
-    const html = EmailTemplate.RootAccountTemplate(email, university_name);
+    const html = EmailTemplate.RootAccountTemplate(email, schema_name);
     await this.SendMail(email, "Verify Your Email", html);
   }
 }

@@ -56,14 +56,14 @@ class SuperAdminController {
     try {
       console.dir(req.user)
       const email = req.user?.email;
-      const university_name = req.user?.tenant_name;
+      const schema_name = req.user?.schema_name;
       const token = req.params.token;
 
-      await SuperAdminService.ActivateRootAccount(email! , university_name!,req.schema_name!);
+      await SuperAdminService.ActivateRootAccount(email! , schema_name);
 
       // Redirect to frontend verification page with success
       const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(university_name!)}`);
+      return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(schema_name!)}`);
     } catch (err: any) {
       console.error("Activation failed:", err);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

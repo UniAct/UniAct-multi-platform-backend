@@ -55,10 +55,10 @@ class SuperAdminService {
     return admin;
   }
 
-  public static async ActivateRootAccount(email : string , university_name : string, schema_name:string){
+  public static async ActivateRootAccount(email : string , schema_name:string){
 
     const prisma = getTenantClient(schema_name);
-    const root_account = await SuperAdminRepository.ActivateRootAccount(email , university_name, prisma);
+    const root_account = await SuperAdminRepository.ActivateRootAccount(email , prisma);
     if (!root_account) throw new Error("Root Account Not Found");
     return root_account;
   }
@@ -74,7 +74,7 @@ class SuperAdminService {
       const prisma = getTenantClient("public");
       const university_name = await UniversityRepository.GetUniversityNameBySchema(schema_name,prisma)
 
-      await MailService.SendVerificationRootAccountMail(user.email! , university_name!);
+      await MailService.SendVerificationRootAccountMail(user.email! , schema_name!);
 
       return root_account;
     } catch (err: any) {
