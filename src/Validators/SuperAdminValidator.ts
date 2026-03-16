@@ -60,6 +60,13 @@ class SuperAdminValidator {
 
   public static AssignRootAccount() {
     return [
+      body("university_name")
+        .notEmpty()
+        .withMessage("University name is required")
+        .isLength({ min: 2, max: 100 })
+        .withMessage("university name must be between 2 and 100 characters")
+        .trim(),
+
       body("username")
         .notEmpty()
         .withMessage("Username is required")

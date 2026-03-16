@@ -10,13 +10,14 @@ import { StatusCodes } from "http-status-codes";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 
 const router: Router = Router({mergeParams: true});
 
 router.post(
   "/role",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Create.Name),
   ...RBACValidator.CreateRole(),
   ValidateRequest,
@@ -25,8 +26,8 @@ router.post(
 
 router.get(
   "/role/:id",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Read.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -35,16 +36,16 @@ router.get(
 
 router.get(
   "/role",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Read.Name),
   asyncHandler(RBACController.GetAllRole)
 );
 
 router.put(
   "/role/:id",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Update.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -53,8 +54,8 @@ router.put(
 
 router.delete(
   "/role/:id",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Delete.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -63,16 +64,16 @@ router.delete(
 
 router.get(
   "/permission",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Read.Name),
   asyncHandler(RBACController.ReadPermissions)
 );
 
 router.get(
   "/permission/:id",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Delete.Name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -81,8 +82,8 @@ router.get(
 
 router.post(
   "/assign-permissions-to-role/:id",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Role.Create.Name),
   ...RBACValidator.AssignPermissionsToRole(),
   ValidateRequest,
@@ -91,8 +92,8 @@ router.post(
 
 router.post(
   "/assign-role-to-user/:id",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Account.AssignRole.Name),
   ...AccountValidator.AssignRoleToUser(),
   ValidateRequest,

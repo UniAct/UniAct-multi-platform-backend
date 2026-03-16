@@ -12,6 +12,8 @@ import SuperAdminController from "../Controllers/SuperAdminController";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
+import { ExtractTenantField } from "../Middlewares/ExtractTenantField";
 
 const router: Router = Router({mergeParams: true});
 
@@ -25,7 +27,7 @@ router.post(
 
 router.post(
   "/assign-root-account",
-  TenantResolver,
+  ExtractTenantField,
   IsAuthenticated,
   IsSuperAdmin,
   ...SuperAdminValidator.AssignRootAccount(),
@@ -36,8 +38,8 @@ router.post(
 //! send email for verification
 router.post(
   "/account/staff",
-  TenantResolver,
   IsAuthenticated,
+  TenantResolverAfterAuthentication,
   RequirePermission(RBACRepository.Account.Create.Name),
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,

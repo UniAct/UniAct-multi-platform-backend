@@ -1,0 +1,955 @@
+{
+  "info": {
+    "_postman_id": "ed1d0670-be1f-4807-8362-73ffd405de94",
+    "name": "UniAct",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49123104",
+    "_collection_link": "https://go.postman.co/collection/49123104-ed1d0670-be1f-4807-8362-73ffd405de94?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "SuperAdmin",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hcmtNYWdkeSIsImVtYWlsIjoibWFya2dlZm9yY2U0MDgwQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzYwMDEzMzU2fQ.i7ePnua9pKCo_UtIQwS_hE5YuQQKQlLKfqMNNPuM2WY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"email\" : \"mark@gmail.com\",\r\n    \"password\" : \"aaAA11!!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/superadmin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "superadmin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register another super admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtnZWZvcmNlNDA4MEBnbWFpbC5jb20iLCJyb2xlIjoiU3VwZXJBZG1pbiIsImlhdCI6MTc2MDA4NzY1OSwiZXhwIjoxNzYwMTc0MDU5fQ.4ghDzJxzmbZ_i9Mf-YSM_ZMGbAZxkLugz1mzz9qHqRg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"MarkMagdyAyoub\",\r\n    \"email\": \"markmagdy148@gmail.com\",\r\n    \"password\": \"11aaAA!!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/superadmin/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "superadmin",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Super Admin",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1hcmtNYWdkeSIsImVtYWlsIjoibWFya2dlZm9yY2U0MDgwQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzYwMDE0NTI4fQ.TuFBXooJtQeUUgHraMT0Nnj7vzhUwYoLXpwvsNNP6hs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\" : \"markgeforce4080@gmail.com\",\r\n    \"password\" : \"11aaAA!!\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/superadmin",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "superadmin"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "University",
+      "item": [
+        {
+          "name": "Create New University",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM2ODUzNTYsImV4cCI6MTc3Mzc3MTc1Nn0.pv9DX5BLiWFhylpSwE-58XhSEjJe73LOWs5aDjF8OBA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Nile Valley University\",\r\n  \"address\": \"Assiut, Assiut Governorate, Egypt\",\r\n  \"phone\": \"+20 88 234 5678\",\r\n  \"email\": \"info@nilevalley.edu.eg\",\r\n  \"website\": \"https://www.nilevalley.edu.eg\",\r\n  \"established_date\": \"2006-03-22\",\r\n  \"accreditation\": \"Accredited by the Supreme Council of Universities (Egypt)\",\r\n  \"db_schema\": \"nile_valley\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/university/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get University By Id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtnZWZvcmNlNDA4MEBnbWFpbC5jb20iLCJyb2xlIjoiU3VwZXJBZG1pbiIsImlhdCI6MTc3MTE2NzE4NSwiZXhwIjoxNzcxMjUzNTg1fQ.0x4azkE7h4YhrHLC11zcFjkV-jRNzP2dzUKzxf9QqoQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Cairo University\",\r\n  \"address\": \"Giza, Cairo, Egypt\",\r\n  \"phone\": \"+20 123 456 789\",\r\n  \"email\": \"info@cairo.edu.eg\",\r\n  \"website\": \"https://www.cairo.edu.eg\",\r\n  \"established_date\": \"1908-12-21\",\r\n  \"accreditation\": \"National and International Accreditation\"\r\n}\r\n"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/university/9",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university",
+                "9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Universities",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJNYXJrIiwiZW1haWwiOiJNYXJrQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzczMzMyNzIwLCJleHAiOjE3NzM0MTkxMjB9.R-sQwdPaSo7ZHQkpXPLzYX00R0fTZS0vQls59IUoaE0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/university",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate University",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywidXNlcm5hbWUiOiJNYXJrTWFnZHlBeW91YiIsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzY2ODUwNDE3LCJleHAiOjE3NjY5MzY4MTd9.adlnXqqvvjQ21FEMElOuimbsIRH9zp3MaCLIA2BdsAk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/university/1/activate",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university",
+                "1",
+                "activate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate University Copy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtnZWZvcmNlNDA4MEBnbWFpbC5jb20iLCJyb2xlIjoiU3VwZXJBZG1pbiIsImlhdCI6MTc3MTE2OTEzMSwiZXhwIjoxNzcxMjU1NTMxfQ.QAWl2ZJsp0KZasaTQRbwp5LYpnC1mVFq7uGtn3TErKQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/university/10/activate",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university",
+                "10",
+                "activate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete A University",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJNYXJrIiwiZW1haWwiOiJNYXJrQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzczMzMyNzIwLCJleHAiOjE3NzM0MTkxMjB9.R-sQwdPaSo7ZHQkpXPLzYX00R0fTZS0vQls59IUoaE0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/university/70",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university",
+                "70"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Available Universities",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJNYXJrIiwiZW1haWwiOiJNYXJrQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzczMzMyNzIwLCJleHAiOjE3NzM0MTkxMjB9.R-sQwdPaSo7ZHQkpXPLzYX00R0fTZS0vQls59IUoaE0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/university/list",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "university",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Root Account Copy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM2ODUzNTYsImV4cCI6MTc3Mzc3MTc1Nn0.pv9DX5BLiWFhylpSwE-58XhSEjJe73LOWs5aDjF8OBA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"university_name\": \"Nile Valley University\",\r\n  \"username\": \"root_admin\",\r\n  \"firstName\": \"Mark\",\r\n  \"lastName\": \"Magdy\",\r\n  \"email\": \"markmagdy148@gmail.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"phone\": \"+201234567890\",\r\n  \"dateOfBirth\": \"1985-03-15\",\r\n  \"address\": \"123 University Street, Smouha\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"nationalId\": \"28503151234567\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/user/assign-root-account",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "user",
+                "assign-root-account"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "Nile Valley University",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n      \"email\": \"markmagdy148@gmail.com\",\r\n      \"password\": \"aaAA11!!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/user/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Staff Account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "username",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "bla7",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"markmagdy\",\r\n  \"first_name\": \"Mark\",\r\n  \"last_name\": \"Magdy\",\r\n  \"email\": \"mark.magdy@example.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"date_of_birth\": \"1999-08-15\",\r\n  \"address\": \"25 El-Gaish Street\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"national_id\": \"29908151234567\",\r\n  \"position\": \"Software Engineer\",\r\n  \"hireDate\": \"2024-06-01\",\r\n  \"salary\": 12000,\r\n  \"phone\": \"01210480491\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/user/account/staff",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "user",
+                "account",
+                "staff"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "RBAC",
+      "item": [
+        {
+          "name": "Create Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Data Entry\",\r\n    \"description\": \"Responsible for entering and maintaining system data\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/role",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/rbac/role/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "role",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role By Id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ5b3VyX2VtYWlsQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiYWxleGFuZHJpYV9uYXRpb25hbF91bml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQuZGVsZXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSJdLCJpYXQiOjE3NjQzNDgxMzMsImV4cCI6MTc2NDQzNDUzM30.1zmjgrVI7WnA0DpKWRJLRRajTCMvTo8PEITRrVs05AA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Data Entry data records\",\r\n  \"description\": \"Responsible for creating, updating, and maintaining data records\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/rbac/role/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "role",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Roles",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidGVuYW50X25hbWUiOiJOaWxlIFZhbGxleSBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIl0sImlhdCI6MTc3MzY4NjQ3MiwiZXhwIjoxNzczNzcyODcyfQ.yEPAIZsReZ-fKecpzSk11e8xm-qo2xS4ZqXeN3cf03s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/role",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/rbac/role/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "role",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiZGVsdGFfaW50ZXJuYXRpb25hbF90ZWNobm9sb2d5X3VuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsImFjY291bnQuYXNzaWduX3JvbGUiXSwiaWF0IjoxNzY1MDAyNTMxLCJleHAiOjE3NjUwODg5MzF9.Mhl6MCSX50EVdVasr_V7biG9if-yGw7j3lZgtN1pVbU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/rbac/permission",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "permission"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/rbac/permission/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "permission",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Permissions To Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiYWxleGFuZHJpYV9uYXRpb25hbF91bml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyYmFjLmNyZWF0ZSIsInJiYWMucmVhZCIsInJiYWMudXBkYXRlIiwicmJhYy5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIl0sImlhdCI6MTc2NDk2MDEzMSwiZXhwIjoxNzY1MDQ2NTMxfQ.s-KYl1-OmZYmPEZPo8K1x6-BeeWzv217gbnqXHPXnok",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"permissions\": [\r\n    \"account.read\",\r\n    \"account.create\",\r\n    \"account.delete\",\r\n    \"account.assign_role\"\r\n  ]\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/rbac/assign-permissions-to-role/7",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "assign-permissions-to-role",
+                "7"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Role To User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"role_names\": [\r\n    \"Data Entry\"\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/assign-role-to-user/11",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "assign-role-to-user",
+                "11"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

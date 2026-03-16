@@ -160,6 +160,7 @@ class SuperAdminController {
   public static async AssignRootAccount(req: Request, res: Response) {
     try {
       const schema = req.schema_name;
+
       const {
         username,
         firstName,

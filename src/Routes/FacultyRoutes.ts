@@ -7,13 +7,14 @@ import { RequirePermission } from "../Middlewares/Authorization/RequirePermissio
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { TenantResolver } from "../Middlewares/TenantResolver";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 
 const router = Router();
 //Create Faculty
 router.post(
     "/",
-    TenantResolver,
     IsAuthenticated,
+    TenantResolverAfterAuthentication,
     RequirePermission(RBACRepository.Faculty.Create.Name),
 
     //Request validation
@@ -36,8 +37,8 @@ router.get("/:id",
 
 //Delete a faculty
 router.delete("/:id",
-    TenantResolver,
     IsAuthenticated,
+    TenantResolverAfterAuthentication,
     RequirePermission(RBACRepository.Faculty.Delete.Name),
     ...FacultyValidator.IdParam(),
     ValidateRequest,
