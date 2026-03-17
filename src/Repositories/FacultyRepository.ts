@@ -16,6 +16,13 @@ export class FacultyRepository {
      return await prisma.faculty.findUnique({ where: { id } });
    }
 
+   static async UpdateFaculty(id:number, FacultyData: Prisma.FacultyUpdateInput, prisma:PrismaClient){
+      return prisma.faculty.update({
+         where: { id },
+         data: FacultyData,
+      });
+   }
+
    static async DeleteFaculty(id:number, prisma:PrismaClient) {
 
       return await prisma.faculty.delete({ where: { id } });

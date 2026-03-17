@@ -14,15 +14,16 @@ import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 import { ExtractTenantField } from "../Middlewares/ExtractTenantField";
+import { ValidateToken } from "../Middlewares/ValidationToken";
 
-const router: Router = Router({mergeParams: true});
+const router: Router = Router({ mergeParams: true });
 
 router.post(
   "/login",
-  TenantResolver,       
+  TenantResolver,
   ...UserValidator.Login(),
-  ValidateRequest,      
-  asyncHandler(UserController.Login)  
+  ValidateRequest,
+  asyncHandler(UserController.Login)
 );
 
 router.post(
@@ -32,7 +33,7 @@ router.post(
   IsSuperAdmin,
   ...SuperAdminValidator.AssignRootAccount(),
   ValidateRequest,
- asyncHandler(SuperAdminController.AssignRootAccount)
+  asyncHandler(SuperAdminController.AssignRootAccount)
 );
 
 //! send email for verification
@@ -44,6 +45,41 @@ router.post(
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,
   asyncHandler(UserController.CreateStaffAccount)
+);
+
+router.get(
+  "/verify-staff-account/:token",
+  ValidateToken,
+  asyncHandler(UserController.ActivateStaffAccount)
+);
+
+router.get(
+  "/account/staff",
+  IsAuthenticated,
+  TenantResolverAfterAuthentication,
+  RequirePermission(RBACRepository.Account.Read.Name),
+  asyncHandler(UserController.GetAllStaffAccounts)
+);
+
+router.patch(
+  "/account/staff/:id",
+  IsAuthenticated,
+  TenantResolverAfterAuthentication,
+  RequirePermission(RBACRepository.Account.Update.Name),
+  ...UserValidator.StaffIdParam(),
+  ...UserValidator.UpdateStaffAccount(),
+  ValidateRequest,
+  asyncHandler(UserController.UpdateStaffAccount)
+);
+
+router.delete(
+  "/account/staff/:id",
+  IsAuthenticated,
+  TenantResolverAfterAuthentication,
+  RequirePermission(RBACRepository.Account.Delete.Name),
+  ...UserValidator.StaffIdParam(),
+  ValidateRequest,
+  asyncHandler(UserController.DeleteStaffAccount)
 );
 
 //! TODO: Delete, Update, Read account for Student Account And Staff Account

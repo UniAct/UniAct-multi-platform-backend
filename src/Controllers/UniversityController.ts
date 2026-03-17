@@ -166,6 +166,31 @@ class UniversityController {
     }
   }
 
+  public static async GetPublicBySchema(req: Request, res: Response) {
+    try {
+      const schema = String(req.params.schema || "").trim().toLowerCase();
+
+      if (!schema) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          status: JSendStatus.FAIL,
+          data: { message: "Tenant schema is required." },
+        });
+      }
+
+      const university = await UniversityService.GetBySchema(schema);
+
+      return res.status(StatusCodes.OK).json({
+        status: JSendStatus.SUCCESS,
+        data: university,
+      });
+    } catch (err: any) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: JSendStatus.FAIL,
+        data: { message: err.message || "University not found." },
+      });
+    }
+  }
+
 }
 
 export default UniversityController;

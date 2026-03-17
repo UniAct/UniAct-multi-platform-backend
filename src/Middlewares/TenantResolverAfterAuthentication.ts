@@ -89,13 +89,14 @@ export async function TenantResolverAfterAuthentication(
   next: NextFunction
 ) {
   try {
-    // tenant name extracted from decoded JWT token
-    const tenant = req.user?.tenant_name;
+    const headerTenant = String(req.headers["x-tenant-id"] || "").trim();
+    const isSuperAdmin = req.user?.roles?.includes("SuperAdmin") || req.user?.role === "SuperAdmin";
+    const tenant = req.user?.tenant_name || (isSuperAdmin ? headerTenant : undefined);
 
     if (!tenant) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: JSendStatus.FAIL,
-        data: { message: "Token is required" },
+        data: { message: isSuperAdmin ? "x-tenant-id is required for super admin tenant actions" : "Token is required" },
       });
     }
 

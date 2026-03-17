@@ -28,6 +28,25 @@ router.get(
     asyncHandler(ProgramController.GetAllPrograms)
 )
 
+router.get(
+    "/:id",
+    TenantResolver,
+    IsAuthenticated,
+    ...ProgramValidator.IdParam(),
+    ValidateRequest,
+    asyncHandler(ProgramController.GetProgramById)
+)
+
+router.put(
+    "/:id",
+    IsAuthenticated,
+    TenantResolverAfterAuthentication,
+    RequirePermission(RBACRepository.Program.Update.Name),
+    ...ProgramValidator.Update(),
+    ValidateRequest,
+    asyncHandler(ProgramController.UpdateProgram)
+)
+
 router.delete(
     "/:id",
     IsAuthenticated,

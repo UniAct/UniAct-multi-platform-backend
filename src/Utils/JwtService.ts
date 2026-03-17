@@ -19,6 +19,11 @@ export default class JwtService {
     return jwt.sign(payload, secret, { expiresIn: this.expiresIn });
   }
 
+  public static SignWithExpiry(payload: TokenPayload, expiresIn: SignOptions["expiresIn"]): string {
+    const secret = this.EnsureSecret();
+    return jwt.sign(payload, secret, { expiresIn });
+  }
+
   public static Verify(token: string): TokenPayload {
     const secret = this.EnsureSecret();
 

@@ -32,6 +32,12 @@ export class FacultyService {
         return faculty;
     }
 
+    static async UpdateFaculty(id: number, FacultyData: Prisma.FacultyUpdateInput, schema_name:string) {
+
+        const prisma =getTenantClient(schema_name);
+        return FacultyRepository.UpdateFaculty(id, FacultyData, prisma);
+    }
+
     static async DeleteFaculty(id: number, schema_name:string ) {
         
         const prisma=getTenantClient(schema_name);

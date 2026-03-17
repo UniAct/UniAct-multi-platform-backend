@@ -21,18 +21,28 @@ router.post(
     ...FacultyValidator.Create(),
     ValidateRequest,
     //
-     asyncHandler(FacultyController.CreateFaculty)
+    asyncHandler(FacultyController.CreateFaculty)
 );
 
 //Get All Faculties
 router.get("/",TenantResolver, FacultyController.GetAllFaculties),
 
-//Get Faculty By Id
-router.get("/:id",
-    TenantResolver,
-    ...FacultyValidator.IdParam(),
+    //Get Faculty By Id
+    router.get("/:id",
+        TenantResolver,
+        ...FacultyValidator.IdParam(),
+        ValidateRequest,
+        asyncHandler(FacultyController.GetFacultyById)
+    );
+// Update Faculty by Id
+router.put(
+    "/:id",
+    IsAuthenticated,
+    TenantResolverAfterAuthentication,
+    RequirePermission(RBACRepository.Faculty.Update.Name),
+    ...FacultyValidator.Update(),
     ValidateRequest,
-    asyncHandler(FacultyController.GetFacultyById)
+    asyncHandler(FacultyController.UpdateFaculty)
 );
 
 //Delete a faculty

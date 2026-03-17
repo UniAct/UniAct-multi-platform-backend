@@ -48,4 +48,39 @@ export default class FacultyValidator {
         .toInt(),
     ];
   }
+
+  public static Update() {
+    return [
+      ...this.IdParam(),
+      body("universityId")
+        .optional()
+        .isInt({ gt: 0 })
+        .withMessage("University ID must be a positive integer")
+        .toInt(),
+
+      body("name")
+        .optional()
+        .isString()
+        .withMessage("Faculty name must be a string")
+        .isLength({ max: 255 })
+        .withMessage("Faculty name must be less than 255 characters"),
+
+      body("description")
+        .optional()
+        .isString()
+        .withMessage("Description must be a string"),
+
+      body("deanId")
+        .optional()
+        .isInt({ gt: 0 })
+        .withMessage("Dean ID must be a positive integer")
+        .toInt(),
+
+      body("establishedDate")
+        .optional()
+        .isISO8601()
+        .withMessage("Established date must be in a valid ISO format (YYYY-MM-DD)")
+        .toDate(),
+    ];
+  }
 }

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import SuperAdminService from "../Services/SuperAdminService";
 import JSendStatus from "../Enums/Jsend";
-import { SuperAdmin,Prisma } from "@prisma/client";
+import { SuperAdmin, Prisma } from "@prisma/client";
 import { MailService } from "../Services/MailService/MailService";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
@@ -11,21 +11,21 @@ import SystemRoles from "../Enums/SystemRoles";
 class SuperAdminController {
   public static async Register(req: Request, res: Response) {
 
-      const { username, email, password } : Prisma.SuperAdminCreateInput = req.body;
-      
-      await SuperAdminService.CreateSuperAdmin(username, email, password, req.schema_name!);
+    const { username, email, password }: Prisma.SuperAdminCreateInput = req.body;
 
-      await MailService.SendVerificationSuperAdminMail(email);
+    await SuperAdminService.CreateSuperAdmin(username, email, password, req.schema_name!);
 
-      res.status(StatusCodes.CREATED).json({
-        status: JSendStatus.SUCCESS,
-        message: "SuperAdmin created and confirmation email sent!"
-      });
-    
+    await MailService.SendVerificationSuperAdminMail(email);
+
+    res.status(StatusCodes.CREATED).json({
+      status: JSendStatus.SUCCESS,
+      message: "SuperAdmin created and confirmation email sent!"
+    });
+
   }
 
   public static async GetAll(req: Request, res: Response) {
-    const admins : SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(req.schema_name!);
+    const admins: SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(req.schema_name!);
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
       data: admins,
@@ -34,22 +34,22 @@ class SuperAdminController {
 
   public static async Activate(req: Request, res: Response) {
 
-      const email = req.user?.email;
+    const email = req.user?.email;
 
-      if (!email) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          status: JSendStatus.FAIL,
-          data: { message: "Invalid token payload" },
-        });
-      }
-
-      const admin = await SuperAdminService.ActivateSuperAdmin(email, "public");
-
-      // TODO: Return HTML Page Instead Of Json
-      res.status(StatusCodes.OK).json({
-        status: JSendStatus.SUCCESS,
-        data: { message: `SuperAdmin '${admin.username}' activated successfully.`},
+    if (!email) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: JSendStatus.FAIL,
+        data: { message: "Invalid token payload" },
       });
+    }
+
+    const admin = await SuperAdminService.ActivateSuperAdmin(email, "public");
+
+    // TODO: Return HTML Page Instead Of Json
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: { message: `SuperAdmin '${admin.username}' activated successfully.` },
+    });
   }
 
   public static async ActivateRootAccount(req: Request, res: Response) {
@@ -59,7 +59,14 @@ class SuperAdminController {
       const schema_name = req.user?.schema_name;
       const token = req.params.token;
 
-      await SuperAdminService.ActivateRootAccount(email! , schema_name);
+      if (!email || !schema_name) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          status: JSendStatus.FAIL,
+          message: "Invalid verification token payload",
+        });
+      }
+
+      await SuperAdminService.ActivateRootAccount(email, schema_name);
 
       // Redirect to frontend verification page with success
       const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -73,10 +80,10 @@ class SuperAdminController {
     }
   }
 
-  public static async Login(req : Request , res : Response){
-    try{
-      const {email , password} : {email : string , password : string} = req.body;
-      const admin = await SuperAdminService.GetSuperAdminByEmail(email,req.schema_name!);
+  public static async Login(req: Request, res: Response) {
+    try {
+      const { email, password }: { email: string, password: string } = req.body;
+      const admin = await SuperAdminService.GetSuperAdminByEmail(email, req.schema_name!);
       if (!admin) {
         return res.status(StatusCodes.NOT_FOUND).json({
           status: JSendStatus.FAIL,
@@ -136,7 +143,7 @@ class SuperAdminController {
   public static async Delete(req: Request, res: Response) {
     try {
       const { username } = req.params;
-      const admin = await SuperAdminService.DeleteSuperAdmin(username as string,req.schema_name!);
+      const admin = await SuperAdminService.DeleteSuperAdmin(username as string, req.schema_name!);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -173,7 +180,7 @@ class SuperAdminController {
         city,
         country,
         nationalId,
-      } : Prisma.UserCreateInput = req.body;
+      }: Prisma.UserCreateInput = req.body;
 
       const hashed_password = await bcrypt.hash(password, 10);
 

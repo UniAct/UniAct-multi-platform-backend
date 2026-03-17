@@ -8,8 +8,10 @@ import { SwaggerSpec } from "./Utils/SwaggerConfig";
 import MainRouter from "./Routes/MainRouter";
 import multer from "multer";
 import { ErrorHandler } from "./Middlewares/ErrorHandler";
+import { setupTenantClientShutdownHooks } from "./Utils/prismaClient";
 
 dotenv.config();
+setupTenantClientShutdownHooks();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -29,7 +31,7 @@ const corsOptions = {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-tenant-id'],
 };
 
 app.use(cors(corsOptions));
@@ -49,7 +51,7 @@ app.get('/', (req, res) => {
 
 // ==================== API ROUTES ====================
 
-app.use("/api",MainRouter)
+app.use("/api", MainRouter)
 
 app.use(ErrorHandler)
 // ==================== SWAGGER DOCUMENTATION ====================
@@ -79,8 +81,8 @@ app.all(/.*/, (req, res) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (err instanceof multer.MulterError || err.message?.includes("PDF")) {
         return res.status(StatusCodes.BAD_REQUEST).json({
-        status: JSendStatus.FAIL,
-        message: err.message,
+            status: JSendStatus.FAIL,
+            message: err.message,
         });
     }
     next(err);

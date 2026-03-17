@@ -45,12 +45,25 @@ export default class ProgramValidator {
 
     body("programType")
       .notEmpty()
-      .withMessage("Program type is required"),
+      .withMessage("Program type is required")
+      .isIn(["Bachelor", "Master", "Diploma", "PhD"]),
 
     body("resultDisplay")
-      .optional(),
+      .optional()
+      .isIn(["CourseGrade", "DetailedEstimate"]),
+
+    body("blockReason")
+      .optional()
+      .isIn(["NonPaymentCurrent", "NonPaymentOld"]),
   ];
 }
+
+  public static Update() {
+    return [
+      ...this.IdParam(),
+      ...this.Create(),
+    ];
+  }
 
   public static IdParam() {
     return [

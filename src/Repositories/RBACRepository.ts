@@ -1,7 +1,7 @@
 import { Role, Permission, RolePermission, PrismaClient } from "@prisma/client"
 
 
-  //under test function to generate the (resource.permission) automatically instead of repeated code
+//under test function to generate the (resource.permission) automatically instead of repeated code
 
 function CRUD(resource: string) {
   return {
@@ -16,7 +16,7 @@ function CRUD(resource: string) {
 export class RBACRepository {
 
   //! put your permissions here
-  
+
   public static Program = CRUD("program")
 
   public static Faculty = CRUD("faculty")
@@ -24,24 +24,24 @@ export class RBACRepository {
 
 
   public static Account = class {
-    static Read    = { Name: "account.read",    Description: "Read user account information" };
-    static Create  = { Name: "account.create",  Description: "Create user accounts" };
-    static Update  = { Name: "account.update",  Description: "Update user account information" };
-    static Delete  = { Name: "account.delete",  Description: "Delete user accounts" };
-    static AssignRole  = { Name: "account.assign_role",  Description: "Assign roles to user accounts" };
+    static Read = { Name: "account.read", Description: "Read user account information" };
+    static Create = { Name: "account.create", Description: "Create user accounts" };
+    static Update = { Name: "account.update", Description: "Update user account information" };
+    static Delete = { Name: "account.delete", Description: "Delete user accounts" };
+    static AssignRole = { Name: "account.assign_role", Description: "Assign roles to user accounts" };
   };
 
   public static Role = class {
-    static Read    = { Name: "role.read",    Description: "Read all roles and permissions" };
-    static Create  = { Name: "role.create",  Description: "Create roles and permissions" };
-    static Update  = { Name: "role.update",  Description: "Update existing roles and permissions" };
-    static Delete  = { Name: "role.delete",  Description: "Delete roles and permissions" };
+    static Read = { Name: "role.read", Description: "Read all roles and permissions" };
+    static Create = { Name: "role.create", Description: "Create roles and permissions" };
+    static Update = { Name: "role.update", Description: "Update existing roles and permissions" };
+    static Delete = { Name: "role.delete", Description: "Delete roles and permissions" };
   };
 
 
 
   public static async GetUserRoles(user_id: number, prisma: PrismaClient): Promise<string[]> {
-    
+
     const roles = await prisma.role.findMany({
       where: {
         userRoles: {
@@ -50,13 +50,12 @@ export class RBACRepository {
       },
       select: { name: true },
     });
-    prisma.$disconnect();
     // @ts-ignore
     return roles.map((r) => r.name);
   }
 
   public static async GetUserPermissions(user_id: number, prisma: PrismaClient): Promise<string[]> {
-    
+
     const permissions = await prisma.permission.findMany({
       where: {
         rolePermissions: {
@@ -72,22 +71,20 @@ export class RBACRepository {
       select: { name: true },
       distinct: ["id"],
     });
-    prisma.$disconnect();
     // @ts-ignore
     return permissions.map((p) => p.name);
   }
 
   public static async CreateRole(name: string, description: string, prisma: PrismaClient): Promise<Role> {
-    
+
     const role = await prisma.role.create({
       data: { name, description },
     });
-    prisma.$disconnect();
     return role;
   }
 
   public static async GetRoleById(role_id: number, prisma: PrismaClient) {
-    
+
 
     const role = await prisma.role.findUnique({
       where: { id: role_id },
@@ -102,7 +99,7 @@ export class RBACRepository {
       },
     });
 
-    
+
 
     if (!role) return null;
 
@@ -118,48 +115,43 @@ export class RBACRepository {
   }
 
   public static async GetRoleByName(role_name: string, prisma: PrismaClient) {
-    
+
     const role = await prisma.role.findUnique({ where: { name: role_name } });
-    prisma.$disconnect();
     return role;
   }
 
   public static async UpdateRole(role_id: number, name: string, description: string, prisma: PrismaClient): Promise<Role> {
-    
+
     const role = await prisma.role.update({
       where: { id: role_id },
       data: { name, description },
     });
-    prisma.$disconnect();
     return role;
   }
 
   public static async DeleteRole(role_id: number, prisma: PrismaClient): Promise<Role> {
-    
+
     const role = await prisma.role.delete({ where: { id: role_id } });
-    prisma.$disconnect();
     return role;
   }
 
   public static async GetAllPermissions(prisma: PrismaClient): Promise<{ name: string; description: string | null }[]> {
-    
+
 
     const permissions = await prisma.permission.findMany({
       select: { name: true, description: true },
     });
-
-    prisma.$disconnect();
     return permissions;
   }
 
   public static async GetPermissionById(id: number, prisma: PrismaClient): Promise<Permission | null> {
-    
+
 
     const permission = await prisma.permission.findUnique({
       where: { id },
     });
 
-    
+
 
     return permission;
   }
@@ -182,7 +174,7 @@ export class RBACRepository {
       console.error("Error fetching permissions by names:", err);
       throw err;
     } finally {
-      
+
     }
   }
 
@@ -216,12 +208,12 @@ export class RBACRepository {
       console.error("Error assigning permissions to role:", err);
       throw err;
     } finally {
-      
+
     }
   }
 
   public static async GetAllRole(prisma: PrismaClient) {
-    
+
 
     const roles = await prisma.role.findMany({
       orderBy: { id: "asc" },
@@ -236,7 +228,7 @@ export class RBACRepository {
       },
     });
 
-    
+
     // @ts-ignore
     const formatted = roles.map((role) => ({
       id: role.id,
@@ -267,7 +259,7 @@ export class RBACRepository {
       console.error("Error fetching roles by names:", error);
       throw error;
     } finally {
-      
+
     }
   }
 
@@ -276,7 +268,7 @@ export class RBACRepository {
     roles: Role[],
     prisma: PrismaClient
   ) {
-    
+
 
     try {
       const result = await prisma.$transaction(async (tx) => {
@@ -307,6 +299,6 @@ export class RBACRepository {
     } catch (error) {
       console.error("Error assigning roles to user:", error);
       throw error;
-    } 
+    }
   }
 }

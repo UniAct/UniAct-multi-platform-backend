@@ -4,10 +4,10 @@ import JSendStatus from "../Enums/Jsend";
 import { TokenPayload } from "../Interfaces/TokenPayload";
 import JwtService from "../Utils/JwtService";
 
-export function ValidateToken (req: Request, res: Response, next: NextFunction) {
+export function ValidateToken(req: Request, res: Response, next: NextFunction) {
   try {
     const { token } = req.params;
-    
+
     if (!token) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: JSendStatus.FAIL,
@@ -15,14 +15,15 @@ export function ValidateToken (req: Request, res: Response, next: NextFunction) 
       });
     }
 
-    const decoded : TokenPayload = JwtService.Verify(token as string);
+    const normalizedToken = decodeURIComponent(token as string);
+    const decoded: TokenPayload = JwtService.Verify(normalizedToken);
 
     req.user = decoded;
     next();
-  } catch (err) {
+  } catch (err: any) {
     return res.status(StatusCodes.FORBIDDEN).json({
       status: JSendStatus.ERROR,
-      data: { message: "Invalid or expired token" },
+      data: { message: err?.message || "Invalid or expired token" },
     });
   }
 };

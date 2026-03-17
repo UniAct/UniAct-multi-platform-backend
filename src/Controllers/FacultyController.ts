@@ -37,6 +37,18 @@ export class FacultyController {
         });
     }
 
+    static async UpdateFaculty(req: Request, res: Response) {
+        const id = parseInt(req.params.id as string);
+        const FacultyData: Prisma.FacultyUpdateInput = req.body;
+        const updatedFaculty = await FacultyService.UpdateFaculty(id, FacultyData, req.schema_name!);
+
+        res.status(StatusCodes.OK).json({
+            status: JSendStatus.SUCCESS,
+            data: updatedFaculty,
+            message: "Faculty updated successfully!",
+        });
+    }
+
     public static async DeleteFaculty(req: Request, res: Response) {
             const id = parseInt(req.params.id as string );
             console.log(req.schema_name);

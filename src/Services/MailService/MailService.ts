@@ -30,4 +30,12 @@ export class MailService {
     const html = EmailTemplate.RootAccountTemplate(email, schema_name);
     await this.SendMail(email, "Verify Your Email", html);
   }
+
+  public static async SendVerificationStaffAccountMail(
+    email: string,
+    schema_name: string
+  ) {
+    const html = EmailTemplate.StaffAccountTemplate(email, schema_name);
+    await this.SendMail(email, "Verify Your Staff Account", html);
+  }
 }
