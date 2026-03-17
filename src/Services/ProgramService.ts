@@ -2,6 +2,7 @@ import { Prisma, PrismaClient, Program } from "@prisma/client";
 import { NotFoundError } from "../Types/Errors";
 import { getTenantClient } from "../Utils/prismaClient";
 import { ProgramRepository } from "../Repositories/ProgramRepository";
+import { logger } from "../Utils/Logger";
 
 export class programService{
 
@@ -11,7 +12,13 @@ export class programService{
         const prisma=getTenantClient(schema_name);
         const newProgram = await ProgramRepository.CreateProgram(programData,prisma);
 
-        console.log(`[INFO] Program created successfully: ${newProgram.name}`);
+        logger.info(
+          {
+            action: "programService.CreateProgram",
+            program_name : programData.name,
+            status: "success"
+          }
+        );
         return newProgram;
 
     }

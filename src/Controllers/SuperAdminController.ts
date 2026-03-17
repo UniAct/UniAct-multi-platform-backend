@@ -62,7 +62,7 @@ class SuperAdminController {
       const email = req.user?.email;
       const schema = req.schema_name!;
       const token = req.params.token;
-
+      
       await SuperAdminService.ActivateRootAccount(email! , schema);
 
       // Redirect to frontend verification page with success
@@ -80,7 +80,7 @@ class SuperAdminController {
   public static async Login(req : Request , res : Response){
     try{
       const {email , password} : {email : string , password : string} = req.body;
-      console.log(schema_name);
+
       const admin = await SuperAdminService.GetSuperAdminByEmail(email,schema_name);
       if (!admin) {
         return res.status(StatusCodes.NOT_FOUND).json({
@@ -196,7 +196,8 @@ class SuperAdminController {
       };
 
       await SuperAdminService.AssignRootAccount(
-        schema,
+        req.university_name!,
+        req.schema_name!,
         user
       );
 

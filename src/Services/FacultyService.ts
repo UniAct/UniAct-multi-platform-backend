@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import {NotFoundError } from "../Types/Errors";
 import { getTenantClient } from "../Utils/prismaClient";
 import { FacultyRepository } from "../Repositories/FacultyRepository";
+import { logger } from "../Utils/Logger";
 
 
 export class FacultyService {
@@ -11,7 +12,13 @@ export class FacultyService {
         const prisma =getTenantClient(schema_name);
         const newFaculty = await FacultyRepository.CreateFaculty(FacultyData,prisma);
 
-        console.log(`[INFO] Faculty created successfully: ${FacultyData.name}`)
+        logger.info(
+          {
+            action: "FacultyService.CreateFaculty",
+            faculty_name: newFaculty.name,
+            status: "success"
+          }
+        );
         return newFaculty;
     }
 

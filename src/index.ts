@@ -3,11 +3,10 @@ import cors from "cors";
 import dotenv from 'dotenv';
 import JSendStatus from "./Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
-import swaggerUi from "swagger-ui-express";
-import { SwaggerSpec } from "./Utils/SwaggerConfig";
 import MainRouter from "./Routes/MainRouter";
 import multer from "multer";
 import { ErrorHandler } from "./Middlewares/ErrorHandler";
+import { httpLogger, logger } from "./Utils/Logger";
 
 dotenv.config();
 
@@ -35,6 +34,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(httpLogger)
 // ==================== ROOT ROUTE ====================
 
 // Root health check
@@ -55,8 +55,7 @@ app.use(ErrorHandler)
 // ==================== SWAGGER DOCUMENTATION ====================
 
 if (process.env.NODE_ENV?.toLowerCase() === "development") {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(SwaggerSpec));
-    console.log('Swagger docs available at http://localhost:3000/api-docs');
+  // dev dependencies
 }
 
 
@@ -86,25 +85,14 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     next(err);
 });
 
-// ==================== ERROR HANDLER ====================
-
-// app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-//     console.error('Unhandled error:', err);
-//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-//         status: 'error',
-//         message: 'Internal Server Error',
-//         error: process.env.NODE_ENV === 'development' ? err.message : undefined
-//     });
-// });
-
 // ==================== START SERVER ====================
 
 app.listen(PORT, () => {
-    console.log(`\n✓ UniAct Backend Running`);
-    console.log(`  Port: ${PORT}`);
-    console.log(`  Environment: ${process.env.NODE_ENV}`);
-    console.log(`  SuperAdmin Access: http://localhost:${PORT}`);
-    console.log(`  Tenant Access: http://<tenant>:${PORT}`);
-    console.log(`  (Make sure hosts file has: 127.0.0.1 anu, 127.0.0.1 auc)`);
-    console.log('');
+  logger.info({
+    action: "Server Start",
+    status: "Running",
+    port: PORT,
+    environment: process.env.NODE_ENV,
+    url: "http://localhost:3000"
+  });
 });

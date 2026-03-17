@@ -30,7 +30,7 @@ router.post(
   attachAndValidateTenant,
   ...SuperAdminValidator.AssignRootAccount(),
   ValidateRequest,
- asyncHandler(SuperAdminController.AssignRootAccount)
+  asyncHandler(SuperAdminController.AssignRootAccount)
 );
 
 //! send email for verification

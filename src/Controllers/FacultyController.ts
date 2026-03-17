@@ -39,7 +39,7 @@ export class FacultyController {
 
     public static async DeleteFaculty(req: Request, res: Response) {
             const id = parseInt(req.params.id as string );
-            console.log(req.schema_name);
+
             await FacultyService.DeleteFaculty(id, req.schema_name!);
 
             res.status(StatusCodes.OK).json({

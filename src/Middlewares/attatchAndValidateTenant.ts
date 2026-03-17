@@ -44,7 +44,7 @@ export async function attachAndValidateTenant(
   
   if(IsSuperAdminFun(req)){
     //getting the wanted university from the body
-    university_name = req.body.university_name
+    university_name = req.body?.university_name
     
     if(!university_name)
       throw new BadRequestError("university name must be provided in the body of the request")
@@ -57,7 +57,6 @@ export async function attachAndValidateTenant(
       throw new BadRequestError("university-name header is required")
     }
   }
-
   //                    *****this part for validating the tenant****
   try {
 
@@ -77,7 +76,7 @@ export async function attachAndValidateTenant(
 
       //             *********attach tenant information to the request*******
       // this will later be used to resolve the correct database schema
-      req.tenant_name = university_name;
+      req.university_name = university_name;
       req.schema_name = university.db_schema;
       
     next();
@@ -88,8 +87,9 @@ export async function attachAndValidateTenant(
 
 // this IsSuperAdmin is a function so it returns true or false which what i need here  unlike the middleware version
 function IsSuperAdminFun(req:Request) : boolean {
-  if (req.user!.role?.includes("SuperAdmin")) {
+  if (req.user?.role?.includes("SuperAdmin")) {
     return true;
   }
   return false
 }
+

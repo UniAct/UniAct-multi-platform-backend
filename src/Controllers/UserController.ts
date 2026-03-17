@@ -9,7 +9,7 @@ export class UserController {
   public static async Login(req: Request, res: Response) {
     try {
       const db_schema = req.schema_name!;
-      const university_name = req.tenant_name!;
+      const university_name = req.university_name!;
       const { email, password } = req.body;
 
       const result = await UserService.Login(email, password, db_schema , university_name);

@@ -63,18 +63,16 @@ class SuperAdminService {
     return root_account;
   }
 
-  public static async AssignRootAccount(schema_name: string,user: Prisma.UserCreateInput){
+  public static async AssignRootAccount(university_name: string , schema_name : string ,user: Prisma.UserCreateInput){
     try {
+
       const root_account = await TransactionService.CreateRootAccount(
         user,
         schema_name
       );
 
 
-      const prisma = getTenantClient("public");
-      const university_name = await UniversityRepository.GetUniversityNameBySchema(schema_name,prisma)
-
-      await MailService.SendVerificationRootAccountMail(user.email! , schema_name!);
+      await MailService.SendVerificationRootAccountMail(user.email! , university_name!);
 
       return root_account;
     } catch (err: any) {
