@@ -146,7 +146,7 @@ export class UserService {
     email: string,
     password: string,
     db_schema: string,
-    tenant_name: string
+    university_name: string
   ) {
     const user = await this.GetUserByEmail(email, db_schema);
     if (!user) {
@@ -199,7 +199,7 @@ export class UserService {
     const token = JwtService.Sign({
       id: user.id,
       email: user.email,
-      tenant_name: tenant_name,
+      university_name,
       roles,
       permissions,
     });

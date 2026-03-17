@@ -6,7 +6,7 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import UniversityController from "../Controllers/UniversityController";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
-import { TenantResolver } from "../Middlewares/TenantResolver";
+import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 
 const router: Router = Router();
@@ -24,7 +24,7 @@ router.post(
 router.get("/list", asyncHandler(UniversityController.List));
 
 // Admin only
-router.get("/",TenantResolver, IsAuthenticated, IsSuperAdmin, asyncHandler(UniversityController.GetAll));
+router.get("/",attachAndValidateTenant, IsAuthenticated, IsSuperAdmin, asyncHandler(UniversityController.GetAll));
 
 router.get(
   "/:id",
@@ -35,7 +35,7 @@ router.get(
 
 router.put(
   "/:id/activate",
-  TenantResolver,
+  attachAndValidateTenant,
   IsAuthenticated,
   IsSuperAdmin,
   ...UniversityValidator.IdParam(),
@@ -45,7 +45,7 @@ router.put(
 
 router.put(
   "/:id/deactivate",
-  TenantResolver,
+  attachAndValidateTenant,
   IsAuthenticated,
   IsSuperAdmin,
   ...UniversityValidator.IdParam(),
@@ -55,7 +55,7 @@ router.put(
 
 router.delete(
   "/:id",
-  TenantResolver,
+  attachAndValidateTenant,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   asyncHandler(UniversityController.Delete)

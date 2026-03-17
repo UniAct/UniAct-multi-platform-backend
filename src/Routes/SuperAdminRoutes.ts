@@ -8,7 +8,6 @@ import { ValidateToken } from "../Middlewares/ValidationToken";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import { TenantResolver } from "../Middlewares/TenantResolver";
 
 const router: Router = Router();
 
@@ -31,7 +30,7 @@ router.get(
 
 router.post(
   "/login",
-
+  
   ...SuperAdminValidator.Login(),
   ValidateRequest,
   asyncHandler(SuperAdminController.Login)
