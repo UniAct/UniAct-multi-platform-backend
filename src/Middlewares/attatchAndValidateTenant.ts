@@ -41,21 +41,25 @@ export async function attachAndValidateTenant(
   
   // ************************************[2]**********************************
   let university_name;
-
+  
   if(IsSuperAdminFun(req)){
+    //getting the wanted university from the body
     university_name = req.body.university_name
+    
+    if(!university_name)
+      throw new BadRequestError("university name must be provided in the body of the request")
   }
   // ***********************************[2]->{2}*************************************
   else{
     // tenant name extracted from decoded JWT token or the header if he didn't login (NEVER SWITCH THE (OR) Condition , if he is logged in , IT MUST be taken from the toekn not from passed headers)
     university_name = req.user?.university_name || req.headers["university-name"] as string;
+    if (!university_name) {
+      throw new BadRequestError("university-name header is required")
+    }
   }
 
   //                    *****this part for validating the tenant****
   try {
-      if (!university_name) {
-        throw new BadRequestError("university-name header is required")
-      }
 
       // connect to the public schema to check tenant metadata
       const prisma = getTenantClient("public");
@@ -84,7 +88,7 @@ export async function attachAndValidateTenant(
 
 // this IsSuperAdmin is a function so it returns true or false which what i need here  unlike the middleware version
 function IsSuperAdminFun(req:Request) : boolean {
-  if (req.user!.roles?.includes("SuperAdmin")) {
+  if (req.user!.role?.includes("SuperAdmin")) {
     return true;
   }
   return false

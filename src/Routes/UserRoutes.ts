@@ -25,9 +25,9 @@ router.post(
 
 router.post(
   "/assign-root-account",
-  attachAndValidateTenant,
   IsAuthenticated,
   IsSuperAdmin,
+  attachAndValidateTenant,
   ...SuperAdminValidator.AssignRootAccount(),
   ValidateRequest,
  asyncHandler(SuperAdminController.AssignRootAccount)
