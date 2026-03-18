@@ -124,60 +124,63 @@ export class UserRepository {
   }
 
   public static async UpdateStaffAccount(
-    userId: number,
-    data: Partial<IStaffAccount>,
-    prisma: PrismaClient
-  ) {
-    const updated = await prisma.$transaction(async (tx) => {
-      const existing = await tx.staff.findUnique({
-        where: { userId },
-        include: { user: true },
-      });
-
-      if (!existing) {
-        throw new Error(`Staff account with ID ${userId} was not found`);
-      }
-
-      const userData: Prisma.UserUpdateInput = {};
-      if (data.username !== undefined) userData.username = data.username;
-      if (data.first_name !== undefined) userData.firstName = data.first_name;
-      if (data.last_name !== undefined) userData.lastName = data.last_name;
-      if (data.email !== undefined) userData.email = data.email;
-      if (data.password !== undefined) userData.password = data.password;
-      if (data.phone !== undefined) userData.phone = data.phone;
-      if (data.date_of_birth !== undefined) userData.dateOfBirth = new Date(data.date_of_birth);
-      if (data.address !== undefined) userData.address = data.address;
-      if (data.city !== undefined) userData.city = data.city;
-      if (data.country !== undefined) userData.country = data.country;
-      if (data.national_id !== undefined) userData.nationalId = data.national_id;
-
-      if (Object.keys(userData).length > 0) {
-        await tx.user.update({
-          where: { id: userId },
-          data: userData,
-        });
-      }
-
-      const staffData: Prisma.StaffUpdateInput = {};
-      if (data.position !== undefined) staffData.position = data.position;
-      if (data.hireDate !== undefined) staffData.hireDate = new Date(data.hireDate);
-      if (data.salary !== undefined) staffData.salary = data.salary as Prisma.Decimal | null;
-
-      if (Object.keys(staffData).length > 0) {
-        await tx.staff.update({
-          where: { userId },
-          data: staffData,
-        });
-      }
-
-      return tx.staff.findUnique({
-        where: { userId },
-        include: { user: true },
-      });
+  userId: number,
+  data: Partial<IStaffAccount>,
+  prisma: PrismaClient
+) {
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.staff.findUnique({
+      where: { userId },
+      include: { user: true },
     });
 
-    return updated;
-  }
+    if (!existing) {
+      throw new Error(`Staff account with ID ${userId} was not found`);
+    }
+
+      //Data mapper could be created later to make it even cleaner
+    const userData = omitUndefined<Prisma.UserUpdateInput>({
+      username: data.username,
+      firstName: data.first_name,
+      lastName: data.last_name,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      dateOfBirth: data.date_of_birth
+        ? new Date(data.date_of_birth)
+        : undefined,
+      address: data.address,
+      city: data.city,
+      country: data.country,
+      nationalId: data.national_id,
+    });
+
+    const staffData = omitUndefined<Prisma.StaffUpdateInput>({
+      position: data.position,
+      hireDate: data.hireDate ? new Date(data.hireDate) : undefined,
+      salary: data.salary as Prisma.Decimal | null | undefined,
+    });
+
+    if (Object.keys(userData).length > 0) {
+      await tx.user.update({
+        where: { id: userId },
+        data: userData,
+      });
+    }
+
+    if (Object.keys(staffData).length > 0) {
+      await tx.staff.update({
+        where: { userId },
+        data: staffData,
+      });
+    }
+
+    return tx.staff.findUnique({
+      where: { userId },
+      include: { user: true },
+    });
+  });
+}
 
   public static async DeleteStaffAccount(userId: number, prisma: PrismaClient) {
     const existing = await prisma.staff.findUnique({
@@ -195,4 +198,12 @@ export class UserRepository {
 
     return existing;
   }
+}
+
+
+//helper function to ignore any undefined fields passed to the updateStaffAccount instead of typing around 15 if condition :)
+function omitUndefined<T extends object>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, v]) => v !== undefined)
+  ) as T;
 }
