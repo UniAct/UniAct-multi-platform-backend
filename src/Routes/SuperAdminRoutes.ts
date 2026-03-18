@@ -8,7 +8,7 @@ import { ValidateToken } from "../Middlewares/ValidationToken";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import { TenantResolver } from "../Middlewares/TenantResolver";
+import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 
 const router: Router = Router();
 
@@ -26,12 +26,13 @@ router.get("/verify/:token",  ValidateToken , asyncHandler( SuperAdminController
 router.get(
   "/verify-root-account/:token",
   ValidateToken,
+  attachAndValidateTenant,
   asyncHandler(SuperAdminController.ActivateRootAccount)
  )
 
 router.post(
   "/login",
-
+  
   ...SuperAdminValidator.Login(),
   ValidateRequest,
   asyncHandler(SuperAdminController.Login)

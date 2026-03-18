@@ -4,6 +4,7 @@ import { Pool } from "pg";
 import { SchemaManager } from "../Utils/SchemaManager";
 import { getTenantClient } from "../Utils/prismaClient";
 import { NotFoundError } from "../Types/Errors";
+import { logger } from "../Utils/Logger";
 
 export class UniversityService {
 
@@ -19,8 +20,12 @@ export class UniversityService {
 
       await SchemaManager.createTenant(university.db_schema);
 
-      console.log(
-        `[INFO] University created successfully: ${university.name}`
+      logger.info(
+        {
+          action: "UniversityService.Create",
+          university_name : university.name,
+          status: "success"
+        }
       );
 
       return university;
@@ -87,7 +92,13 @@ export class UniversityService {
 
     await SchemaManager.deleteSchema(university.db_schema);
 
-    console.log(`[INFO] University deleted: ${university.name}`);
+    logger.info(
+      {
+        action: "UniversityService.DeleteUniversity",
+        university_name : university.name,
+        status : "success"
+      }
+    );
     return university;
   }
 

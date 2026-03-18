@@ -52,6 +52,8 @@ router.put(
 
 router.delete(
   "/:id",
+  IsAuthenticated,
+  IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   asyncHandler(UniversityController.Delete)

@@ -5,16 +5,15 @@ import FacultyValidator from "../Validators/FacultyVaildator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
-import { TenantResolver } from "../Middlewares/TenantResolver";
+import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 
 const router = Router();
 //Create Faculty
 router.post(
     "/",
     IsAuthenticated,
-    TenantResolverAfterAuthentication,
+    attachAndValidateTenant,
     RequirePermission(RBACRepository.Faculty.Create.Name),
 
     //Request validation
@@ -25,20 +24,21 @@ router.post(
 );
 
 //Get All Faculties
-router.get("/",TenantResolver, FacultyController.GetAllFaculties),
+router.get("/", attachAndValidateTenant, FacultyController.GetAllFaculties),
 
     //Get Faculty By Id
     router.get("/:id",
-        TenantResolver,
+        attachAndValidateTenant,
         ...FacultyValidator.IdParam(),
         ValidateRequest,
         asyncHandler(FacultyController.GetFacultyById)
     );
+
 // Update Faculty by Id
 router.put(
     "/:id",
     IsAuthenticated,
-    TenantResolverAfterAuthentication,
+    attachAndValidateTenant,
     RequirePermission(RBACRepository.Faculty.Update.Name),
     ...FacultyValidator.Update(),
     ValidateRequest,
@@ -48,11 +48,11 @@ router.put(
 //Delete a faculty
 router.delete("/:id",
     IsAuthenticated,
-    TenantResolverAfterAuthentication,
+    attachAndValidateTenant,
     RequirePermission(RBACRepository.Faculty.Delete.Name),
     ...FacultyValidator.IdParam(),
     ValidateRequest,
-    asyncHandler(FacultyController.DeleteFaculty )
+    asyncHandler(FacultyController.DeleteFaculty)
 );
 
 export default router;

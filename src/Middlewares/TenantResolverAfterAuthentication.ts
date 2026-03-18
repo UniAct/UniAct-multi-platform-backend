@@ -89,9 +89,9 @@ export async function TenantResolverAfterAuthentication(
   next: NextFunction
 ) {
   try {
-    const headerTenant = String(req.headers["x-tenant-id"] || "").trim();
+    const headerTenant = String(req.headers["x-tenant-id"] || req.headers["university-name"] || "").trim();
     const isSuperAdmin = req.user?.roles?.includes("SuperAdmin") || req.user?.role === "SuperAdmin";
-    const tenant = req.user?.tenant_name || (isSuperAdmin ? headerTenant : undefined);
+    const tenant = req.user?.university_name || req.user?.tenant_name || (isSuperAdmin ? headerTenant : undefined);
 
     if (!tenant) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -124,7 +124,7 @@ export async function TenantResolverAfterAuthentication(
 
     // attach tenant information to the request
     // this will later be used to resolve the correct database schema
-    req.tenant_name = university.name;
+    req.university_name = university.name;
     req.schema_name = university.db_schema;
 
     next();

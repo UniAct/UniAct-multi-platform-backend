@@ -2,7 +2,7 @@ import { Router } from "express";
 import UserValidator from "../Validators/UserValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { UserController } from "../Controllers/UserController";
-import { TenantResolver } from "../Middlewares/TenantResolver";
+import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
@@ -13,14 +13,13 @@ import { RequirePermission } from "../Middlewares/Authorization/RequirePermissio
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
-import { ExtractTenantField } from "../Middlewares/ExtractTenantField";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 
 const router: Router = Router({ mergeParams: true });
 
 router.post(
   "/login",
-  TenantResolver,
+  attachAndValidateTenant,
   ...UserValidator.Login(),
   ValidateRequest,
   asyncHandler(UserController.Login)
@@ -28,9 +27,9 @@ router.post(
 
 router.post(
   "/assign-root-account",
-  ExtractTenantField,
   IsAuthenticated,
   IsSuperAdmin,
+  attachAndValidateTenant,
   ...SuperAdminValidator.AssignRootAccount(),
   ValidateRequest,
   asyncHandler(SuperAdminController.AssignRootAccount)
@@ -40,7 +39,7 @@ router.post(
 router.post(
   "/account/staff",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   RequirePermission(RBACRepository.Account.Create.Name),
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,

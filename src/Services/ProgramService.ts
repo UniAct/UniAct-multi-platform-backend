@@ -7,6 +7,7 @@ import {
 import { ProgramRepository } from "../Repositories/ProgramRepository";
 import { NotFoundError } from "../Types/Errors";
 import { getTenantClient } from "../Utils/prismaClient";
+import { logger } from "../Utils/Logger";
 
 export class programService {
   private static readonly templateYear = 2000;
@@ -255,7 +256,12 @@ export class programService {
       throw new Error("Program creation failed");
     }
 
-    console.log(`[INFO] Program created successfully: ${newProgram.name}`);
+    logger.info({
+      action: "programService.CreateProgram",
+      status: "success",
+      program_name: newProgram.name,
+      schema: schema_name,
+    });
     return newProgram;
   }
 

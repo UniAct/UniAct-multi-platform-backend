@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import SuperAdminService from "../Services/SuperAdminService";
 import JSendStatus from "../Enums/Jsend";
 import { SuperAdmin, Prisma } from "@prisma/client";
@@ -7,25 +7,25 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
+//since all queries here are for super admin so they all belong to the public schema EXCEPT if i am controlling RootAccounts
+const schema_name = "public";
 
 class SuperAdminController {
   public static async Register(req: Request, res: Response) {
-
     const { username, email, password }: Prisma.SuperAdminCreateInput = req.body;
 
-    await SuperAdminService.CreateSuperAdmin(username, email, password, req.schema_name!);
-
+    await SuperAdminService.CreateSuperAdmin(username, email, password, schema_name);
     await MailService.SendVerificationSuperAdminMail(email);
 
     res.status(StatusCodes.CREATED).json({
       status: JSendStatus.SUCCESS,
-      message: "SuperAdmin created and confirmation email sent!"
+      message: "SuperAdmin created and confirmation email sent!",
     });
 
   }
 
   public static async GetAll(req: Request, res: Response) {
-    const admins: SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(req.schema_name!);
+    const admins: SuperAdmin[] = await SuperAdminService.GetAllSuperAdmins(schema_name);
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
       data: admins,
@@ -35,7 +35,6 @@ class SuperAdminController {
   public static async Activate(req: Request, res: Response) {
 
     const email = req.user?.email;
-
     if (!email) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: JSendStatus.FAIL,
@@ -54,23 +53,22 @@ class SuperAdminController {
 
   public static async ActivateRootAccount(req: Request, res: Response) {
     try {
-      console.dir(req.user)
       const email = req.user?.email;
-      const schema_name = req.user?.schema_name;
+      const schema = req.schema_name!;
       const token = req.params.token;
 
-      if (!email || !schema_name) {
+      if (!email || !schema) {
         return res.status(StatusCodes.BAD_REQUEST).json({
           status: JSendStatus.FAIL,
           message: "Invalid verification token payload",
         });
       }
 
-      await SuperAdminService.ActivateRootAccount(email, schema_name);
+      await SuperAdminService.ActivateRootAccount(email, schema);
 
       // Redirect to frontend verification page with success
       const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(schema_name!)}`);
+      return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(schema)}`);
     } catch (err: any) {
       console.error("Activation failed:", err);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -83,7 +81,7 @@ class SuperAdminController {
   public static async Login(req: Request, res: Response) {
     try {
       const { email, password }: { email: string, password: string } = req.body;
-      const admin = await SuperAdminService.GetSuperAdminByEmail(email, req.schema_name!);
+      const admin = await SuperAdminService.GetSuperAdminByEmail(email, schema_name);
       if (!admin) {
         return res.status(StatusCodes.NOT_FOUND).json({
           status: JSendStatus.FAIL,
@@ -143,7 +141,7 @@ class SuperAdminController {
   public static async Delete(req: Request, res: Response) {
     try {
       const { username } = req.params;
-      const admin = await SuperAdminService.DeleteSuperAdmin(username as string, req.schema_name!);
+      const admin = await SuperAdminService.DeleteSuperAdmin(username as string, schema_name);
 
       res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -165,9 +163,8 @@ class SuperAdminController {
   }
 
   public static async AssignRootAccount(req: Request, res: Response) {
+    const schema = req.schema_name!
     try {
-      const schema = req.schema_name;
-
       const {
         username,
         firstName,
@@ -199,7 +196,8 @@ class SuperAdminController {
       };
 
       await SuperAdminService.AssignRootAccount(
-        schema!,
+        req.university_name!,
+        req.schema_name!,
         user
       );
 

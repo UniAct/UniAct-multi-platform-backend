@@ -1,6 +1,6 @@
 import { Router } from "express";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
-import { TenantResolver } from "../Middlewares/TenantResolver";
+import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
@@ -20,15 +20,15 @@ router.post(
 
 router.get(
   "/",
-  TenantResolver,
   IsAuthenticated,
+  attachAndValidateTenant,
   asyncHandler(CourseController.GetAllCourses),
 );
 
 router.get(
   "/:id",
-  TenantResolver,
   IsAuthenticated,
+  attachAndValidateTenant,
   ...CourseValidator.IdParam(),
   ValidateRequest,
   asyncHandler(CourseController.GetCourseById),

@@ -19,6 +19,7 @@ export function ValidateToken(req: Request, res: Response, next: NextFunction) {
     const decoded: TokenPayload = JwtService.Verify(normalizedToken);
 
     req.user = decoded;
+
     next();
   } catch (err: any) {
     return res.status(StatusCodes.FORBIDDEN).json({

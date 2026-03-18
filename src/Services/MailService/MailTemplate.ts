@@ -2,7 +2,6 @@ import { JwtPayload } from "jsonwebtoken";
 import JwtService from "../../Utils/JwtService";
 export class EmailTemplate {
     private static Template(url: string): string {
-        console.log("url detected: " + url)
         return `
         <!DOCTYPE html>
         <html lang="en">
@@ -240,11 +239,12 @@ export class EmailTemplate {
         return this.Template(url);
     }
 
-    public static RootAccountTemplate(email: string, schema_name: string): string {
+    public static RootAccountTemplate(email: string, university_name: string): string {
         const url = this.GenerateUrl("api/superadmin/verify-root-account", {
             email,
-            schema_name
-        });
+            university_name
+        }
+        );
         return this.Template(url);
     }
 
