@@ -48,6 +48,7 @@ router.post(
 router.get(
   "/verify-staff-account/:token",
   ValidateToken,
+  attachAndValidateTenant,
   asyncHandler(UserController.ActivateStaffAccount)
 );
 
