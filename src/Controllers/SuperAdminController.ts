@@ -7,6 +7,7 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcrypt";
 import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
+import { NotFoundError } from "../Types/Errors";
 //since all queries here are for super admin so they all belong to the public schema EXCEPT if i am controlling RootAccounts
 const schema_name = "public";
 
@@ -42,7 +43,7 @@ class SuperAdminController {
       });
     }
 
-    const admin = await SuperAdminService.ActivateSuperAdmin(email, "public");
+    const admin = await SuperAdminService.ActivateSuperAdmin(email, schema_name);
 
     // TODO: Return HTML Page Instead Of Json
     res.status(StatusCodes.OK).json({
@@ -52,30 +53,19 @@ class SuperAdminController {
   }
 
   public static async ActivateRootAccount(req: Request, res: Response) {
-    try {
-      const email = req.user?.email;
-      const schema = req.schema_name!;
-      const token = req.params.token;
+    const email = req.user?.email;
+    const schema = req.schema_name!;
+    const token = req.params.token;
 
-      if (!email || !schema) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          status: JSendStatus.FAIL,
-          message: "Invalid verification token payload",
-        });
-      }
-
-      await SuperAdminService.ActivateRootAccount(email, schema);
-
-      // Redirect to frontend verification page with success
-      const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(schema)}`);
-    } catch (err: any) {
-      console.error("Activation failed:", err);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: err.message || "Internal Server Error",
-      });
+    if (!email || !schema) {
+      throw new NotFoundError("Invalid verification token payload");
     }
+
+    await SuperAdminService.ActivateRootAccount(email, schema);
+
+    // Redirect to frontend verification page with success
+    const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(schema)}`);
   }
 
   public static async Login(req: Request, res: Response) {
@@ -113,7 +103,7 @@ class SuperAdminController {
         id: admin.id,
         username: admin.username,
         email: admin.email,
-        role: SystemRoles.SuperAdmin
+        roles: [SystemRoles.SuperAdmin]
       });
 
       return res.status(StatusCodes.OK).json({

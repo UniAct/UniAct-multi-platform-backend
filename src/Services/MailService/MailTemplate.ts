@@ -248,10 +248,10 @@ export class EmailTemplate {
         return this.Template(url);
     }
 
-    public static StaffAccountTemplate(email: string, schema_name: string): string {
+    public static StaffAccountTemplate(email: string, university_name: string): string {
         const url = this.GenerateUrl("api/user/verify-staff-account", {
             email,
-            schema_name,
+            university_name,
         });
         return this.Template(url);
     }

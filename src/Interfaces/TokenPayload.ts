@@ -5,9 +5,7 @@ export interface TokenPayload extends JwtPayload {
   username?: string;
   email?: string;
   schema_name?: string;
-  role?: string;
   roles?: string[];
   permissions?: string[];
-  tenant_name?: string;
   university_name?: string;
 }

@@ -23,7 +23,7 @@ export class UniversityService {
       logger.info(
         {
           action: "UniversityService.Create",
-          university_name : university.name,
+          university_name: university.name,
           status: "success"
         }
       );
@@ -39,7 +39,7 @@ export class UniversityService {
     const prisma = getTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
     if (!university)
-      throw new Error(`University with Id ${id} not found.`);
+      throw new NotFoundError(`University with Id ${id} not found.`);
 
     return university;
   }
@@ -50,18 +50,18 @@ export class UniversityService {
     const university = await UniversityRepository.GetByName(university_name, prisma);
 
     if (!university)
-      throw new Error(`University with name ${university} not found.`);
+      throw new NotFoundError(`University with name '${university_name}' not found.`);
 
     return university;
   }
 
-  public static async GetBySchema(db_schema: string): Promise<University> {
+  public static async GetUniversityBySchemaName(db_schema: string): Promise<University> {
 
     const prisma = getTenantClient("public");
-    const university = await UniversityRepository.GetBySchema(db_schema, prisma);
+    const university = await UniversityRepository.GetUniversityBySchemaName(db_schema, prisma);
 
     if (!university)
-      throw new Error(`University with schema '${db_schema}' not found.`);
+      throw new NotFoundError(`University with schema '${db_schema}' not found.`);
 
     return university;
   }
@@ -95,8 +95,8 @@ export class UniversityService {
     logger.info(
       {
         action: "UniversityService.DeleteUniversity",
-        university_name : university.name,
-        status : "success"
+        university_name: university.name,
+        status: "success"
       }
     );
     return university;
@@ -107,7 +107,7 @@ export class UniversityService {
     const prisma = getTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
     if (!university) {
-      throw new Error(`University with id '${id}' does not exist`);
+      throw new NotFoundError(`University with id '${id}' does not exist`);
     }
 
     return await UniversityRepository.Activate(id, prisma);
@@ -118,7 +118,7 @@ export class UniversityService {
     const prisma = getTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
     if (!university) {
-      throw new Error(`University with id '${id}' does not exist`);
+      throw new NotFoundError(`University with id '${id}' does not exist`);
     }
 
     return await UniversityRepository.Deactivate(id, prisma);

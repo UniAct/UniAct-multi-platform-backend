@@ -54,19 +54,19 @@ export class UserController {
   public static async ActivateStaffAccount(req: Request, res: Response) {
     try {
       const email = req.user?.email;
-      const schema_name = req.user?.schema_name;
+      const university_name = req.user?.university_name;
 
-      if (!email || !schema_name) {
+      if (!email || !university_name) {
         return res.status(StatusCodes.BAD_REQUEST).json({
           status: JSendStatus.FAIL,
           message: "Invalid verification token payload",
         });
       }
 
-      await UserService.ActivateStaffAccount(email, schema_name);
+      await UserService.ActivateStaffAccount(email, university_name);
 
       const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      const encodedTenant = encodeURIComponent(schema_name);
+      const encodedTenant = encodeURIComponent(university_name);
       return res.redirect(`${frontendBaseUrl}/verify-staff-account?status=success&tenant=${encodedTenant}`);
     } catch (err: any) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

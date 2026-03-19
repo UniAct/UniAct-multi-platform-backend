@@ -8,6 +8,8 @@ import JSendStatus from "../Enums/Jsend";
 import JwtService from "../Utils/JwtService";
 import { getTenantClient } from "../Utils/prismaClient";
 import { MailService } from "./MailService/MailService";
+import { UniversityRepository } from "../Repositories/UniversityRepository";
+import { NotFoundError } from "../Types/Errors";
 
 export class UserService {
 
@@ -158,16 +160,29 @@ export class UserService {
     }
 
     await RBACRepository.AssignRolesToUser(createdStaff.id, foundRoles, prisma);
-    await MailService.SendVerificationStaffAccountMail(createdStaff.email, schema_name);
+
+    const publicPrisma = getTenantClient("public");
+    const universityName = await UniversityRepository.GetUniversityNameBySchema(schema_name, publicPrisma);
+    if (!universityName) {
+      throw new NotFoundError(`University with schema '${schema_name}' not found.`);
+    }
+
+    await MailService.SendVerificationStaffAccountMail(createdStaff.email, universityName);
 
     return createdStaff;
   }
 
-  public static async ActivateStaffAccount(email: string, schema_name: string) {
-    const user = await this.GetUserByEmail(email, schema_name);
+  public static async ActivateStaffAccount(email: string, university_name: string) {
+    const publicPrisma = getTenantClient("public");
+    const university = await UniversityRepository.GetByName(university_name, publicPrisma);
+    if (!university) {
+      throw new NotFoundError(`University with name '${university_name}' not found.`);
+    }
+
+    const user = await this.GetUserByEmail(email, university.db_schema);
     if (!user) throw new Error("Staff account not found");
 
-    const updated = await this.UpdateUser(user.id, { isVerified: true }, schema_name);
+    const updated = await this.UpdateUser(user.id, { isVerified: true }, university.db_schema);
     return updated;
   }
 

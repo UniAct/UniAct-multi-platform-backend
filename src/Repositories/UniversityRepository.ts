@@ -15,12 +15,9 @@ export class UniversityRepository {
   public static async GetByName(name: string, prisma: PrismaClient): Promise<University | null> {
     const normalizedName = name.trim();
 
-    return await prisma.university.findFirst({
+    return await prisma.university.findUnique({
       where: {
-        name: {
-          equals: normalizedName,
-          mode: "insensitive",
-        },
+        name: normalizedName,
       },
     });
   }
@@ -55,7 +52,7 @@ export class UniversityRepository {
     });
   }
 
-  public static async GetBySchema(
+  public static async GetUniversityBySchemaName(
     db_schema: string,
     prisma: PrismaClient
   ): Promise<University | null> {

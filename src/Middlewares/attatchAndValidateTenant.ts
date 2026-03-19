@@ -33,10 +33,14 @@ export async function attachAndValidateTenant(
   next: NextFunction
 ) {
 
+  if (req.method === "POST" && req.baseUrl.includes("/university") && req.path === "/create") {
+    return next();
+  }
+
   // ************************************[1]->{1}*****************************
   if (req.schema_name) {
     //We won't do anything it's already resolved from previous requests
-    next();
+    return next();
   }
 
   // ************************************[2]**********************************
@@ -51,10 +55,10 @@ export async function attachAndValidateTenant(
   }
   // ***********************************[2]->{2}*************************************
   else {
-    // tenant name extracted from decoded JWT token or the header if he didn't login (NEVER SWITCH THE (OR) Condition , if he is logged in , IT MUST be taken from the toekn not from passed headers)
-    university_name = req.user?.university_name || req.user?.tenant_name || req.headers["x-tenant-id"] as string || req.headers["university-name"] as string;
+    // tenant name extracted from decoded JWT token or university-name header for unauthenticated requests.
+    university_name = req.user?.university_name || req.headers["university-name"] as string;
     if (!university_name) {
-      throw new BadRequestError("x-tenant-id or university-name header is required")
+      throw new BadRequestError("university-name header is required")
     }
   }
   //                    *****this part for validating the tenant****
@@ -87,9 +91,6 @@ export async function attachAndValidateTenant(
 
 // this IsSuperAdmin is a function so it returns true or false which what i need here  unlike the middleware version
 function IsSuperAdminFun(req: Request): boolean {
-  if (req.user?.role?.includes("SuperAdmin")) {
-    return true;
-  }
-  return false
+  return !!req.user?.roles?.includes("SuperAdmin");
 }
 

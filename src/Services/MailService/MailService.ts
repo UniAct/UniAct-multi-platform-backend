@@ -33,9 +33,9 @@ export class MailService {
 
   public static async SendVerificationStaffAccountMail(
     email: string,
-    schema_name: string
+    university_name: string
   ) {
-    const html = EmailTemplate.StaffAccountTemplate(email, schema_name);
+    const html = EmailTemplate.StaffAccountTemplate(email, university_name);
     await this.SendMail(email, "Verify Your Staff Account", html);
   }
 }

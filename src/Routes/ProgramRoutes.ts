@@ -7,7 +7,6 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 
 const router = Router();
 
@@ -24,8 +23,8 @@ router.post(
 
 router.get(
     "/",
-    attachAndValidateTenant,
     IsAuthenticated,
+    attachAndValidateTenant,
     asyncHandler(ProgramController.GetAllPrograms)
 )
 
@@ -41,7 +40,7 @@ router.get(
 router.put(
     "/:id",
     IsAuthenticated,
-    TenantResolverAfterAuthentication,
+    attachAndValidateTenant,
     RequirePermission(RBACRepository.Program.Update.Name),
     ...ProgramValidator.Update(),
     ValidateRequest,

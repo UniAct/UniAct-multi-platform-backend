@@ -1,7 +1,6 @@
 import { Router } from "express";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
-import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { CourseController } from "../Controllers/CourseController";
@@ -12,7 +11,7 @@ const router = Router();
 router.post(
   "/",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   ...CourseValidator.Create(),
   ValidateRequest,
   asyncHandler(CourseController.CreateCourse),
@@ -37,7 +36,7 @@ router.get(
 router.put(
   "/:id",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   ...CourseValidator.Update(),
   ValidateRequest,
   asyncHandler(CourseController.UpdateCourse),
@@ -46,7 +45,7 @@ router.put(
 router.delete(
   "/:id",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   ...CourseValidator.IdParam(),
   ValidateRequest,
   asyncHandler(CourseController.DeleteCourse),

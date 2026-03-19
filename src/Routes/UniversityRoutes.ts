@@ -1,6 +1,7 @@
 import { Router } from "express";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
+import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import UniversityValidator from "../Validators/UniversityValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import UniversityController from "../Controllers/UniversityController";
@@ -12,8 +13,9 @@ const router: Router = Router();
 
 router.post(
   "/create",
-
   IsAuthenticated,
+  IsSuperAdmin,
+  attachAndValidateTenant,
   ...UniversityValidator.Create(),
   ValidateRequest,
   asyncHandler(UniversityController.Create)
@@ -21,12 +23,15 @@ router.post(
 
 // Public
 router.get("/list", asyncHandler(UniversityController.List));
+router.get("/public/:schema", asyncHandler(UniversityController.GetUniversityBySchemaName));
 
 // Admin only
 router.get("/", IsAuthenticated, IsSuperAdmin, asyncHandler(UniversityController.GetAll));
 
 router.get(
   "/:id",
+  IsAuthenticated,
+  IsSuperAdmin,
   ...UniversityValidator.IdParam(),
   ValidateRequest,
   asyncHandler(UniversityController.GetById)

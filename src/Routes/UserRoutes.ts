@@ -12,7 +12,6 @@ import SuperAdminController from "../Controllers/SuperAdminController";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import { TenantResolverAfterAuthentication } from "../Middlewares/TenantResolverAfterAuthentication";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 
 const router: Router = Router({ mergeParams: true });
@@ -55,7 +54,7 @@ router.get(
 router.get(
   "/account/staff",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   RequirePermission(RBACRepository.Account.Read.Name),
   asyncHandler(UserController.GetAllStaffAccounts)
 );
@@ -63,7 +62,7 @@ router.get(
 router.patch(
   "/account/staff/:id",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   RequirePermission(RBACRepository.Account.Update.Name),
   ...UserValidator.StaffIdParam(),
   ...UserValidator.UpdateStaffAccount(),
@@ -74,7 +73,7 @@ router.patch(
 router.delete(
   "/account/staff/:id",
   IsAuthenticated,
-  TenantResolverAfterAuthentication,
+  attachAndValidateTenant,
   RequirePermission(RBACRepository.Account.Delete.Name),
   ...UserValidator.StaffIdParam(),
   ValidateRequest,

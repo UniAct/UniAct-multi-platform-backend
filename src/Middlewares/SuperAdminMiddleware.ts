@@ -10,7 +10,7 @@ export function IsSuperAdmin(req: Request, res: Response, next: NextFunction) {
     });
   }
 
-  const isSuperAdmin = req.user.roles?.includes("SuperAdmin") || req.user.role === "SuperAdmin";
+  const isSuperAdmin = req.user.roles?.includes("SuperAdmin");
   if (!isSuperAdmin) {
     return res.status(StatusCodes.FORBIDDEN).json({
       status: JSendStatus.FAIL,

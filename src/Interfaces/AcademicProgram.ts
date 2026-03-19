@@ -1,11 +1,11 @@
-import { BlockReasonType, CourseType, FeeType, ProgramType, ResultDisplayType } from "@prisma/client";
+import { BlockReasonType, CourseType, ProgramType, Prisma, ResultDisplayType } from "@prisma/client";
 
-export interface ProgramFeeInput {
-  feeType: FeeType;
+type ProgramFeeBase = Pick<Prisma.FeeCreateManyInput, "feeType" | "amount" | "description">;
+
+// semesterNumber is API-specific metadata used to map fees to template semesters.
+export type ProgramFeeInput = ProgramFeeBase & {
   semesterNumber?: number;
-  amount: number;
-  description?: string;
-}
+};
 
 export interface ProgramLevelInput {
   level: number;
@@ -19,14 +19,15 @@ export interface ProgramLevelInput {
   summerFees?: ProgramFeeInput[];
 }
 
-export interface ProgramTranscriptDefinitionInput {
+// The minGPA/maxGPA designation was intentionally retained for ease of use of the API and was bound to Prisma minGpa/maxGpa at the service layer.
+export type ProgramTranscriptDefinitionInput = {
   minScore: number;
   maxScore: number;
   minGPA: number;
   maxGPA: number;
   gradeLetter: string;
   equivalentEstimate?: string;
-}
+};
 
 export interface AcademicLoadSemesterInput {
   level: number;
@@ -35,12 +36,13 @@ export interface AcademicLoadSemesterInput {
   maxCredits: number;
 }
 
-export interface AcademicLoadGPAInput {
+// The minGPA/maxGPA designation was intentionally retained for ease of use of the API and was bound to Prisma minGpa/maxGpa at the service layer.
+export type AcademicLoadGPAInput = {
   minGPA: number;
   maxGPA: number;
   minCredits: number;
   maxCredits: number;
-}
+};
 
 export interface ProgramUpsertInput {
   facultyId: number;
