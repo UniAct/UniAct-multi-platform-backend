@@ -12,6 +12,23 @@ function CRUD(resource: string) {
   };
 }
 
+type PermissionDefinition = { Name: string; Description: string };
+type CrudPermissionGroup = {
+  Create: PermissionDefinition;
+  Read: PermissionDefinition;
+  Update: PermissionDefinition;
+  Delete: PermissionDefinition;
+};
+
+function collectCRUDPermissions(groups: CrudPermissionGroup[]): PermissionDefinition[] {
+  return groups.flatMap((group) => [
+    group.Create,
+    group.Read,
+    group.Update,
+    group.Delete,
+  ]);
+}
+
 
 export class RBACRepository {
 
@@ -21,6 +38,7 @@ export class RBACRepository {
 
   public static Faculty = CRUD("faculty")
 
+  public static Course = CRUD("course")
 
 
   public static Account = class {
@@ -37,6 +55,21 @@ export class RBACRepository {
     static Update = { Name: "role.update", Description: "Update existing roles and permissions" };
     static Delete = { Name: "role.delete", Description: "Delete roles and permissions" };
   };
+
+  public static GetDefaultPermissionDefinitions(): PermissionDefinition[] {
+    const crudGroups: CrudPermissionGroup[] = [
+      this.Role,
+      this.Account,
+      this.Faculty,
+      this.Program,
+      this.Course,
+    ];
+
+    return [
+      ...collectCRUDPermissions(crudGroups),
+      this.Account.AssignRole,
+    ];
+  }
 
 
 
