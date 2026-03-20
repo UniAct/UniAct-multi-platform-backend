@@ -13,9 +13,8 @@
     "prisma:push:template": "cross-env SCHEMA=template DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
     "db:generate:snapshot": "node scripts/generate-template-snapshot.mjs",
     "prisma:generate": "node ./scripts/prepare-schema-beforeGenrate.mjs",
-    "permissions:sync": "npm run build && node scripts/sync-permissions.mjs",
-    "prisma:generate": "node ./scripts/prepare-schema-beforeGenrate.mjs",
-    "knip" : "knip"
+    "knip" : "knip",
+    "permissions:sync": "npm run build && node scripts/sync-permissions.mjs"
   },
   "keywords": [],
   "author": "",
