@@ -1,0 +1,33 @@
+{
+  "role": {
+    "create": { "name": "role.create", "description": "Create new roles and assign permissions to them" },
+    "read":   { "name": "role.read",   "description": "View and list all roles with their assigned permissions" },
+    "update": { "name": "role.update", "description": "Modify existing roles and update their permissions" },
+    "delete": { "name": "role.delete", "description": "Delete roles and remove their associated permissions" }
+  },
+  "account": {
+    "create":      { "name": "account.create",      "description": "Create new user accounts" },
+    "read":        { "name": "account.read",        "description": "View user account details and information" },
+    "update":      { "name": "account.update",      "description": "Update user account information" },
+    "delete":      { "name": "account.delete",      "description": "Delete user accounts from the system" },
+    "assign_role": { "name": "account.assign_role", "description": "Assign one or more roles to a user account" }
+  },
+  "faculty": {
+    "create": { "name": "faculty.create", "description": "Create a new faculty" },
+    "read":   { "name": "faculty.read",   "description": "View faculty details and list all faculties" },
+    "update": { "name": "faculty.update", "description": "Update existing faculty information" },
+    "delete": { "name": "faculty.delete", "description": "Delete a faculty from the system" }
+  },
+  "program": {
+    "create": { "name": "program.create", "description": "Create a new program" },
+    "read":   { "name": "program.read",   "description": "View program details and list all programs" },
+    "update": { "name": "program.update", "description": "Update existing program information" },
+    "delete": { "name": "program.delete", "description": "Delete a program from the system" }
+  },
+  "course": {
+    "create": { "name": "course.create", "description": "Create a new course" },
+    "read":   { "name": "course.read",   "description": "View course details and list all courses" },
+    "update": { "name": "course.update", "description": "Update existing course information" },
+    "delete": { "name": "course.delete", "description": "Delete a course from the system" }
+  }
+}

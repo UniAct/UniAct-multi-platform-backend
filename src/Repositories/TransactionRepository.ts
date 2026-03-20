@@ -1,8 +1,8 @@
 import { User, Prisma, PrismaClient } from "@prisma/client";
 import SystemRoles from "../Enums/SystemRoles";
-import { RBACRepository } from "./RBACRepository";
+import Permissions from "../Utils/PermissionsParser";
 
-const DEFAULT_PERMISSIONS = RBACRepository.GetDefaultPermissionDefinitions();
+const DEFAULT_PERMISSIONS = Permissions;
 
 export class TransactionRepository {
   public static async CreateRootAccount(
@@ -10,7 +10,6 @@ export class TransactionRepository {
     prisma: PrismaClient
   ): Promise<User> {
     return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // 1. Check for existing user
       const existing_user = await tx.user.findFirst({
         where: {
           OR: [
@@ -19,14 +18,13 @@ export class TransactionRepository {
             { nationalId: user.nationalId },
           ],
         },
-        select: { id: true }, // only fetch what's needed
+        select: { id: true }, 
       });
 
       if (existing_user) {
         throw new Error("Username or Email or NationalId already exists in this university");
       }
 
-      // 2. Create user + upsert role in parallel
       const [root_account, role] = await Promise.all([
         tx.user.create({
           data: {
@@ -54,22 +52,19 @@ export class TransactionRepository {
         }),
       ]);
 
-      // 3. Batch-upsert all permissions in one query
       await tx.permission.createMany({
         data: DEFAULT_PERMISSIONS.map((p) => ({
-          name: p.Name,
-          description: p.Description,
+          name: p.name,
+          description: p.description,
         })),
         skipDuplicates: true,
       });
 
-      // 4. Fetch all permission IDs in one query
       const permissions = await tx.permission.findMany({
-        where: { name: { in: DEFAULT_PERMISSIONS.map((p) => p.Name) } },
+        where: { name: { in: DEFAULT_PERMISSIONS.map((p) => p.name) } },
         select: { id: true },
       });
 
-      // 5. Batch-upsert all role-permission links
       await tx.rolePermission.createMany({
         data: permissions.map((p) => ({
           roleId: role.id,
@@ -78,7 +73,6 @@ export class TransactionRepository {
         skipDuplicates: true,
       });
 
-      // 6. Upsert user-role link
       await tx.userRole.upsert({
         where: {
           userId_roleId: { userId: root_account.id, roleId: role.id },

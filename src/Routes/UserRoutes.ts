@@ -10,9 +10,9 @@ import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
 import SuperAdminValidator from "../Validators/SuperAdminValidator";
 import SuperAdminController from "../Controllers/SuperAdminController";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
-import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { ValidateToken } from "../Middlewares/ValidationToken";
+import permissions from "../Utils/Permissions.json";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -34,12 +34,11 @@ router.post(
   asyncHandler(SuperAdminController.AssignRootAccount)
 );
 
-//! send email for verification
 router.post(
   "/account/staff",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Account.Create.Name),
+  RequirePermission(permissions.account.create.name),
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,
   asyncHandler(UserController.CreateStaffAccount)
@@ -48,7 +47,6 @@ router.post(
 router.get(
   "/verify-staff-account/:token",
   ValidateToken,
-  attachAndValidateTenant,
   asyncHandler(UserController.ActivateStaffAccount)
 );
 
@@ -56,7 +54,7 @@ router.get(
   "/account/staff",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Account.Read.Name),
+  RequirePermission(permissions.account.read.name),
   asyncHandler(UserController.GetAllStaffAccounts)
 );
 
@@ -64,7 +62,7 @@ router.patch(
   "/account/staff/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Account.Update.Name),
+  RequirePermission(permissions.account.update.name),
   ...UserValidator.StaffIdParam(),
   ...UserValidator.UpdateStaffAccount(),
   ValidateRequest,
@@ -75,13 +73,12 @@ router.delete(
   "/account/staff/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Account.Delete.Name),
+  RequirePermission(permissions.account.delete.name),
   ...UserValidator.StaffIdParam(),
   ValidateRequest,
   asyncHandler(UserController.DeleteStaffAccount)
 );
 
-//! TODO: Delete, Update, Read account for Student Account And Staff Account
 router.all(/.*/, (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json({
     status: JSendStatus.FAIL,

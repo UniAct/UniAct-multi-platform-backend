@@ -8,8 +8,8 @@ import { AccountValidator } from "../Validators/AccountValidator";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
-import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import permissions from "../Utils/Permissions.json";
 
 const router: Router = Router({mergeParams: true});
 
@@ -17,7 +17,7 @@ router.post(
   "/role",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Create.Name),
+  RequirePermission(permissions.role.create.name),
   ...RBACValidator.CreateRole(),
   ValidateRequest,
   asyncHandler(RBACController.CreateRole)
@@ -27,7 +27,7 @@ router.get(
   "/role/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Read.Name),
+  RequirePermission(permissions.role.read.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
   asyncHandler(RBACController.GetRole)
@@ -37,7 +37,7 @@ router.get(
   "/role",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Read.Name),
+  RequirePermission(permissions.role.read.name),
   asyncHandler(RBACController.GetAllRole)
 );
 
@@ -45,7 +45,7 @@ router.put(
   "/role/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Update.Name),
+  RequirePermission(permissions.role.update.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
   asyncHandler(RBACController.UpdateRole)
@@ -55,7 +55,7 @@ router.delete(
   "/role/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Delete.Name),
+  RequirePermission(permissions.role.delete.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
   asyncHandler(RBACController.DeleteRole)
@@ -65,7 +65,7 @@ router.get(
   "/permission",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Read.Name),
+  RequirePermission(permissions.role.read.name),
   asyncHandler(RBACController.ReadPermissions)
 );
 
@@ -73,7 +73,7 @@ router.get(
   "/permission/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Delete.Name),
+  RequirePermission(permissions.role.delete.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
   asyncHandler(RBACController.ReadPermissionsById)
@@ -83,7 +83,7 @@ router.post(
   "/assign-permissions-to-role/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Role.Create.Name),
+  RequirePermission(permissions.role.create.name),
   ...RBACValidator.AssignPermissionsToRole(),
   ValidateRequest,
   asyncHandler(RBACController.AssignPermissionsToRole)
@@ -93,7 +93,7 @@ router.post(
   "/assign-role-to-user/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Account.AssignRole.Name),
+  RequirePermission(permissions.account.assign_role.name),
   ...AccountValidator.AssignRoleToUser(),
   ValidateRequest,
   asyncHandler(RBACController.AssignRoleToUser)

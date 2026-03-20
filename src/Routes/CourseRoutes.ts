@@ -5,8 +5,8 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { CourseController } from "../Controllers/CourseController";
-import { RBACRepository } from "../Repositories/RBACRepository";
 import CourseValidator from "../Validators/CourseValidator";
+import permissions from "../Utils/Permissions.json";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ router.post(
   "/",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Course.Create.Name),
+  RequirePermission(permissions.course.create.name),
   ...CourseValidator.Create(),
   ValidateRequest,
   asyncHandler(CourseController.CreateCourse),
@@ -24,7 +24,7 @@ router.get(
   "/",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Course.Read.Name),
+  RequirePermission(permissions.course.read.name),
   asyncHandler(CourseController.GetAllCourses),
 );
 
@@ -32,7 +32,7 @@ router.get(
   "/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Course.Read.Name),
+  RequirePermission(permissions.course.read.name),
   ...CourseValidator.IdParam(),
   ValidateRequest,
   asyncHandler(CourseController.GetCourseById),
@@ -42,7 +42,7 @@ router.put(
   "/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Course.Update.Name),
+  RequirePermission(permissions.course.update.name),
   ...CourseValidator.Update(),
   ValidateRequest,
   asyncHandler(CourseController.UpdateCourse),
@@ -52,7 +52,7 @@ router.delete(
   "/:id",
   IsAuthenticated,
   attachAndValidateTenant,
-  RequirePermission(RBACRepository.Course.Delete.Name),
+  RequirePermission(permissions.course.delete.name),
   ...CourseValidator.IdParam(),
   ValidateRequest,
   asyncHandler(CourseController.DeleteCourse),

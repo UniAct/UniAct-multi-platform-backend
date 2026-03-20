@@ -4,9 +4,9 @@ import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import FacultyValidator from "../Validators/FacultyVaildator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
-import { RBACRepository } from "../Repositories/RBACRepository";
 import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import permissions from "../Utils/Permissions.json";
 
 const router = Router();
 //Create Faculty
@@ -14,7 +14,7 @@ router.post(
     "/",
     IsAuthenticated,
     attachAndValidateTenant,
-    RequirePermission(RBACRepository.Faculty.Create.Name),
+    RequirePermission(permissions.faculty.create.name),
 
     //Request validation
     ...FacultyValidator.Create(),
@@ -39,7 +39,7 @@ router.put(
     "/:id",
     IsAuthenticated,
     attachAndValidateTenant,
-    RequirePermission(RBACRepository.Faculty.Update.Name),
+    RequirePermission(permissions.faculty.update.name),
     ...FacultyValidator.Update(),
     ValidateRequest,
     asyncHandler(FacultyController.UpdateFaculty)
@@ -49,7 +49,7 @@ router.put(
 router.delete("/:id",
     IsAuthenticated,
     attachAndValidateTenant,
-    RequirePermission(RBACRepository.Faculty.Delete.Name),
+    RequirePermission(permissions.faculty.delete.name),
     ...FacultyValidator.IdParam(),
     ValidateRequest,
     asyncHandler(FacultyController.DeleteFaculty)
