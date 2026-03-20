@@ -6,9 +6,11 @@ import { StatusCodes } from "http-status-codes";
 import MainRouter from "./Routes/MainRouter";
 import multer from "multer";
 import { ErrorHandler } from "./Middlewares/ErrorHandler";
+import { setupTenantClientShutdownHooks } from "./Utils/prismaClient";
 import { httpLogger, logger } from "./Utils/Logger";
 
 dotenv.config();
+setupTenantClientShutdownHooks();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -28,13 +30,13 @@ const corsOptions = {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'university-name'],
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(httpLogger)
+app.use(httpLogger);
 // ==================== ROOT ROUTE ====================
 
 // Root health check
@@ -49,13 +51,13 @@ app.get('/', (req, res) => {
 
 // ==================== API ROUTES ====================
 
-app.use("/api",MainRouter)
+app.use("/api", MainRouter);
 
-app.use(ErrorHandler)
+app.use(ErrorHandler);
 // ==================== SWAGGER DOCUMENTATION ====================
 
 if (process.env.NODE_ENV?.toLowerCase() === "development") {
-  // dev dependencies
+    // dev dependencies
 }
 
 
@@ -78,8 +80,8 @@ app.all(/.*/, (req, res) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (err instanceof multer.MulterError || err.message?.includes("PDF")) {
         return res.status(StatusCodes.BAD_REQUEST).json({
-        status: JSendStatus.FAIL,
-        message: err.message,
+            status: JSendStatus.FAIL,
+            message: err.message,
         });
     }
     next(err);
@@ -88,11 +90,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // ==================== START SERVER ====================
 
 app.listen(PORT, () => {
-  logger.info({
-    action: "Server Start",
-    status: "Running",
-    port: PORT,
-    environment: process.env.NODE_ENV,
-    url: "http://localhost:3000"
-  });
+    logger.info({
+        action: "Server Start",
+        status: "Running",
+        port: PORT,
+        environment: process.env.NODE_ENV,
+        url: "http://localhost:3000"
+    });
 });

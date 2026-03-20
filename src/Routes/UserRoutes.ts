@@ -12,15 +12,16 @@ import SuperAdminController from "../Controllers/SuperAdminController";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import { ValidateToken } from "../Middlewares/ValidationToken";
 
-const router: Router = Router({mergeParams: true});
+const router: Router = Router({ mergeParams: true });
 
 router.post(
   "/login",
-  attachAndValidateTenant,       
+  attachAndValidateTenant,
   ...UserValidator.Login(),
-  ValidateRequest,      
-  asyncHandler(UserController.Login)  
+  ValidateRequest,
+  asyncHandler(UserController.Login)
 );
 
 router.post(
@@ -42,6 +43,42 @@ router.post(
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,
   asyncHandler(UserController.CreateStaffAccount)
+);
+
+router.get(
+  "/verify-staff-account/:token",
+  ValidateToken,
+  attachAndValidateTenant,
+  asyncHandler(UserController.ActivateStaffAccount)
+);
+
+router.get(
+  "/account/staff",
+  IsAuthenticated,
+  attachAndValidateTenant,
+  RequirePermission(RBACRepository.Account.Read.Name),
+  asyncHandler(UserController.GetAllStaffAccounts)
+);
+
+router.patch(
+  "/account/staff/:id",
+  IsAuthenticated,
+  attachAndValidateTenant,
+  RequirePermission(RBACRepository.Account.Update.Name),
+  ...UserValidator.StaffIdParam(),
+  ...UserValidator.UpdateStaffAccount(),
+  ValidateRequest,
+  asyncHandler(UserController.UpdateStaffAccount)
+);
+
+router.delete(
+  "/account/staff/:id",
+  IsAuthenticated,
+  attachAndValidateTenant,
+  RequirePermission(RBACRepository.Account.Delete.Name),
+  ...UserValidator.StaffIdParam(),
+  ValidateRequest,
+  asyncHandler(UserController.DeleteStaffAccount)
 );
 
 //! TODO: Delete, Update, Read account for Student Account And Staff Account

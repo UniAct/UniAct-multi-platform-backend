@@ -23,9 +23,28 @@ router.post(
 
 router.get(
     "/",
-    attachAndValidateTenant,
     IsAuthenticated,
+    attachAndValidateTenant,
     asyncHandler(ProgramController.GetAllPrograms)
+)
+
+router.get(
+    "/:id",
+    IsAuthenticated,
+    attachAndValidateTenant,
+    ...ProgramValidator.IdParam(),
+    ValidateRequest,
+    asyncHandler(ProgramController.GetProgramById)
+)
+
+router.put(
+    "/:id",
+    IsAuthenticated,
+    attachAndValidateTenant,
+    RequirePermission(RBACRepository.Program.Update.Name),
+    ...ProgramValidator.Update(),
+    ValidateRequest,
+    asyncHandler(ProgramController.UpdateProgram)
 )
 
 router.delete(

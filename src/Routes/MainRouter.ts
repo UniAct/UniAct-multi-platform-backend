@@ -4,16 +4,15 @@ import UniversityRoutes from "./UniversityRoutes";
 import UserRoutes from "./UserRoutes";
 import RBACRoutes from "./RBACRoutes";
 import ProgramRoutes from "./ProgramRoutes";
-import  facultyRoutes from "./FacultyRoutes";
-import IsAuthenticated from "../Middlewares/AuthMiddleware";
-import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
+import facultyRoutes from "./FacultyRoutes";
+import courseRoutes from "./CourseRoutes";
+
 const router = Router();
 
 // SuperAdmin Routes
-router.use('/superadmin',SuperAdminRoutes );
+router.use('/superadmin', SuperAdminRoutes);
 // University Routes
-// Youssef: i added these 2 middleware here instead of typing them in all of the routes inside
-router.use('/university', IsAuthenticated, UniversityRoutes);
+router.use('/university', UniversityRoutes);
 
 // User Routes (Staff/Student endpoints)
 router.use('/user', UserRoutes);
@@ -23,6 +22,8 @@ router.use('/rbac', RBACRoutes);
 
 router.use('/program', ProgramRoutes);
 
-router.use("/faculty", facultyRoutes )
+router.use("/faculty", facultyRoutes)
+
+router.use("/course", courseRoutes)
 
 export default router;

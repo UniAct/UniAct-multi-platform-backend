@@ -228,8 +228,10 @@ export class EmailTemplate {
         if (!port)
             throw new Error("PORT is not defined in environment variables");
 
-        const token = JwtService.Sign(payload);
-        return `http://localhost:${port}/${route}/${token}`;
+        const token = JwtService.SignWithExpiry(payload, "24h");
+        const encodedToken = encodeURIComponent(token);
+        console.log(`http://localhost:${port}/${route}/${encodedToken}`);
+        return `http://localhost:${port}/${route}/${encodedToken}`;
     }
 
     public static SuperAdminTemplate(email: string): string {
@@ -237,13 +239,20 @@ export class EmailTemplate {
         return this.Template(url);
     }
 
-    public static RootAccountTemplate(email: string , university_name : string): string {
-        const url = this.GenerateUrl("api/superadmin/verify-root-account", 
-          {
+    public static RootAccountTemplate(email: string, university_name: string): string {
+        const url = this.GenerateUrl("api/superadmin/verify-root-account", {
             email,
             university_name
-          }
-      );
+        }
+        );
+        return this.Template(url);
+    }
+
+    public static StaffAccountTemplate(email: string, university_name: string): string {
+        const url = this.GenerateUrl("api/user/verify-staff-account", {
+            email,
+            university_name,
+        });
         return this.Template(url);
     }
 }

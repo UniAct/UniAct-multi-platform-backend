@@ -20,18 +20,29 @@ router.post(
     ...FacultyValidator.Create(),
     ValidateRequest,
     //
-     asyncHandler(FacultyController.CreateFaculty)
+    asyncHandler(FacultyController.CreateFaculty)
 );
 
 //Get All Faculties
-router.get("/",attachAndValidateTenant, FacultyController.GetAllFaculties),
+router.get("/", attachAndValidateTenant, FacultyController.GetAllFaculties),
 
-//Get Faculty By Id
-router.get("/:id",
+    //Get Faculty By Id
+    router.get("/:id",
+        attachAndValidateTenant,
+        ...FacultyValidator.IdParam(),
+        ValidateRequest,
+        asyncHandler(FacultyController.GetFacultyById)
+    );
+
+// Update Faculty by Id
+router.put(
+    "/:id",
+    IsAuthenticated,
     attachAndValidateTenant,
-    ...FacultyValidator.IdParam(),
+    RequirePermission(RBACRepository.Faculty.Update.Name),
+    ...FacultyValidator.Update(),
     ValidateRequest,
-    asyncHandler(FacultyController.GetFacultyById)
+    asyncHandler(FacultyController.UpdateFaculty)
 );
 
 //Delete a faculty
@@ -41,7 +52,7 @@ router.delete("/:id",
     RequirePermission(RBACRepository.Faculty.Delete.Name),
     ...FacultyValidator.IdParam(),
     ValidateRequest,
-    asyncHandler(FacultyController.DeleteFaculty )
+    asyncHandler(FacultyController.DeleteFaculty)
 );
 
 export default router;

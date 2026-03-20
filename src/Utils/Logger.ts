@@ -39,13 +39,13 @@ export const logger = pino({
 
   transport: isDev
     ? {
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "yyyy-mm-dd HH:MM:ss.l Z",
-          ignore: "pid,hostname",
-        },
-      }
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "yyyy-mm-dd HH:MM:ss.l Z",
+        ignore: "pid,hostname",
+      },
+    }
     : undefined,
   redact: {
     paths: [
@@ -63,17 +63,17 @@ export const logger = pino({
 export const httpLogger = pinoHttp({
   logger,
 
-  customLogLevel: (req, res, err) => {
+  customLogLevel: (_req: any, res: any, err: any) => {
     if (res.statusCode >= 500 || err) return "error";
     if (res.statusCode >= 400) return "warn";
     return "info";
   },
 
-  customSuccessMessage: (req, res) => {
+  customSuccessMessage: (req: any, _res: any) => {
     return `${req.method} ${req.url} completed`;
   },
 
-  customErrorMessage: (req, res, err) => {
+  customErrorMessage: (req: any, _res: any, _err: any) => {
     return `${req.method} ${req.url} failed`;
   },
 });

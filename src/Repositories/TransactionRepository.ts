@@ -2,25 +2,7 @@ import { User, Prisma, PrismaClient } from "@prisma/client";
 import SystemRoles from "../Enums/SystemRoles";
 import { RBACRepository } from "./RBACRepository";
 
-const DEFAULT_PERMISSIONS = [
-  RBACRepository.Role.Create,
-  RBACRepository.Role.Read,
-  RBACRepository.Role.Update,
-  RBACRepository.Role.Delete,
-  RBACRepository.Account.Create,
-  RBACRepository.Account.Read,
-  RBACRepository.Account.Update,
-  RBACRepository.Account.Delete,
-  RBACRepository.Account.AssignRole,
-  RBACRepository.Faculty.Create,
-  RBACRepository.Faculty.Read,
-  RBACRepository.Faculty.Update,
-  RBACRepository.Faculty.Delete,
-  RBACRepository.Program.Create,
-  RBACRepository.Program.Read,
-  RBACRepository.Program.Update,
-  RBACRepository.Program.Delete,
-];
+const DEFAULT_PERMISSIONS = RBACRepository.GetDefaultPermissionDefinitions();
 
 export class TransactionRepository {
   public static async CreateRootAccount(

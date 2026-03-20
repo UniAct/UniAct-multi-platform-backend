@@ -4,6 +4,7 @@ export interface IStaffAccount {
   last_name: string;
   email: string;
   password: string;
+  role_names?: string[];
   phone?: string;
   date_of_birth: string | Date;
   address?: string;
@@ -11,7 +12,7 @@ export interface IStaffAccount {
   country?: string;
   national_id: string;
   position?: string;
-  cv?: string | undefined; 
+  cv?: string | undefined;
   hireDate: string | Date;
   salary?: number | string | null;
 }

@@ -33,25 +33,29 @@ export async function attachAndValidateTenant(
   next: NextFunction
 ) {
 
+  if (req.method === "POST" && req.baseUrl.includes("/university") && req.path === "/create") {
+    return next();
+  }
+
   // ************************************[1]->{1}*****************************
-  if(req.schema_name){
+  if (req.schema_name) {
     //We won't do anything it's already resolved from previous requests
-    next();
-  } 
-  
+    return next();
+  }
+
   // ************************************[2]**********************************
   let university_name;
-  
-  if(IsSuperAdminFun(req)){
+
+  if (IsSuperAdminFun(req)) {
     //getting the wanted university from the body
     university_name = req.body?.university_name
-    
-    if(!university_name)
+
+    if (!university_name)
       throw new BadRequestError("university name must be provided in the body of the request")
   }
   // ***********************************[2]->{2}*************************************
-  else{
-    // tenant name extracted from decoded JWT token or the header if he didn't login (NEVER SWITCH THE (OR) Condition , if he is logged in , IT MUST be taken from the toekn not from passed headers)
+  else {
+    // tenant name extracted from decoded JWT token or university-name header for unauthenticated requests.
     university_name = req.user?.university_name || req.headers["university-name"] as string;
     if (!university_name) {
       throw new BadRequestError("university-name header is required")
@@ -60,25 +64,25 @@ export async function attachAndValidateTenant(
   //                    *****this part for validating the tenant****
   try {
 
-      // connect to the public schema to check tenant metadata
-      const prisma = getTenantClient("public");
+    // connect to the public schema to check tenant metadata
+    const prisma = getTenantClient("public");
 
-      // verify that the tenant (university name) exists
-      const university = await UniversityRepository.GetByName(university_name, prisma);
+    // verify that the tenant (university name) exists
+    const university = await UniversityRepository.GetByName(university_name, prisma);
 
-      if (!university) {
-        throw new NotFoundError(`University ${university_name} doesn't Exist`)
-      }
+    if (!university) {
+      throw new NotFoundError(`University ${university_name} doesn't Exist`)
+    }
 
-      if (!university.is_active) {
-        throw new ForbiddenError(`University ${university_name} is currently inactive or under maintenance`)
-      }
+    if (!university.is_active) {
+      throw new ForbiddenError(`University ${university_name} is currently inactive or under maintenance`)
+    }
 
-      //             *********attach tenant information to the request*******
-      // this will later be used to resolve the correct database schema
-      req.university_name = university_name;
-      req.schema_name = university.db_schema;
-      
+    //             *********attach tenant information to the request*******
+    // this will later be used to resolve the correct database schema
+    req.university_name = university_name;
+    req.schema_name = university.db_schema;
+
     next();
   } catch (err: any) {
     next(err);
@@ -86,10 +90,7 @@ export async function attachAndValidateTenant(
 }
 
 // this IsSuperAdmin is a function so it returns true or false which what i need here  unlike the middleware version
-function IsSuperAdminFun(req:Request) : boolean {
-  if (req.user?.role?.includes("SuperAdmin")) {
-    return true;
-  }
-  return false
+function IsSuperAdminFun(req: Request): boolean {
+  return !!req.user?.roles?.includes("SuperAdmin");
 }
 

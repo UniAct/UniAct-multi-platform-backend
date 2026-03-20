@@ -5,18 +5,26 @@ import { getTenantClient } from "./prismaClient";
 
 export class SchemaManager {
   private static SNAPSHOT = fs.readFileSync("./prisma/template_snapshot.sql", "utf8");
-  private static pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+  private static pool: Pool | null = null;
+
+  private static getPool(): Pool {
+    if (!this.pool || (this.pool as any).ended) {
+      this.pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    }
+
+    return this.pool;
+  }
 
   static async createTenant(schema: string) {
     logger.info({ action: "createTenant", schema, status: "starting" });
 
-    const client = await this.pool.connect();
+    const client = await this.getPool().connect();
 
     try {
       await client.query("BEGIN");
 
       const sql = this.SNAPSHOT.replace(/__SCHEMA__/g, schema);
-
       await client.query(sql);
 
       await client.query("COMMIT");
