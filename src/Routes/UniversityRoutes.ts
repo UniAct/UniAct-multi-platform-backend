@@ -15,7 +15,6 @@ router.post(
   "/create",
   IsAuthenticated,
   IsSuperAdmin,
-  attachAndValidateTenant,
   ...UniversityValidator.Create(),
   ValidateRequest,
   asyncHandler(UniversityController.Create)

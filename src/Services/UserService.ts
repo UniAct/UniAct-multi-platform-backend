@@ -172,17 +172,13 @@ export class UserService {
     return createdStaff;
   }
 
-  public static async ActivateStaffAccount(email: string, university_name: string) {
-    const publicPrisma = getTenantClient("public");
-    const university = await UniversityRepository.GetByName(university_name, publicPrisma);
-    if (!university) {
-      throw new NotFoundError(`University with name '${university_name}' not found.`);
-    }
+  public static async ActivateStaffAccount(email: string, schema_name: string) {
+    
 
-    const user = await this.GetUserByEmail(email, university.db_schema);
-    if (!user) throw new Error("Staff account not found");
+    const user = await this.GetUserByEmail(email, schema_name);
+    if (!user) throw new NotFoundError("Staff account not found");
 
-    const updated = await this.UpdateUser(user.id, { isVerified: true }, university.db_schema);
+    const updated = await this.UpdateUser(user.id, { isVerified: true }, schema_name);
     return updated;
   }
 
