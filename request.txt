@@ -1,0 +1,26 @@
+POST localhost:3000/api/students
+
+{
+  "username": "john_doe",
+  "firstName": "John",
+  "lastName": "Doe",
+  "universityStudentId": 20230001,
+  "nationalId": "29805151234567",
+  "email": "john@example.com",
+  "phone": "01012345678",
+  "dateOfBirth": "2000-05-15",
+  "address": "123 Main St",
+  "city": "Alexandria",
+  "country": "Egypt",
+  "programId": 2,
+  "semesterId": 1,
+  "status": "New",
+  "enrollmentDate": "2024-09-01",
+  "religion": true, 
+  "gender": true,
+  "homePhone": "034567890",
+  "previousQualification": "High School",
+  "secondarySchoolName": "Alex Secondary School",
+  "totalHighSchoolGrades": 95.5,
+  "highSchoolSeatNumber": "HS123456",
+}

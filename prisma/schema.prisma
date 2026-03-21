@@ -303,7 +303,6 @@ model Student {
   cgpa                      Decimal       @default(0.0000) @db.Decimal(5, 4)
   religion                  Boolean
   gender                    Boolean
-  passport                  String?       @db.VarChar(50)
   homePhone                 String?       @map("home_phone") @db.VarChar(20)
   previousQualification     String?       @map("previous_qualification") @db.VarChar(255)
   secondarySchoolName       String?       @map("secondary_school_name") @db.VarChar(255)

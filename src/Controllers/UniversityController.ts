@@ -6,7 +6,7 @@ import { Prisma, PrismaClient, University } from "@prisma/client"
 
 class UniversityController {
 
-  public static async Create(req: Request, res: Response, next: NextFunction) {
+  public static async Create(req: Request, res: Response) {
 
     let {
       name,

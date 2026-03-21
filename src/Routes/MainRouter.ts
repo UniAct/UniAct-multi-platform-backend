@@ -6,6 +6,7 @@ import RBACRoutes from "./RBACRoutes";
 import ProgramRoutes from "./ProgramRoutes";
 import facultyRoutes from "./FacultyRoutes";
 import courseRoutes from "./CourseRoutes";
+import semesterRoutes from "./SemesterRoutes";
 
 const router = Router();
 
@@ -25,5 +26,7 @@ router.use('/program', ProgramRoutes);
 router.use("/faculty", facultyRoutes)
 
 router.use("/course", courseRoutes)
+
+router.use('/semester', semesterRoutes);
 
 export default router;

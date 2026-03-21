@@ -29,5 +29,11 @@
     "read":   { "name": "course.read",   "description": "View course details and list all courses" },
     "update": { "name": "course.update", "description": "Update existing course information" },
     "delete": { "name": "course.delete", "description": "Delete a course from the system" }
+  },
+  "semester": {
+    "create": { "name": "semester.create", "description": "Create a new academic semester" },
+    "read":   { "name": "semester.read",   "description": "View semester details and list all semesters" },
+    "update": { "name": "semester.update", "description": "Update existing semester information" },
+    "delete": { "name": "semester.delete", "description": "Delete a semester from the system" }
   }
 }
