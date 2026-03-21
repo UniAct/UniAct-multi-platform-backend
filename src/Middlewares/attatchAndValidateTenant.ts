@@ -32,35 +32,44 @@ export async function attachAndValidateTenant(
   next: NextFunction
 ) {
 
-  if (req.method === "POST" && req.baseUrl.includes("/university") && req.path === "/create") {
-    return next();
-  }
+    let university_name;
+    
+    // ************************************[1]**********************************
+    
+    if (IsSuperAdminFun(req)) {
+      
+      //getting the wanted university from the body
+      university_name = req.body?.university_name
 
+      if (!university_name)
+        throw new BadRequestError("university name must be provided in the body of the request")
+    }
 
-  // ************************************[1]**********************************
-  let university_name;
+    //***********************************[2]***************************************************** */
 
-  if (IsSuperAdminFun(req)) {
-    //getting the wanted university from the body
-    university_name = req.body?.university_name
+    else {
 
-    if (!university_name)
-      throw new BadRequestError("university name must be provided in the body of the request")
+      // university name extracted from the token or university-name header for unauthenticated requests.
+      university_name = req.user?.university_name || req.headers["university-name"] as string;
 
-    const unviersity = validateUniversity(university_name);
-    attatchInfoToRequest(req,university_name)
-  }
+      if (!university_name) {
+        throw new BadRequestError("university-name header is required")
+      }
+    }
 
-  // ***********************************[1]->{1}*************************************
-  else {
-    // tenant name extracted from decoded JWT token or university-name header for unauthenticated requests.
-    university_name = req.user?.university_name || req.headers["university-name"] as string;
-    if (!university_name) {
-      throw new BadRequestError("university-name header is required")
+    try{
+      //                          validation
+        const unviersity = await validateUniversity(university_name);
+
+        //                        Attach information
+        attatchInfoToRequest(req, unviersity.name, unviersity.db_schema)
+        next();
+
+    }catch(err:any){
+      return next(err);
     }
   }
-  
-}
+
 
 //                             ************Helper Functions Section************      
 
