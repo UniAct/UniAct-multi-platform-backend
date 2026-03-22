@@ -13,25 +13,25 @@ export class programService {
   private static readonly templateYear = 2000;
 
   private static readonly semesterTemplates: Array<{
-    number: number;
+    term: number;
     type: SemesterType;
     startDate: Date;
     endDate: Date;
   }> = [
       {
-        number: 1,
+        term: 1,
         type: "Fall",
         startDate: new Date("2000-09-01"),
         endDate: new Date("2001-01-15"),
       },
       {
-        number: 2,
+        term: 2,
         type: "Spring",
         startDate: new Date("2001-02-01"),
         endDate: new Date("2001-06-15"),
       },
       {
-        number: 3,
+        term: 3,
         type: "Summer",
         startDate: new Date("2001-07-01"),
         endDate: new Date("2001-08-31"),
@@ -56,9 +56,9 @@ export class programService {
       this.semesterTemplates.map((template) =>
         tx.semester.upsert({
           where: {
-            year_number: {
+            year_term: {
               year: this.templateYear,
-              number: template.number,
+              term: template.term,
             },
           },
           update: {
@@ -66,7 +66,7 @@ export class programService {
           },
           create: {
             year: this.templateYear,
-            number: template.number,
+            term: template.term,
             type: template.type,
             startDate: template.startDate,
             endDate: template.endDate,
@@ -75,7 +75,7 @@ export class programService {
       ),
     );
 
-    return new Map(semesters.map((semester) => [semester.number, semester]));
+    return new Map(semesters.map((semester) => [semester.term, semester]));
   }
 
   private static buildBaseProgramData(payload: ProgramUpsertInput): Prisma.ProgramCreateInput {

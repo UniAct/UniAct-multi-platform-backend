@@ -7,9 +7,9 @@ import { ConflictError, NotFoundError } from "../Types/Errors";
 
 export class SemesterService {
 
-  private static MapNumberToSemesterType(number: number): SemesterType {
+  private static MapNumberToSemesterType(term: number): SemesterType {
     const mapping: SemesterType[] = ["Fall", "Spring", "Summer"];
-    return mapping[number - 1];
+    return mapping[term - 1];
   }
 
   public static async CreateSemester(
@@ -18,14 +18,14 @@ export class SemesterService {
   ): Promise<Semester> {
     const prisma = getTenantClient(schema_name);
 
-    const exists = await SemesterRepository.SemesterExistsByYearAndNumber(
+    const exists = await SemesterRepository.SemesterExistsByYearAndTerm(
       data.year,
-      data.number,
+      data.term,
       prisma
     );
 
     if (exists) {
-      throw new ConflictError(`Semester with year ${data.year} and number ${data.number} already exists`);
+      throw new ConflictError(`Semester with year ${data.year} and number ${data.term} already exists`);
     }
 
     const dateConflict = await SemesterRepository.isSemesterDateOverlapping(
@@ -40,7 +40,7 @@ export class SemesterService {
 
     const semesterData = {
       ...data,
-      type: SemesterService.MapNumberToSemesterType(data.number)
+      type: SemesterService.MapNumberToSemesterType(data.term)
     };
 
     const semester = await SemesterRepository.CreateSemester(semesterData, prisma);
@@ -61,9 +61,9 @@ export class SemesterService {
     }
 
     const newYear = data.year !== undefined ? data.year : existingSemester.year;
-    const newNumber = data.number !== undefined ? data.number : existingSemester.number;
+    const newNumber = data.term !== undefined ? data.term : existingSemester.term;
 
-    const exists = await SemesterRepository.SemesterExistsByYearAndNumberExcludingId(
+    const exists = await SemesterRepository.SemesterExistsByYearAndTermExcludingId(
       newYear,
       newNumber,
       semesterId,
@@ -71,7 +71,7 @@ export class SemesterService {
     );
 
     if (exists) {
-      throw new ConflictError(`Semester with year ${newYear} and number ${newNumber} already exists`);
+      throw new ConflictError(`Semester with year ${newYear} and term ${newNumber} already exists`);
     }
 
     if (data.startDate || data.endDate) {
@@ -145,7 +145,7 @@ export class SemesterService {
       schema: schema_name,
       semesterId,
       year: semester.year,
-      number: semester.number,
+      term: semester.term,
       type: semester.type
     });
 

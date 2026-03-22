@@ -37,7 +37,7 @@ export class SemesterRepository {
     return await prisma.semester.findMany({
       orderBy: [
         { year: "desc" },
-        { number: "desc" }
+        { term: "desc" }
       ]
     });
   }
@@ -52,16 +52,16 @@ export class SemesterRepository {
   }
 
 
-  public static async SemesterExistsByYearAndNumber(
+  public static async SemesterExistsByYearAndTerm(
     year: number,
-    number: number,
+    term: number,
     prisma: PrismaClient
   ): Promise<boolean> {
     const semester = await prisma.semester.findUnique({
       where: {
-        year_number: { 
+        year_term: { 
           year: year,
-          number: number
+          term: term
         }
       },
       select: { id: true }
@@ -69,16 +69,16 @@ export class SemesterRepository {
     return semester !== null;
   }
 
-  public static async SemesterExistsByYearAndNumberExcludingId(
+  public static async SemesterExistsByYearAndTermExcludingId(
     year: number,
-    number: number,
+    term: number,
     excludeId: number,
     prisma: PrismaClient
   ): Promise<boolean> {
     const semester = await prisma.semester.findFirst({
       where: {
         year: year,
-        number: number,
+        term: term,
         id: { not: excludeId }
       },
       select: { id: true }

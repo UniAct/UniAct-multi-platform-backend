@@ -10,9 +10,9 @@ export default class SemesterValidator {
         .isInt({ min: 2000, max: 2100 }).withMessage("Year must be between 2000 and 2100")
         .toInt(),
 
-      body("number")
+      body("term")
         .exists().withMessage("Semester number is required")
-        .isInt({ min: 1, max: 3 }).withMessage("Semester number must be between 1 and 3 (1: )")
+        .isInt({ min: 1, max: 3 }).withMessage("Term number must be between 1 and 3 (1: Fall , 2: Spring , 3: Summer)")
         .toInt(),
 
       body("startDate")
@@ -53,10 +53,10 @@ export default class SemesterValidator {
         .withMessage("Year must be between 2000 and 2100")
         .toInt(),
 
-      body("number")
+      body("term")
         .optional()
         .isInt({ min: 1, max: 3 })
-        .withMessage("Semester number must be between 1 and 4")
+        .withMessage("Semester number must be between 1 and 3 (1: Fall , 2: Spring , 3: Summer)")
         .toInt(),
 
       body("startDate")

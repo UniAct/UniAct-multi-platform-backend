@@ -374,8 +374,8 @@ model MercyRule {
 
 model Semester {
   id              Int           @id @default(autoincrement())
-  year            Int
-  number          Int
+  year            Int           @db.SmallInt
+  term            Int           @db.SmallInt
   startDate       DateTime      @map("start_date") @db.Date
   endDate         DateTime      @map("end_date") @db.Date
   type            SemesterType
@@ -387,7 +387,7 @@ model Semester {
   transcripts               Transcript[]
   classSessions             ClassSession[]
 
-  @@unique([year, number])
+  @@unique([year, term])
   @@index([year])
   @@map("Semester")
 }

@@ -80,7 +80,7 @@ export class UserService {
       return user;
     } catch (err: any) {
       console.error(`[ERROR] Error fetching user (${email}):`, err);
-      throw new Error("Database error while fetching user.");
+      throw new Error("Error Occurred.");
     }
   }
 
