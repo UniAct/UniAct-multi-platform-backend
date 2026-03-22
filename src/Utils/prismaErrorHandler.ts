@@ -38,8 +38,6 @@ export function handlePrismaError(err: any, res: Response) {
 
   //Not Found (e.g., delete non-existent, findUniqueOrThrow)
   if (err.code === "P2025") {
-      console.log("--------------------------------------------------------------------------------------")
-    console.dir(err);
     // Many P2025 errors don’t include specific field names,
     // so show model name or generic resource name
     const model = err.meta?.modelName ?? "Resource";

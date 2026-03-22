@@ -86,7 +86,9 @@ export class SemesterRepository {
     return semester !== null;
   }
 
-  public static async SemesterDateConflict(
+  //checks whether a new semester date range overlaps with any existing semester in the database
+
+  public static async isSemesterDateOverlapping(
     startDate: Date,
     endDate: Date,
     prisma: PrismaClient,

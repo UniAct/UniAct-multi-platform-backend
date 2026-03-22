@@ -3,6 +3,7 @@ import { SemesterRepository } from "../Repositories/SemesterRepository";
 import { getTenantClient } from "../Utils/prismaClient";
 import { logger } from "../Utils/Logger";
 import { CreateSemesterRequest, UpdateSemesterRequest } from "../Interfaces/Semester";
+import { ConflictError, NotFoundError } from "../Types/Errors";
 
 export class SemesterService {
 
@@ -24,17 +25,17 @@ export class SemesterService {
     );
 
     if (exists) {
-      throw new Error(`Semester with year ${data.year} and number ${data.number} already exists`);
+      throw new ConflictError(`Semester with year ${data.year} and number ${data.number} already exists`);
     }
 
-    const dateConflict = await SemesterRepository.SemesterDateConflict(
+    const dateConflict = await SemesterRepository.isSemesterDateOverlapping(
       new Date(data.startDate),
       new Date(data.endDate),
       prisma
     );
 
     if (dateConflict) {
-      throw new Error(`Semester dates conflict with an existing semester`);
+      throw new ConflictError(`Semester dates conflict with an existing semester`);
     }
 
     const semesterData = {
@@ -56,7 +57,7 @@ export class SemesterService {
 
     const existingSemester = await SemesterRepository.GetSemesterById(semesterId, prisma);
     if (!existingSemester) {
-      throw new Error(`Semester with ID ${semesterId} not found`);
+      throw new NotFoundError(`Semester with ID ${semesterId} not found`);
     }
 
     const newYear = data.year !== undefined ? data.year : existingSemester.year;
@@ -70,11 +71,11 @@ export class SemesterService {
     );
 
     if (exists) {
-      throw new Error(`Semester with year ${newYear} and number ${newNumber} already exists`);
+      throw new ConflictError(`Semester with year ${newYear} and number ${newNumber} already exists`);
     }
 
     if (data.startDate || data.endDate) {
-      const conflict = await SemesterRepository.SemesterDateConflict(
+      const conflict = await SemesterRepository.isSemesterDateOverlapping(
         data.startDate ? new Date(data.startDate) : existingSemester.startDate,
         data.endDate ? new Date(data.endDate) : existingSemester.endDate,
         prisma,
@@ -82,7 +83,7 @@ export class SemesterService {
       );
 
       if (conflict) {
-        throw new Error(`Semester dates conflict with an existing semester`);
+        throw new ConflictError(`Semester dates conflict with an existing semester`);
       }
     }
 
@@ -99,11 +100,6 @@ export class SemesterService {
     schema_name: string
   ): Promise<Semester> {
     const prisma = getTenantClient(schema_name);
-    
-    const existingSemester = await SemesterRepository.GetSemesterById(semesterId, prisma);
-    if (!existingSemester) {
-      throw new Error(`Semester with ID ${semesterId} not found`);
-    }
     
     return await SemesterRepository.DeleteSemester(semesterId, prisma);
   }
@@ -140,7 +136,7 @@ export class SemesterService {
         semesterId,
         reason: "semester not found"
       });
-      throw new Error(`Semester with ID ${semesterId} not found`);
+      throw new NotFoundError(`Semester with ID ${semesterId} not found`);
     }
 
     logger.info({
