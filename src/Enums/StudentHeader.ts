@@ -1,0 +1,22 @@
+export enum StudentExcelHeaders {
+  Username = "Username",
+  FirstName = "First Name",
+  LastName = "Last Name",
+  UniversityStudentId = "University Student ID",
+  NationalId = "National ID",
+  Email = "Email",
+  Phone = "Phone",
+  DateOfBirth = "Date of Birth",
+  Address = "Address",
+  City = "City",
+  Country = "Country",
+  Status = "Status",
+  EnrollmentDate = "Enrollment Date",
+  Religion = "Religion",
+  Gender = "Gender",
+  HomePhone = "Home Phone",
+  PreviousQualification = "Previous Qualification",
+  SecondarySchoolName = "Secondary School Name",
+  TotalHighSchoolGrades = "Total High School Grades",
+  HighSchoolSeatNumber = "High School Seat Number"
+}

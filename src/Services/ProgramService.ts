@@ -176,7 +176,7 @@ export class programService {
 
         feeRows.push({
           programLevelId: createdLevel.id,
-          semesterId,
+          semesterId: semesterId!,
           feeType: fee.feeType,
           amount: fee.amount,
           description: fee.description,

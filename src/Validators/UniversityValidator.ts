@@ -49,7 +49,8 @@ export default class UniversityValidator {
 
       body("db_schema")
         .exists({ checkFalsy: true })
-        .withMessage("Database schema is required.")
+        .isLength({min: 3 , max: 10})
+        .withMessage("Database schema is required and its length must be between 3 and 10.")
         .isString()
         .withMessage("Database schema must be a valid string."),
     ];

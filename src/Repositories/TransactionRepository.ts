@@ -10,6 +10,7 @@ export class TransactionRepository {
     prisma: PrismaClient
   ): Promise<User> {
     return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // 1. Check if user exists
       const existing_user = await tx.user.findFirst({
         where: {
           OR: [
@@ -18,13 +19,16 @@ export class TransactionRepository {
             { nationalId: user.nationalId },
           ],
         },
-        select: { id: true }, 
+        select: { id: true },
       });
 
       if (existing_user) {
-        throw new Error("Username or Email or NationalId already exists in this university");
+        throw new Error(
+          "Username or Email or NationalId already exists in this university"
+        );
       }
 
+      // 2. Create user and upsert role in parallel
       const [root_account, role] = await Promise.all([
         tx.user.create({
           data: {
@@ -48,37 +52,48 @@ export class TransactionRepository {
             name: SystemRoles.RootAccount,
             description: "Root account with full permissions",
           },
-          include: { permissions: { select: { permission: true } } },
         }),
       ]);
 
-      await tx.permission.createMany({
-        data: DEFAULT_PERMISSIONS.map((p) => ({
-          name: p.name,
-          description: p.description,
-        })),
-        skipDuplicates: true,
-      });
+      // 3. Create permissions (skip duplicates) and role-permission mapping in parallel
+      const permissionNames = DEFAULT_PERMISSIONS.map((p) => p.name);
 
-      const permissions = await tx.permission.findMany({
-        where: { name: { in: DEFAULT_PERMISSIONS.map((p) => p.name) } },
-        select: { id: true },
-      });
+      const [permissions] = await Promise.all([
+        tx.permission.findMany({
+          where: { name: { in: permissionNames } },
+          select: { id: true, name: true },
+        }).then(async (existing) => {
+          // Insert only missing permissions
+          const existingNames = new Set(existing.map((p) => p.name));
+          const toCreate = DEFAULT_PERMISSIONS.filter(
+            (p) => !existingNames.has(p.name)
+          ).map((p) => ({ name: p.name, description: p.description }));
 
+          if (toCreate.length > 0) {
+            await tx.permission.createMany({ data: toCreate });
+            // Re-fetch all IDs
+            return tx.permission.findMany({
+              where: { name: { in: permissionNames } },
+              select: { id: true },
+            });
+          }
+
+          return existing;
+        }),
+        tx.userRole.upsert({
+          where: { userId_roleId: { userId: root_account.id, roleId: role.id } },
+          update: {},
+          create: { userId: root_account.id, roleId: role.id },
+        }),
+      ]);
+
+      // 4. Map role-permissions (bulk insert skip duplicates)
       await tx.rolePermission.createMany({
         data: permissions.map((p) => ({
           roleId: role.id,
           permissionId: p.id,
         })),
         skipDuplicates: true,
-      });
-
-      await tx.userRole.upsert({
-        where: {
-          userId_roleId: { userId: root_account.id, roleId: role.id },
-        },
-        update: {},
-        create: { userId: root_account.id, roleId: role.id },
       });
 
       return root_account;

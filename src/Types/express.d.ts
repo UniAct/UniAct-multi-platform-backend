@@ -8,5 +8,6 @@ declare module "express-serve-static-core" {
     schema_name? : string;
     university_name? : string;
     bucket_name? : string;
+    excelFile? : Express.Multer.File;
   }
 }

@@ -5,6 +5,7 @@ import { SchemaManager } from "../Utils/SchemaManager";
 import { getTenantClient } from "../Utils/prismaClient";
 import { NotFoundError } from "../Types/Errors";
 import { logger } from "../Utils/Logger";
+import { MinioRepository } from "../Repositories/MinioRepository";
 
 export class UniversityService {
 
@@ -27,6 +28,8 @@ export class UniversityService {
           status: "success"
         }
       );
+
+      await MinioRepository.CreateBucket(university.db_schema);
 
       return university;
     } catch (err) {
@@ -91,6 +94,8 @@ export class UniversityService {
 
 
     await SchemaManager.deleteSchema(university.db_schema);
+
+    await MinioRepository.DeleteBucket(university.db_schema);
 
     logger.info(
       {

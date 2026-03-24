@@ -28,4 +28,20 @@ export class Masking {
 
     return `${localPart.slice(0, visibleChars)}${maskedPart}@${domain}`;
   }
+
+  /**
+   * Masks an Egyptian national ID for logging purposes.
+   * Keeps only the last 4 digits visible.
+   * Example: "29805151234567" -> "*********4567"
+   * @param nationalId - the national ID string to mask
+   * @returns masked national ID string
+   */
+  public static MaskNationalId(nationalId: string | undefined): string {
+    if (!nationalId) return "";
+    const visibleDigits = 4;
+    const maskedLength = Math.max(nationalId.length - visibleDigits, 0);
+    const maskedPart = "*".repeat(maskedLength);
+    const visiblePart = nationalId.slice(-visibleDigits);
+    return `${maskedPart}${visiblePart}`;
+  }
 }

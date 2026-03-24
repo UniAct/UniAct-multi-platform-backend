@@ -31,3 +31,9 @@ export class ConflictError extends AppError{
       super(message,StatusCodes.CONFLICT)
    }
 }
+
+export class ConnectionError extends AppError{
+   constructor(message="Connection With The Resource Was Failed"){
+      super(message,StatusCodes.CONFLICT)
+   }
+}

@@ -13,6 +13,11 @@ import { RequirePermission } from "../Middlewares/Authorization/RequirePermissio
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 import permissions from "../Utils/Permissions.json";
+import StudentValidator from "../Validators/StudentValidator";
+import { StudentController } from "../Controllers/StudentController";
+import { HandleExcelUpload } from "../Middlewares/HandleExcelUpload";
+import { ValidateExcelHeaders } from "../Validators/ValidateExcelHeaders";
+import { StudentExcelHeaders } from "../Enums/StudentHeader";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -43,6 +48,29 @@ router.post(
   ValidateRequest,
   asyncHandler(UserController.CreateStaffAccount)
 );
+
+router.post(
+    "/account/student",
+    IsAuthenticated,
+    attachAndValidateTenant,
+    RequirePermission(permissions.account.create.name),
+    ...StudentValidator.Create(),
+    ValidateRequest,
+    asyncHandler(StudentController.Create)
+)
+
+
+router.post(
+    "/account/student/import",
+    IsAuthenticated,
+    attachAndValidateTenant,
+    RequirePermission(permissions.account.create.name),
+    HandleExcelUpload,
+    ValidateExcelHeaders(Object.values(StudentExcelHeaders)),
+    ...StudentValidator.CreateBulk(),
+    ValidateRequest,
+    asyncHandler(StudentController.CreateBulk)
+)
 
 router.get(
   "/verify-staff-account/:token",
