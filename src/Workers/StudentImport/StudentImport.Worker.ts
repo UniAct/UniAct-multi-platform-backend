@@ -10,7 +10,7 @@ import { ValidateStudentRow } from "./Helpers/ValidateStudentRow";
 import { StudentRepository } from "../../Repositories/StudentRepository";
 import {  ResolveDbError } from "./Helpers/ResolvePrismaErrors";
 import { BuildRawData } from "./Helpers/BulkRawData";
-
+import { hashNationalIds } from "./Helpers/HashNationalId";
 // ─── Prerequisites ────────────────────────────────────────────────────────────
 //
 //  This worker connects to Redis (BullMQ) and MinIO (file storage) on startup.
@@ -117,7 +117,21 @@ async function handler(job: Job<BulkCreateResult>) {
       rows_per_second: Math.round(totalRows / (validationDuration / 1000)),
     });
 
-    // ── Step 4: Verify a fee exists for this program level + semester ─────────
+    // ── Step 4: Pre-hash all national IDs in a dedicated thread ────────────
+    const hashStart = Date.now();
+    
+    const hashMap = await hashNationalIds(validRows.map(r => r.data.nationalId as string));
+    
+    logger.info({
+      action:      "StudentImportWorker",
+      phase:       "Hashing",
+      jobId,
+      count:       validRows.length,
+      duration_ms: Date.now() - hashStart,
+    });
+    
+
+    // ── Step 5: Verify a fee exists for this program level + semester ─────────
     // Every row in this job shares the same programLevelId and semesterId,
     // so a single prefetch is enough instead of querying inside each row insertion.
     const fee = await prisma.fee.findFirst({
@@ -152,7 +166,7 @@ async function handler(job: Job<BulkCreateResult>) {
       return;
     }
 
-    // ── Step 5: Insert valid rows in concurrent batches ───────────────────────
+    // ── Step 6: Insert valid rows in concurrent batches ───────────────────────
     const insertionStart = Date.now();
     let insertedCount = 0;
 
@@ -162,7 +176,7 @@ async function handler(job: Job<BulkCreateResult>) {
       // Run up to CONCURRENCY insertions in parallel; collect every outcome
       // without letting a single failure abort the rest of the batch.
       const batchResults = await Promise.allSettled(
-        batch.map(({ rowNumber, data: row }) =>
+        batch.map(async ({ rowNumber, data: row }) =>
           StudentRepository.CreateStudentWithFee(
             {
               ...(row as CreateStudentRequest),
@@ -170,7 +184,7 @@ async function handler(job: Job<BulkCreateResult>) {
               programLevelId: Number(programLevelId),
               semesterId:     Number(semesterId),
             },
-            row.nationalId,
+            hashMap.get(row.nationalId as string)!,
             fee,
             prisma
           )
@@ -231,7 +245,7 @@ async function handler(job: Job<BulkCreateResult>) {
       avg_ms_per_row:  validRows.length > 0 ? Math.round(insertionDuration / validRows.length)       : 0,
     });
 
-    // ── Step 6: Persist final job status and error log ────────────────────────
+    // ── Step 7: Persist final job status and error log ────────────────────────
     const totalDuration = Date.now() - jobStart;
 
     const finalStatus =

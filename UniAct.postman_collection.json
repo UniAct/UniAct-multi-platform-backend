@@ -139,7 +139,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM2ODUzNTYsImV4cCI6MTc3Mzc3MTc1Nn0.pv9DX5BLiWFhylpSwE-58XhSEjJe73LOWs5aDjF8OBA",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZXMiOlsiU3VwZXJBZG1pbiJdLCJpYXQiOjE3NzQxMTEwNDQsImV4cCI6MTc3NDE5NzQ0NH0.D4ORgbpQ_Wqk5AVOA2c3tu1NhM2P6yg5PX9wWXmiH1U",
                   "type": "string"
                 }
               ]
@@ -155,7 +155,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Nile Valley University\",\r\n  \"address\": \"Assiut, Assiut Governorate, Egypt\",\r\n  \"phone\": \"+20 88 234 5678\",\r\n  \"email\": \"info@nilevalley.edu.eg\",\r\n  \"website\": \"https://www.nilevalley.edu.eg\",\r\n  \"established_date\": \"2006-03-22\",\r\n  \"accreditation\": \"Accredited by the Supreme Council of Universities (Egypt)\",\r\n  \"db_schema\": \"nile_valley\"\r\n}",
+              "raw": "{\r\n  \"name\": \"Modern Academy3\",\r\n  \"address\": \"Nasr City, Cairo Governorate, Egypt\",\r\n  \"phone\": \"+20 2 2345 6789\",\r\n  \"email\": \"info@cairomodern.edu.eg\",\r\n  \"website\": \"https://www.cairomodern.edu.eg\",\r\n  \"established_date\": \"2012-05-10\",\r\n  \"accreditation\": \"Accredited by the Supreme Council of Universities (Egypt)\",\r\n  \"db_schema\": \"ma3\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -330,7 +330,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJNYXJrIiwiZW1haWwiOiJNYXJrQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzczMzMyNzIwLCJleHAiOjE3NzM0MTkxMjB9.R-sQwdPaSo7ZHQkpXPLzYX00R0fTZS0vQls59IUoaE0",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM3NjU5MzIsImV4cCI6MTc3Mzg1MjMzMn0.KVqBkZZPwrGvxqI_AqB3QnxSS_q_HFD3gAtR3VhXWWQ",
                   "type": "string"
                 }
               ]
@@ -338,7 +338,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/university/70",
+              "raw": "http://localhost:3000/api/university/51",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -347,7 +347,7 @@
               "path": [
                 "api",
                 "university",
-                "70"
+                "51"
               ]
             }
           },
@@ -392,7 +392,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM2ODUzNTYsImV4cCI6MTc3Mzc3MTc1Nn0.pv9DX5BLiWFhylpSwE-58XhSEjJe73LOWs5aDjF8OBA",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZXMiOlsiU3VwZXJBZG1pbiJdLCJpYXQiOjE3NzQxOTcxMDQsImV4cCI6MTc3NDI4MzUwNH0.lOxDRId4GNmcskvsOAhTuqdl00zXKUmS-L54ccpVLyQ",
                   "type": "string"
                 }
               ]
@@ -408,7 +408,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"university_name\": \"Nile Valley University\",\r\n  \"username\": \"root_admin\",\r\n  \"firstName\": \"Mark\",\r\n  \"lastName\": \"Magdy\",\r\n  \"email\": \"markmagdy148@gmail.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"phone\": \"+201234567890\",\r\n  \"dateOfBirth\": \"1985-03-15\",\r\n  \"address\": \"123 University Street, Smouha\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"nationalId\": \"28503151234567\"\r\n}",
+              "raw": "{\r\n  \"university_name\": \"Alexandria National University\",\r\n  \"username\": \"root_admin\",\r\n  \"firstName\": \"Mark\",\r\n  \"lastName\": \"Magdy\",\r\n  \"email\": \"markmagdy148@gmail.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"phone\": \"+201234567890\",\r\n  \"dateOfBirth\": \"1985-03-15\",\r\n  \"address\": \"123 University Street, Smouha\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"nationalId\": \"28503151234567\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -437,6 +437,114 @@
       "name": "User",
       "item": [
         {
+          "name": "Student",
+          "item": [
+            {
+              "name": "Create One Student",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6IkFsZXhhbmRyaWEgTmF0aW9uYWwgVW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiY291cnNlLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImZhY3VsdHkucmVhZCIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJjb3Vyc2UudXBkYXRlIiwicm9vbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInNlbWVzdGVyLmNyZWF0ZSIsInJvbGUucmVhZCIsImNvdXJzZS5kZWxldGUiLCJjb3Vyc2UuY3JlYXRlIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInNlbWVzdGVyLmRlbGV0ZSIsInByb2dyYW0udXBkYXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb29tLmRlbGV0ZSIsImZhY3VsdHkuZGVsZXRlIiwicm9vbS5yZWFkIiwicm9sZS51cGRhdGUiLCJhY2NvdW50LnJlYWQiLCJzZW1lc3Rlci5yZWFkIiwicm9sZS5jcmVhdGUiLCJyb29tLmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwic2VtZXN0ZXIudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSJdLCJpYXQiOjE3NzQzNjQxMjIsImV4cCI6MTc3NDQ1MDUyMn0.po2-0JWHknd9W8fm5yB36M0GytSxaaaceEQCrM4AUU8",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"username\": \"2205040\",\r\n  \"firstName\": \"Aesany\",\r\n  \"lastName\": \"Osama\",\r\n  \"universityStudentId\": 2205040,\r\n  \"nationalId\": \"29801011334557\",\r\n  \"programId\": 4,\r\n  \"programLevelId\": 17,\r\n  \"semesterId\": 10,\r\n  \"email\": \"json.doe@example.com\",\r\n  \"phone\": \"01012345678\",\r\n  \"homePhone\": \"0401234567\",\r\n  \"dateOfBirth\": \"2000-05-15\",\r\n  \"enrollmentDate\": \"2023-09-01\",\r\n  \"address\": \"123 Main Street\",\r\n  \"city\": \"Cairo\",\r\n  \"country\": \"Egypt\",\r\n  \"status\": \"New\",\r\n  \"religion\": \"C\",\r\n  \"gender\": \"M\",\r\n  \"previousQualification\": \"High School Diploma\",\r\n  \"secondarySchoolName\": \"Cairo High School\",\r\n  \"totalHighSchoolGrades\": 95.5,\r\n  \"highSchoolSeatNumber\": \"HS123456\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/user/account/student",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "user",
+                    "account",
+                    "student"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Import Students",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6IkFsZXhhbmRyaWEgTmF0aW9uYWwgVW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiY291cnNlLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImZhY3VsdHkucmVhZCIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJjb3Vyc2UudXBkYXRlIiwicm9vbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInNlbWVzdGVyLmNyZWF0ZSIsInJvbGUucmVhZCIsImNvdXJzZS5kZWxldGUiLCJjb3Vyc2UuY3JlYXRlIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInNlbWVzdGVyLmRlbGV0ZSIsInByb2dyYW0udXBkYXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb29tLmRlbGV0ZSIsImZhY3VsdHkuZGVsZXRlIiwicm9vbS5yZWFkIiwicm9sZS51cGRhdGUiLCJhY2NvdW50LnJlYWQiLCJzZW1lc3Rlci5yZWFkIiwicm9sZS5jcmVhdGUiLCJyb29tLmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwic2VtZXN0ZXIudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSJdLCJpYXQiOjE3NzQzNDkxMzgsImV4cCI6MTc3NDQzNTUzOH0.Llc1eOVDgXOnCPsorc2p62h04y1KdNFXpdf2TPmuS5Y",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "uuid": "e32f18b3-0558-442a-bd83-30bb142dd4dc",
+                      "src": "/C:/Users/Time Computer/Downloads/test_students_10.xlsx"
+                    },
+                    {
+                      "key": "programId",
+                      "value": "4",
+                      "type": "text",
+                      "uuid": "b1a542a4-596f-4c32-8e26-273b3f1c405b"
+                    },
+                    {
+                      "key": "programLevelId",
+                      "value": "17",
+                      "type": "text",
+                      "uuid": "6bf4f7c3-025d-46a5-9893-97d29de51d53"
+                    },
+                    {
+                      "key": "semesterId",
+                      "value": "10",
+                      "type": "text",
+                      "uuid": "558ce9c1-8a53-420e-8dd7-e0a2538d17d0"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/user/account/student/import",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "user",
+                    "account",
+                    "student",
+                    "import"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Login",
           "request": {
             "auth": {
@@ -452,14 +560,14 @@
             "method": "POST",
             "header": [
               {
-                "key": "X-Tenant-Id",
-                "value": "Nile Valley University",
+                "key": "university-name",
+                "value": "Alexandria National University",
                 "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n      \"email\": \"markmagdy148@gmail.com\",\r\n      \"password\": \"aaAA11!!\"\r\n}",
+              "raw": "{\r\n    \"email\": \"markmagdy148@gmail.com\",\r\n    \"password\": \"aaAA11!!\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -490,7 +598,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwicHJvZ3JhbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb2xlLnJlYWQiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwicm9sZS51cGRhdGUiLCJwcm9ncmFtLmRlbGV0ZSIsImZhY3VsdHkudXBkYXRlIiwiZmFjdWx0eS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiXSwiaWF0IjoxNzczNzY5MzkzLCJleHAiOjE3NzM4NTU3OTN9.nRdpZQBEx_-vpK_-ecx3xuROYbBCVNx-3T006Qa9FEQ",
                   "type": "string"
                 }
               ]
@@ -523,7 +631,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"username\": \"markmagdy\",\r\n  \"first_name\": \"Mark\",\r\n  \"last_name\": \"Magdy\",\r\n  \"email\": \"mark.magdy@example.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"date_of_birth\": \"1999-08-15\",\r\n  \"address\": \"25 El-Gaish Street\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"national_id\": \"29908151234567\",\r\n  \"position\": \"Software Engineer\",\r\n  \"hireDate\": \"2024-06-01\",\r\n  \"salary\": 12000,\r\n  \"phone\": \"01210480491\"\r\n}",
+              "raw": "{\r\n  \"username\": \"youssef\",\r\n  \"first_name\": \"youssef\",\r\n  \"last_name\": \"waled\",\r\n  \"email\": \"youssef.waled@example.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"date_of_birth\": \"1999-08-15\",\r\n  \"address\": \"25 El-Gaish Street\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"national_id\": \"29908151234567\",\r\n  \"position\": \"Software Engineer\",\r\n  \"hireDate\": \"2024-06-01\",\r\n  \"salary\": 12000,\r\n  \"phone\": \"01210480491\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -560,7 +668,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwicHJvZ3JhbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb2xlLnJlYWQiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwicm9sZS51cGRhdGUiLCJwcm9ncmFtLmRlbGV0ZSIsImZhY3VsdHkudXBkYXRlIiwiZmFjdWx0eS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiXSwiaWF0IjoxNzczNzY5MzkzLCJleHAiOjE3NzM4NTU3OTN9.nRdpZQBEx_-vpK_-ecx3xuROYbBCVNx-3T006Qa9FEQ",
                   "type": "string"
                 }
               ]
@@ -570,7 +678,8 @@
               {
                 "key": "x-tenant-id",
                 "value": "bla7",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               }
             ],
             "body": {
@@ -600,26 +709,24 @@
         },
         {
           "name": "Update Role",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiZW1haWwiOiJ5b3Vzc2VmLndhbGVkQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJEYXRhIEVudHJ5Il0sInBlcm1pc3Npb25zIjpbImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiYWNjb3VudC5yZWFkIl0sImlhdCI6MTc3Mzc2OTY3MSwiZXhwIjoxNzczODU2MDcxfQ.7boaOn07TzoXXgkaAgpMzjYUjMRq99ixO61U2DDnSCQ",
                   "type": "string"
                 }
               ]
             },
-            "method": "GET",
+            "method": "PUT",
             "header": [
               {
                 "key": "Host",
                 "value": "www.anu.local",
-                "type": "text"
+                "type": "text",
+                "disabled": true
               }
             ],
             "body": {
@@ -632,13 +739,14 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/rbac/role/3",
+              "raw": "http://localhost:3000/api/rbac/role/3",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
+                "api",
                 "rbac",
                 "role",
                 "3"
@@ -707,7 +815,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidGVuYW50X25hbWUiOiJOaWxlIFZhbGxleSBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIl0sImlhdCI6MTc3MzY4NjQ3MiwiZXhwIjoxNzczNzcyODcyfQ.yEPAIZsReZ-fKecpzSk11e8xm-qo2xS4ZqXeN3cf03s",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwicHJvZ3JhbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb2xlLnJlYWQiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwicm9sZS51cGRhdGUiLCJwcm9ncmFtLmRlbGV0ZSIsImZhY3VsdHkudXBkYXRlIiwiZmFjdWx0eS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiXSwiaWF0IjoxNzczNzY5MzkzLCJleHAiOjE3NzM4NTU3OTN9.nRdpZQBEx_-vpK_-ecx3xuROYbBCVNx-3T006Qa9FEQ",
                   "type": "string"
                 }
               ]
@@ -864,7 +972,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiYWxleGFuZHJpYV9uYXRpb25hbF91bml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyYmFjLmNyZWF0ZSIsInJiYWMucmVhZCIsInJiYWMudXBkYXRlIiwicmJhYy5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIl0sImlhdCI6MTc2NDk2MDEzMSwiZXhwIjoxNzY1MDQ2NTMxfQ.s-KYl1-OmZYmPEZPo8K1x6-BeeWzv217gbnqXHPXnok",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwicHJvZ3JhbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb2xlLnJlYWQiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwicm9sZS51cGRhdGUiLCJwcm9ncmFtLmRlbGV0ZSIsImZhY3VsdHkudXBkYXRlIiwiZmFjdWx0eS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiXSwiaWF0IjoxNzczNzY5MzkzLCJleHAiOjE3NzM4NTU3OTN9.nRdpZQBEx_-vpK_-ecx3xuROYbBCVNx-3T006Qa9FEQ",
                   "type": "string"
                 }
               ]
@@ -887,16 +995,17 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/rbac/assign-permissions-to-role/7",
+              "raw": "http://localhost:3000/api/rbac/assign-permissions-to-role/2",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
+                "api",
                 "rbac",
                 "assign-permissions-to-role",
-                "7"
+                "2"
               ]
             }
           },
@@ -910,7 +1019,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwicHJvZ3JhbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb2xlLnJlYWQiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwicm9sZS51cGRhdGUiLCJwcm9ncmFtLmRlbGV0ZSIsImZhY3VsdHkudXBkYXRlIiwiZmFjdWx0eS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiXSwiaWF0IjoxNzczNzY5MzkzLCJleHAiOjE3NzM4NTU3OTN9.nRdpZQBEx_-vpK_-ecx3xuROYbBCVNx-3T006Qa9FEQ",
                   "type": "string"
                 }
               ]
@@ -933,7 +1042,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/rbac/assign-role-to-user/11",
+              "raw": "http://localhost:3000/api/rbac/assign-role-to-user/7",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -943,7 +1052,251 @@
                 "api",
                 "rbac",
                 "assign-role-to-user",
-                "11"
+                "7"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Semesters",
+      "item": [
+        {
+          "name": "Add Semester",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkyIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4NDc3OCwiZXhwIjoxNzc0MjcxMTc4fQ.CDn0C6W9DaDCLtruW2fd9znSfi8eTMI3lM-oGMbElNE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2025,\r\n  \"term\": 2,\r\n  \"startDate\": \"2027-12-10\",\r\n  \"endDate\": \"2029-03-01\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Semesters",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update A Semester",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2026,\r\n  \"term\": 2,\r\n  \"startDate\": \"2026-02-01\",\r\n  \"endDate\": \"2026-06-10\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Semester By Id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete A Semester",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "1"
               ]
             }
           },
