@@ -25,6 +25,7 @@ const cleaned = content
   .join("\n");
 
 fs.writeFileSync(prismaSchema, cleaned, "utf-8");
+console.log("✅ schema lines removed safely");
 
 let cmd = "npx prisma generate"
 exec(cmd,(err,stdout,stderr)=>{
@@ -35,4 +36,5 @@ exec(cmd,(err,stdout,stderr)=>{
 
 })
 
-console.log("✅ schema lines removed safely");
+//return it as it was
+fs.writeFileSync(prismaSchema,content);
