@@ -11,12 +11,10 @@ export class RBACRepository {
       },
       select: { name: true },
     });
-    // @ts-ignore
     return roles.map((r) => r.name);
   }
 
   public static async GetUserPermissions(user_id: number, prisma: PrismaClient): Promise<string[]> {
-
     const permissions = await prisma.permission.findMany({
       where: {
         rolePermissions: {
@@ -32,7 +30,6 @@ export class RBACRepository {
       select: { name: true },
       distinct: ["id"],
     });
-    // @ts-ignore
     return permissions.map((p) => p.name);
   }
 
@@ -261,5 +258,40 @@ export class RBACRepository {
       console.error("Error assigning roles to user:", error);
       throw error;
     }
+  }
+
+  public static async GetUserRolesAndPermissions(
+    user_id: number,
+    prisma: PrismaClient
+  ): Promise<{ roles: string[]; permissions: string[] }> {
+    const userRoles = await prisma.userRole.findMany({
+      where: { userId: user_id },
+      select: {
+        role: {
+          select: {
+            name: true,
+            permissions: {
+              select: {
+                permission: {
+                  select: { name: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const roles = userRoles.map((ur) => ur.role.name);
+
+    const permissions = [
+      ...new Set(
+        userRoles.flatMap((ur) =>
+          ur.role.permissions.map((p) => p.permission.name)
+        )
+      ),
+    ];
+
+    return { roles, permissions };
   }
 }

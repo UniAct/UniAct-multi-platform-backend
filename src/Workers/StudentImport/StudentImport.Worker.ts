@@ -11,6 +11,7 @@ import { StudentRepository } from "../../Repositories/StudentRepository";
 import {  ResolveDbError } from "./Helpers/ResolvePrismaErrors";
 import { BuildRawData } from "./Helpers/BulkRawData";
 import { hashNationalIds } from "./Helpers/HashNationalId";
+import SystemRoles from "../../Enums/SystemRoles";
 // ─── Prerequisites ────────────────────────────────────────────────────────────
 //
 //  This worker connects to Redis (BullMQ) and MinIO (file storage) on startup.
@@ -117,10 +118,18 @@ async function handler(job: Job<BulkCreateResult>) {
       rows_per_second: Math.round(totalRows / (validationDuration / 1000)),
     });
 
-    // ── Step 4: Pre-hash all national IDs in a dedicated thread ────────────
+    // ── Step 4 & 5: Hash national IDs and verify fee exist — run in parallel ──
     const hashStart = Date.now();
-    
-    const hashMap = await hashNationalIds(validRows.map(r => r.data.nationalId as string));
+    const [hashMap , fee , role] = await Promise.all([
+      await hashNationalIds(validRows.map(r => r.data.nationalId as string)),
+      await prisma.fee.findFirst({
+        where: {
+          programLevelId: Number(programLevelId),
+          semesterId:     Number(semesterId),
+        },
+      }),
+      await prisma.role.findFirst({where : {name: SystemRoles.Student} , select: {id : true}})
+    ]);
     
     logger.info({
       action:      "StudentImportWorker",
@@ -131,16 +140,7 @@ async function handler(job: Job<BulkCreateResult>) {
     });
     
 
-    // ── Step 5: Verify a fee exists for this program level + semester ─────────
-    // Every row in this job shares the same programLevelId and semesterId,
-    // so a single prefetch is enough instead of querying inside each row insertion.
-    const fee = await prisma.fee.findFirst({
-      where: {
-        programLevelId: Number(programLevelId),
-        semesterId:     Number(semesterId),
-      },
-    });
-
+    // ── Early exit if no fee found or no student role ───
     if (!fee) {
       // Without a fee we cannot enroll anyone — fail the entire job early.
       await prisma.job.update({
@@ -166,6 +166,27 @@ async function handler(job: Job<BulkCreateResult>) {
       return;
     }
 
+    if (!role) {
+      await prisma.job.update({
+        where: { id: jobId },
+        data: {
+          status:        "Failed",
+          completed_at:  new Date(),
+          inserted_rows: 0,
+          failed_rows:   totalRows,
+          error_log:     [{ row: 0, username: "N/A", reason: "No Role Assigned For Students , Please Contact Administrator To Add The Rule" }],
+        },
+      });
+
+      logger.warn({
+        action:         "StudentImportWorker",
+        phase:          "RolePrefetch",
+        jobId,
+        reason:         "No Role Found — job terminated early",
+      });
+
+      return;
+    }
     // ── Step 6: Insert valid rows in concurrent batches ───────────────────────
     const insertionStart = Date.now();
     let insertedCount = 0;
@@ -186,6 +207,7 @@ async function handler(job: Job<BulkCreateResult>) {
             },
             hashMap.get(row.nationalId as string)!,
             fee,
+            role.id,
             prisma
           )
           .then(() => ({ rowNumber, row, success: true  as const }))

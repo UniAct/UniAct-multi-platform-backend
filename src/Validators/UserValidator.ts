@@ -14,12 +14,6 @@ export default class UserValidator {
       body("password")
         .notEmpty()
         .withMessage("Password is required")
-        .custom((value) => {
-          const error = ValidatePassword(value);
-          if (error)
-            throw new Error(error);
-          return true;
-        }),
     ];
   }
 

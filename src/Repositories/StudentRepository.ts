@@ -1,6 +1,7 @@
 import { Fee, Prisma, PrismaClient, Student } from "@prisma/client";
 import { CreateStudentRequest } from "../Interfaces/Student";
 import { NotFoundError } from "../Types/Errors";
+import SystemRoles from "../Enums/SystemRoles";
 
 export class StudentRepository {
 
@@ -11,8 +12,29 @@ export class StudentRepository {
   ): Promise<Partial<Student>> {
 
     return await prisma.$transaction(async (tx) => {
+      const [fee, role] = await Promise.all([
+        tx.fee.findFirst({
+          where: {
+            programLevelId: data.programLevelId,
+            semesterId:     data.semesterId,
+          },
+        }),
+        tx.role.findFirst({
+          where:  { name: SystemRoles.Student },
+          select: { id: true },
+        }),
+      ]);
+
+      if (!fee) {
+        throw new NotFoundError("No fee Assigned For This Program Level And Semester");
+      }
+
+      if (!role) {
+        throw new NotFoundError("Student Role Not Found. Please Contact The Administrator.");
+      }
 
       const student = await tx.student.create({
+        
         data: {
           universityStudentId: data.universityStudentId,
           status: data.status,
@@ -50,27 +72,24 @@ export class StudentRepository {
         }
       });
 
-      const fee = await tx.fee.findFirst({
-        where: {
-          programLevelId: data.programLevelId,
-          semesterId: data.semesterId,
-        }
-      });
-
-      if (!fee) {
-        throw new NotFoundError("No fee Assigned For This Program Level And Semester");
-      }
-
-      await tx.studentFeeReport.create({
-        data: {
-          studentId: student.userId, 
-          programLevelId: data.programLevelId,
-          semesterId: data.semesterId,
-          feeId: fee.id,
-          amount: fee.amount,
-          status: "Pending",
-        }
-      });
+      await Promise.all([
+        tx.studentFeeReport.create({
+          data: {
+            studentId:      student.userId,
+            programLevelId: data.programLevelId,
+            semesterId:     data.semesterId,
+            feeId:          fee.id,
+            amount:         fee.amount,
+            status:         "Pending",
+          },
+        }),
+        tx.userRole.create({
+          data: {
+            userId: student.userId,
+            roleId: role.id,
+          },
+        }),
+      ]);
 
       return {
         universityStudentId: student.universityStudentId,
@@ -160,6 +179,7 @@ export class StudentRepository {
     data: CreateStudentRequest,
     password: string,
     fee: Fee,
+    roleId : number,
     prisma: PrismaClient
   ): Promise<Partial<Student>> {
 
@@ -198,16 +218,24 @@ export class StudentRepository {
         },
       });
 
-      await tx.studentFeeReport.create({
-        data: {
-          studentId:      student.userId,
-          programLevelId: data.programLevelId,
-          semesterId:     data.semesterId,
-          feeId:          fee.id,
-          amount:         fee.amount,
-          status:         "Pending",
-        },
-      });
+      await Promise.all([
+        tx.studentFeeReport.create({
+          data: {
+            studentId:      student.userId,
+            programLevelId: data.programLevelId,
+            semesterId:     data.semesterId,
+            feeId:          fee.id,
+            amount:         fee.amount,
+            status:         "Pending",
+          },
+        }),
+        tx.userRole.create({
+          data: {
+            userId: student.userId,
+            roleId: roleId
+          }
+        })
+      ]);
 
       return {
         universityStudentId: student.universityStudentId,

@@ -3,6 +3,7 @@ import { UserService } from "../Services/UserService";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { IStaffAccount } from "../Interfaces/StaffAccount";
+import { UserLoginRequest } from "../Interfaces/User";
 
 
 export class UserController {
@@ -10,7 +11,7 @@ export class UserController {
     try {
       const db_schema = req.schema_name!;
       const university_name = req.university_name!;
-      const { email, password } = req.body;
+      const { email, password } = req.body as UserLoginRequest;
 
       const result = await UserService.Login(email, password, db_schema, university_name);
 

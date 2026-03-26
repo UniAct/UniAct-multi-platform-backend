@@ -110,14 +110,8 @@ class SuperAdminController {
         status: JSendStatus.SUCCESS,
         message: "Login successful.",
         data: {
-          token,
-          user: {
-            id: admin.id,
-            username: admin.username,
-            email: admin.email,
-            roles: ['SuperAdmin'],
-          },
-        },
+          token
+        }
       });
     }
     catch (err: any) {

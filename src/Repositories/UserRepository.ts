@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, User } from "@prisma/client";
+import { Prisma, PrismaClient, Staff, Student, User } from "@prisma/client";
 import { IStaffAccount } from "../Interfaces/StaffAccount";
 
 export class UserRepository {
@@ -197,6 +197,21 @@ export class UserRepository {
     });
 
     return existing;
+  }
+
+  public static async GetUserWithProfileByEmail(
+    email: string, 
+    prisma : PrismaClient
+  ) : Promise<User & {staff: Staff | null; student: Student | null} | null>{
+    return prisma.user.findUnique(
+      {
+        where: {email},
+        include: {
+          staff : true, 
+          student : true
+        }
+      }
+    );
   }
 }
 

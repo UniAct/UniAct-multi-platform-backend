@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import JSendStatus from "./Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import MainRouter from "./Routes/MainRouter";
-import multer from "multer";
 import { ErrorHandler } from "./Middlewares/ErrorHandler";
 import { httpLogger, logger } from "./Utils/Logger";
 import { GracefulShutdown } from "./Utils/Shutdown";
@@ -74,6 +73,7 @@ app.all(/.*/, (req, res) => {
     });
 });
 
+<<<<<<< HEAD
 // ==================== Graceful shutdown ====================  
 
 
@@ -100,6 +100,8 @@ async function Bootstrap(): Promise<void> {
 }
 
 =======
+=======
+>>>>>>> c062150 (add npm dev script to automate docker compose, prisma generate types , worker, and server startup)
 // ==================== Graceful shutdown ====================  
 GracefulShutdown();
 

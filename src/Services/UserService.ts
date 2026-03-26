@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { PrismaClient, Staff, Student, User } from "@prisma/client";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { UserRepository } from "../Repositories/UserRepository";
 import { IStaffAccount } from "../Interfaces/StaffAccount"
@@ -10,6 +10,7 @@ import { getTenantClient } from "../Utils/prismaClient";
 import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { NotFoundError } from "../Types/Errors";
+import { logger } from "../Utils/Logger";
 
 export class UserService {
 
@@ -68,22 +69,6 @@ export class UserService {
     }
   }
 
-  public static async GetUserByEmail(email: string, schema_name: string): Promise<User | null> {
-    try {
-      const prisma = getTenantClient(schema_name);
-      const user: User | null = await UserRepository.GetUserByEmail(email, prisma);
-      if (!user) {
-        console.warn(`[WARN] No user found with email '${email}' in schema '${schema_name}'`);
-        return null;
-      }
-
-      return user;
-    } catch (err: any) {
-      console.error(`[ERROR] Error fetching user (${email}):`, err);
-      throw new Error("Error Occurred.");
-    }
-  }
-
 
   public static async UpdateUser(id: number, updateData: Partial<User>, schema_name: string): Promise<User> {
     try {
@@ -109,19 +94,16 @@ export class UserService {
 
   public static async GetUserRoles(
     user_id: number,
-    schema_name: string
+    prisma: PrismaClient
   ): Promise<string[]> {
-
-    const prisma = getTenantClient(schema_name);
     const roles = await RBACRepository.GetUserRoles(user_id, prisma);
     return roles;
   }
 
   public static async GetUserPermissions(
     user_id: number,
-    schema_name: string
+    prisma: PrismaClient
   ): Promise<string[]> {
-    const prisma = getTenantClient(schema_name);
     const permissions = await RBACRepository.GetUserPermissions(user_id, prisma);
     return permissions;
   }
@@ -173,9 +155,8 @@ export class UserService {
   }
 
   public static async ActivateStaffAccount(email: string, schema_name: string) {
-    
-
-    const user = await this.GetUserByEmail(email, schema_name);
+    const prisma = getTenantClient(schema_name);
+    const user = await UserRepository.GetUserByEmail(email, prisma);
     if (!user) throw new NotFoundError("Staff account not found");
 
     const updated = await this.UpdateUser(user.id, { isVerified: true }, schema_name);
@@ -207,68 +188,103 @@ export class UserService {
     email: string,
     password: string,
     db_schema: string,
-    university_name: string
+    university_name: string,
   ) {
-    const user = await this.GetUserByEmail(email, db_schema);
+    const prisma = getTenantClient(db_schema);
+    const user = await UserRepository.GetUserWithProfileByEmail(email , prisma);
+
     if (!user) {
+      logger.warn({
+        action: "UserService.Login",
+        status: "failed",
+        schema: db_schema,
+        reason: "User Not Found"
+      });
       return {
         status: StatusCodes.UNAUTHORIZED,
         body: {
           status: JSendStatus.FAIL,
-          message: "Invalid email or password.",
+          message: "Invalid Email Or Password.",
         },
       };
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
+      logger.warn({
+        action: "UserService.Login",
+        status: "failed",
+        schema: db_schema,
+        reason: "Invalid Password",
+        userId: user.id
+      });
+
       return {
         status: StatusCodes.UNAUTHORIZED,
         body: {
           status: JSendStatus.FAIL,
-          message: "Invalid email or password.",
+          message: "Invalid Email Or Password.",
         },
       };
     }
 
     if (!user.isVerified) {
+      logger.warn({
+        action: "UserService.Login",
+        status: "failed",
+        schema: db_schema,
+        reason: "Email Not Verified",
+        userId: user.id,
+      });
       return {
         status: StatusCodes.FORBIDDEN,
         body: {
           status: JSendStatus.FAIL,
           data: {
-            message: "Your email has not been verified yet. Please check your inbox.",
+            message: "Your Email Has Not Been Verified Yet. Please check your inbox.",
           },
         },
       };
     }
 
-    const roles = await this.GetUserRoles(user.id, db_schema);
-    const permissions = await this.GetUserPermissions(user.id, db_schema);
-    const prisma = getTenantClient(db_schema);
-    const staffRecord = await prisma.staff.findUnique({
-      where: { userId: user.id },
-      select: { userId: true },
-    });
-    const isStaffAccount = !!staffRecord;
+    const {roles , permissions} = await RBACRepository.GetUserRolesAndPermissions(user.id , prisma);
 
     if (!roles || roles.length === 0) {
-      console.warn(`[Security] Login attempt for user ${user.id} with no roles`);
+      logger.warn({
+        action: "UserService.Login",
+        status: "failed",
+        schema: db_schema,
+        reason: "No Roles Assigned",
+        userId: user.id,
+      });
+
       return {
         status: StatusCodes.FORBIDDEN,
         body: {
           status: JSendStatus.FAIL,
-          message: "User account has no roles assigned. Please contact administrator.",
+          message: "User Account Has No Roles Assigned. Please Contact Administrator.",
         },
       };
     }
 
     const token = JwtService.Sign({
-      id: user.id,
-      email: user.email,
+      id:              user.id,
+      email:           user.email,
       university_name,
       roles,
       permissions,
+      isStaff:         !!user.staff,
+      isStudent:       !!user.student,
+    });
+
+    logger.info({
+      action:   "UserService.Login",
+      status:   "success",
+      schema:   db_schema,
+      userId:   user.id,
+      isStaff:  !!user.staff,
+      isStudent: !!user.student,
     });
 
     return {
@@ -277,16 +293,7 @@ export class UserService {
         status: JSendStatus.SUCCESS,
         message: "Login successful.",
         data: {
-          token,
-          user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            roles,
-            isStaffAccount,
-          },
+          token
         },
       },
     };

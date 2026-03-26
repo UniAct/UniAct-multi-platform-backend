@@ -42,7 +42,6 @@ export class StudentService {
    * Let the database enforce the rules — this reduces round-trips, improves performance, and simplifies your service logic.
    */
 
-  //! don't forget to take the semester id and connect the student into fee
   public static async Create(
     data: CreateStudentRequest,
     schema_name: string
