@@ -6,7 +6,7 @@ import {
 } from "../Interfaces/AcademicProgram";
 import { ProgramRepository } from "../Repositories/ProgramRepository";
 import { NotFoundError } from "../Types/Errors";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 import { logger } from "../Utils/Logger";
 
 export class programService {
@@ -238,7 +238,7 @@ export class programService {
   }
 
   static async CreateProgram(programData: ProgramUpsertInput, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const payload = this.normalizeProgramPayload(programData);
 
     const newProgram = await prisma.$transaction(async (tx) => {
@@ -266,12 +266,12 @@ export class programService {
   }
 
   static async GetAllPrograms(schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return ProgramRepository.GetAllPrograms(prisma);
   }
 
   static async GetProgramById(id: number, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const program = await ProgramRepository.GetProgramById(id, prisma);
 
     if (!program) {
@@ -281,7 +281,7 @@ export class programService {
   }
 
   static async UpdateProgram(id: number, programData: ProgramUpsertInput, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const payload = this.normalizeProgramPayload(programData);
 
     const updatedProgram = await prisma.$transaction(async (tx) => {
@@ -314,7 +314,7 @@ export class programService {
   }
 
   static async DeleteProgramById(id: number, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     await ProgramRepository.DeleteProgramById(id, prisma);
   }
 }

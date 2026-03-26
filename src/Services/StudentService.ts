@@ -1,4 +1,4 @@
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 import { BulkCreateResult, CreateStudentBulkRequest, CreateStudentRequest } from "../Interfaces/Student";
 import { Student } from "@prisma/client";
 import { ConflictError, NotFoundError } from "../Types/Errors";
@@ -47,7 +47,7 @@ export class StudentService {
     schema_name: string
   ): Promise<Partial<Student>> {
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const startTime = Date.now();
 
     // TODO: try to fix it because bcrypt is cpu bound (node js will not like it :-) )
@@ -150,20 +150,20 @@ export class StudentService {
   public static async CreateBulk(
     file: Express.Multer.File,
     bulkData: CreateStudentBulkRequest,
-    schema_name: string
+    schemaName: string
   ) : Promise<BulkCreateResult> { 
-    const objectName : string = await MinioRepository.UploadFromBuffer(file , schema_name);
+    const objectName : string = await MinioRepository.UploadFromBuffer(file , schemaName);
     
-    //! the name of the bucket will be the name of the schema
-    const fileUrl = this.ConstructFileUrl(schema_name , objectName);
+    //! the name of the bucket is the name of the schema
+    const fileUrl = this.ConstructFileUrl(schemaName , objectName);
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schemaName);
 
     const jobId = await JobRepository.CreateJobRecord(fileUrl , prisma);
 
     const message : BulkCreateResult = {
       jobId: jobId,
-      schemaName: schema_name,
+      schemaName: schemaName,
       objectName,
       ...bulkData
     }; 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../../Enums/Jsend";
-import { getTenantClient } from "../../Utils/prismaClient";
+import { GetTenantClient } from "../../Utils/prismaClient";
 import { RBACRepository } from "../../Repositories/RBACRepository";
 
 export const RequirePermission =
@@ -29,7 +29,7 @@ export const RequirePermission =
         });
       }
 
-      const prisma = getTenantClient(schemaName);
+      const prisma = GetTenantClient(schemaName);
       const currentPermissions = await RBACRepository.GetUserPermissions(user.id, prisma);
       req.user = {
         ...user,

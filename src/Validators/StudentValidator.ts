@@ -30,6 +30,14 @@ export default class StudentValidator {
         .matches(/^[a-zA-Z\u0600-\u06FF\s'-]+$/)
         .withMessage('Last name contains invalid characters'),
 
+      body('fullname')
+        .trim()
+        .notEmpty().withMessage('Fullname is required')
+        .isLength({ min: 2, max: 100 })
+        .withMessage('Last name must be between 2 and 100 characters')
+        .matches(/^[A-Za-z]+$/)
+        .withMessage('Full name contains invalid characters'),
+
       body('universityStudentId')
         .isInt({ min: 1000000, max: 99999999 })
         .withMessage('University Student ID must be a valid 7-8 digit number'),

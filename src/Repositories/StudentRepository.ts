@@ -36,6 +36,7 @@ export class StudentRepository {
       const student = await tx.student.create({
         
         data: {
+          fullname: data.fullname,
           universityStudentId: data.universityStudentId,
           status: data.status,
           enrollmentDate: new Date(data.enrollmentDate),
@@ -187,6 +188,7 @@ export class StudentRepository {
 
       const student = await tx.student.create({
         data: {
+          fullname:              data.fullname,
           universityStudentId:   data.universityStudentId,
           status:                data.status,
           enrollmentDate:        new Date(data.enrollmentDate),

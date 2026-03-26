@@ -2,7 +2,7 @@ import { Prisma, PrismaClient, University } from "@prisma/client"
 import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { Pool } from "pg";
 import { SchemaManager } from "../Utils/SchemaManager";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 import { NotFoundError } from "../Types/Errors";
 import { logger } from "../Utils/Logger";
 import { MinioRepository } from "../Repositories/MinioRepository";
@@ -13,7 +13,7 @@ export class UniversityService {
     data: Prisma.UniversityCreateInput,
   ): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
 
     const university = await UniversityRepository.Create(data, prisma);
 
@@ -39,7 +39,7 @@ export class UniversityService {
 
   public static async GetById(id: number): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
     if (!university)
       throw new NotFoundError(`University with Id ${id} not found.`);
@@ -49,7 +49,7 @@ export class UniversityService {
 
   public static async GetByName(university_name: string,): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetByName(university_name, prisma);
 
     if (!university)
@@ -60,7 +60,7 @@ export class UniversityService {
 
   public static async GetUniversityBySchemaName(db_schema: string): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetUniversityBySchemaName(db_schema, prisma);
 
     if (!university)
@@ -71,19 +71,19 @@ export class UniversityService {
 
   public static async ListNames(): Promise<string[]> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     return await UniversityRepository.ListNames(prisma);
   }
 
   public static async GetAll(): Promise<University[]> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     return await UniversityRepository.GetAll(prisma);
   }
 
   public static async DeleteUniversity(id: number,): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
 
     if (!university) {
@@ -109,7 +109,7 @@ export class UniversityService {
 
   public static async Activate(id: number,): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
     if (!university) {
       throw new NotFoundError(`University with id '${id}' does not exist`);
@@ -120,7 +120,7 @@ export class UniversityService {
 
   public static async Deactivate(id: number,): Promise<University> {
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetById(id, prisma);
     if (!university) {
       throw new NotFoundError(`University with id '${id}' does not exist`);

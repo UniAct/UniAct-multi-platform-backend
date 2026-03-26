@@ -1,6 +1,6 @@
 import { Prisma, Semester, SemesterType } from "@prisma/client";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 import { logger } from "../Utils/Logger";
 import { CreateSemesterRequest, UpdateSemesterRequest } from "../Interfaces/Semester";
 import { ConflictError, NotFoundError } from "../Types/Errors";
@@ -16,7 +16,7 @@ export class SemesterService {
     data: CreateSemesterRequest,
     schema_name: string
   ): Promise<Semester> {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
 
     const exists = await SemesterRepository.SemesterExistsByYearAndTerm(
       data.year,
@@ -53,7 +53,7 @@ export class SemesterService {
     data: UpdateSemesterRequest,
     schema_name: string
   ): Promise<Semester> {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
 
     const existingSemester = await SemesterRepository.GetSemesterById(semesterId, prisma);
     if (!existingSemester) {
@@ -99,7 +99,7 @@ export class SemesterService {
     semesterId: number,
     schema_name: string
   ): Promise<Semester> {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     
     return await SemesterRepository.DeleteSemester(semesterId, prisma);
   }
@@ -107,7 +107,7 @@ export class SemesterService {
   public static async GetAllSemesters(
     schema_name: string
   ): Promise<Semester[]> {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const semesters = await SemesterRepository.GetAllSemesters(prisma);
     
     logger.info({
@@ -124,7 +124,7 @@ export class SemesterService {
     semesterId: number,
     schema_name: string
   ): Promise<Semester> {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
 
     const semester = await SemesterRepository.GetSemesterById(semesterId, prisma);
 

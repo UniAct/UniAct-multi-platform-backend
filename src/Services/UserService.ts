@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import JwtService from "../Utils/JwtService";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { NotFoundError } from "../Types/Errors";
@@ -15,13 +15,13 @@ import { logger } from "../Utils/Logger";
 export class UserService {
 
   public static async GetAllStaffAccounts(schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return UserRepository.GetAllStaffAccounts(prisma);
   }
 
   public static async GetAllUsers(schema_name: string): Promise<User[]> {
     try {
-      const prisma = getTenantClient(schema_name);
+      const prisma = GetTenantClient(schema_name);
       const users = await UserRepository.GetAllUsers(prisma);
       return users;
     } catch (err: any) {
@@ -32,7 +32,7 @@ export class UserService {
 
   public static async GetUserById(id: number, schema_name: string): Promise<User> {
     try {
-      const prisma = getTenantClient(schema_name);
+      const prisma = GetTenantClient(schema_name);
       const user = await UserRepository.GetUserById(id, prisma);
       if (!user) {
         throw new Error(`User with ID ${id} not found.`);
@@ -49,7 +49,7 @@ export class UserService {
     schema_name: string
   ): Promise<User | null> {
     try {
-      const prisma = getTenantClient(schema_name);
+      const prisma = GetTenantClient(schema_name);
       const existingUser = await UserRepository.GetUserByUniqueFields(user, prisma);
 
       if (!existingUser) {
@@ -72,7 +72,7 @@ export class UserService {
 
   public static async UpdateUser(id: number, updateData: Partial<User>, schema_name: string): Promise<User> {
     try {
-      const prisma = getTenantClient(schema_name);
+      const prisma = GetTenantClient(schema_name);
       const updatedUser = await UserRepository.UpdateUser(id, updateData, prisma);
       return updatedUser;
     } catch (err: any) {
@@ -83,7 +83,7 @@ export class UserService {
 
   public static async DeleteUser(id: number, schema_name: string): Promise<User> {
     try {
-      const prisma = getTenantClient(schema_name);
+      const prisma = GetTenantClient(schema_name);
       const deletedUser = await UserRepository.DeleteUser(id, prisma);
       return deletedUser;
     } catch (err: any) {
@@ -109,7 +109,7 @@ export class UserService {
   }
 
   public static async CreateStaffAccount(staff: IStaffAccount, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const username = staff.username;
     const email = staff.email;
     const nationalId = staff.national_id;
@@ -143,7 +143,7 @@ export class UserService {
 
     await RBACRepository.AssignRolesToUser(createdStaff.id, foundRoles, prisma);
 
-    const publicPrisma = getTenantClient("public");
+    const publicPrisma = GetTenantClient("public");
     const universityName = await UniversityRepository.GetUniversityNameBySchema(schema_name, publicPrisma);
     if (!universityName) {
       throw new NotFoundError(`University with schema '${schema_name}' not found.`);
@@ -155,7 +155,7 @@ export class UserService {
   }
 
   public static async ActivateStaffAccount(email: string, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const user = await UserRepository.GetUserByEmail(email, prisma);
     if (!user) throw new NotFoundError("Staff account not found");
 
@@ -164,7 +164,7 @@ export class UserService {
   }
 
   public static async UpdateStaffAccount(staffId: number, data: Partial<IStaffAccount>, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
 
     const normalizedData: Partial<IStaffAccount> = { ...data };
 
@@ -180,7 +180,7 @@ export class UserService {
   }
 
   public static async DeleteStaffAccount(staffId: number, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return UserRepository.DeleteStaffAccount(staffId, prisma);
   }
 
@@ -190,7 +190,7 @@ export class UserService {
     db_schema: string,
     university_name: string,
   ) {
-    const prisma = getTenantClient(db_schema);
+    const prisma = GetTenantClient(db_schema);
     const user = await UserRepository.GetUserWithProfileByEmail(email , prisma);
 
     if (!user) {

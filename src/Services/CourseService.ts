@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { CourseUpsertInput } from "../Interfaces/AcademicProgram";
 import { CourseRepository } from "../Repositories/CourseRepository";
 import { NotFoundError } from "../Types/Errors";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 
 export class CourseService {
   private static buildCreateData(payload: CourseUpsertInput): Prisma.CourseCreateInput {
@@ -38,19 +38,19 @@ export class CourseService {
   }
 
   public static async CreateCourse(payload: CourseUpsertInput, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return prisma.$transaction(async (tx) => {
       return CourseRepository.CreateCourse(this.buildCreateData(payload), tx);
     });
   }
 
   public static async GetAllCourses(schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return CourseRepository.GetAllCourses(prisma);
   }
 
   public static async GetCourseById(id: number, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const course = await CourseRepository.GetCourseById(id, prisma);
 
     if (!course) {
@@ -61,7 +61,7 @@ export class CourseService {
   }
 
   public static async UpdateCourse(id: number, payload: CourseUpsertInput, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return prisma.$transaction(async (tx) => {
       const existing = await CourseRepository.GetCourseById(id, tx);
       if (!existing) {
@@ -107,7 +107,7 @@ export class CourseService {
   }
 
   public static async DeleteCourse(id: number, schema_name: string) {
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return prisma.$transaction(async (tx) => {
       const existing = await CourseRepository.GetCourseById(id, tx);
       if (!existing) {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../Types/Errors";
 import { University } from "@prisma/client";
 
@@ -81,7 +81,7 @@ function IsSuperAdminFun(req: Request): boolean {
 
 async function validateUniversity(university_name:string): Promise<University>{
 
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
     const university = await UniversityRepository.GetByName(university_name, prisma);
 
 

@@ -3,7 +3,7 @@ import { GetWorkerSingleton } from "../../Utils/BullMQConfig";
 import { logger } from "../../Utils/Logger";
 import { Queues } from "../../Enums/Queues";
 import { BulkCreateResult, CreateStudentRequest, FailedRow } from "../../Interfaces/Student";
-import { getTenantClient } from "../../Utils/prismaClient";
+import { GetTenantClient } from "../../Utils/prismaClient";
 import { MinioRepository } from "../../Repositories/MinioRepository";
 import ExcelJS from "exceljs";
 import { ValidateStudentRow } from "./Helpers/ValidateStudentRow";
@@ -52,7 +52,7 @@ async function handler(job: Job<BulkCreateResult>) {
 
   try {
     const { objectName, jobId, schemaName, programId, programLevelId, semesterId } = job.data;
-    const prisma = getTenantClient(schemaName);
+    const prisma = GetTenantClient(schemaName);
 
     // ── Step 1: Mark job as in-progress ─────────────────────────────────────
     await prisma.job.update({

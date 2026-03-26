@@ -1,9 +1,8 @@
 import { logger } from "./Logger";
 import fs from "fs";
 import { Pool } from "pg";
-import path from "path";
-import { getTenantClient } from "./prismaClient";
-const MIGRATIONS_DIR = path.join(process.cwd(), "prisma/migrations");
+import { GetTenantClient } from "./prismaClient";
+
 export class SchemaManager {
   
   private static SNAPSHOT = fs.readFileSync("./prisma/template_snapshot.sql", "utf8");
@@ -53,7 +52,7 @@ export class SchemaManager {
   }
 
   static async deleteSchema(schema: string) {
-    const prisma = getTenantClient("public");
+    const prisma = GetTenantClient("public");
 
     try {
       await prisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);

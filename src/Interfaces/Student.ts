@@ -14,6 +14,7 @@ export interface CreateStudentRequest {
   username: string;
   firstName: string;
   lastName: string;
+  fullname: string;
   universityStudentId: number;
   nationalId: string;
   programId: number;

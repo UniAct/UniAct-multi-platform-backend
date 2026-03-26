@@ -5,7 +5,7 @@ import { SuperAdmin } from "@prisma/client"
 import { TransactionService } from "./Transaction";
 import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
-import { getTenantClient } from "../Utils/prismaClient";
+import { GetTenantClient } from "../Utils/prismaClient";
 
 class SuperAdminService {
   public static async CreateSuperAdmin(
@@ -15,7 +15,7 @@ class SuperAdminService {
     schema_name:string
   ): Promise<SuperAdmin> {
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -29,19 +29,19 @@ class SuperAdminService {
 
   public static async GetSuperAdminByEmail(email : string,schema_name:string) : Promise<SuperAdmin | null> {
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return await SuperAdminRepository.FindByEmail(email,prisma);
   }
 
   public static async GetAllSuperAdmins(schema_name:string): Promise<SuperAdmin[]> {
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     return await SuperAdminRepository.GetAllSuperAdmins(prisma);
   }
 
   public static async ActivateSuperAdmin(email: string, schema_name:string): Promise<SuperAdmin> {
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const admin = await SuperAdminRepository.ActivateSuperAdmin(email,prisma);
     if (!admin) throw new Error("SuperAdmin Not Found");
     return admin;
@@ -49,7 +49,7 @@ class SuperAdminService {
 
   public static async DeleteSuperAdmin(username: string,schema_name:string): Promise<SuperAdmin> {
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const admin = await SuperAdminRepository.DeleteSuperAdmin(username,prisma);
     if (!admin) throw new Error("SuperAdmin Not Found");
     return admin;
@@ -57,7 +57,7 @@ class SuperAdminService {
 
   public static async ActivateRootAccount(email : string , schema_name:string){
 
-    const prisma = getTenantClient(schema_name);
+    const prisma = GetTenantClient(schema_name);
     const root_account = await SuperAdminRepository.ActivateRootAccount(email , prisma);
     if (!root_account) throw new Error("Root Account Not Found");
     return root_account;
