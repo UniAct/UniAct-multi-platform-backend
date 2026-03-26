@@ -21,7 +21,7 @@ const EGYPTIAN_LANDLINE_RE = /^(?:\+20|20|0)(2|3|40|45|46|47|48|50|55|57|62|64|6
 const NATIONAL_ID_RE      = /^\d{14}$/;
 const USERNAME_RE         = /^[a-zA-Z0-9_.-]+$/;
 const NAME_RE             = /^[a-zA-Z\u0600-\u06FF\s'-]+$/;
-
+const FULL_NAME           = /^[A-Za-z]+$/
 /**
  * Validates a single Excel data row against all student field rules.
  *
@@ -75,6 +75,15 @@ export function ValidateStudentRow(
   else if (!NAME_RE.test(lastName))
     err("lastName", "Last name contains invalid characters");
 
+  // ── fullname ────────────────────────────────────────────────────────────────
+  const fullname = String(get(StudentExcelHeaders.FullName) ?? "").trim();
+  if (!fullname)
+    err("fullname", "Full name is required");
+  else if (fullname.length < 2 || fullname.length > 100)
+    err("fullname", "Full name must be between 2 and 100 characters");
+  else if (!FULL_NAME.test(lastName))
+    err("fullname", "fullname contains invalid characters");
+
   // ── universityStudentId ─────────────────────────────────────────────────────
   const uniIdRaw = get(StudentExcelHeaders.UniversityStudentId);
   const uniId    = Number(uniIdRaw);
@@ -89,7 +98,6 @@ export function ValidateStudentRow(
       else if (!ValidateEgyptianNationalId(nationalId))
         err("nationalId", "Invalid Egyptian National ID");
     }
-
 
   // ── email ───────────────────────────────────────────────────────────────────
   const email = String(get(StudentExcelHeaders.Email) ?? "").trim().toLowerCase();
@@ -203,6 +211,7 @@ export function ValidateStudentRow(
       username,
       firstName,
       lastName,
+      fullname,
       universityStudentId: uniId,
       nationalId,
       email,

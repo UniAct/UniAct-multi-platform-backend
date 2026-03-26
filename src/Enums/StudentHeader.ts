@@ -2,6 +2,7 @@ export enum StudentExcelHeaders {
   Username = "Username",
   FirstName = "First Name",
   LastName = "Last Name",
+  FullName = "Full Name",
   UniversityStudentId = "University Student ID",
   NationalId = "National ID",
   Email = "Email",

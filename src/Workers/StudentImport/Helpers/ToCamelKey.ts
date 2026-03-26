@@ -8,6 +8,7 @@ export function ToCamelKey(header: string): string {
     "Username":                 "username",
     "First Name":               "firstName",
     "Last Name":                "lastName",
+    "Full Name":                "fullname",
     "University Student ID":    "universityStudentId",
     "National ID":              "nationalId",
     "Email":                    "email",
