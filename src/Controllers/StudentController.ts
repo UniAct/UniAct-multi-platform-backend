@@ -33,4 +33,17 @@ export class StudentController {
       }
     });
   }
+
+  public static async Delete(req: Request, res: Response): Promise<void> {
+    const studentId = Number(req.params.id);
+    const schemaName: string = req.schema_name!;
+
+    const student = await StudentService.Delete(studentId, schemaName);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      message: "Student account has been deactivated successfully.",
+      data: { student },
+    });
+  }
 }

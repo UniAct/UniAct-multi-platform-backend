@@ -17,6 +17,18 @@ export default class UserValidator {
     ];
   }
 
+  public static IdParam(entityName: string = "Resource") {
+    return [
+      param("id")
+        .exists().withMessage(`${entityName} ID is required`)
+        .bail()
+        .notEmpty().withMessage(`${entityName} ID cannot be empty`)
+        .bail()
+        .isInt({ min: 1 })
+        .withMessage(`${entityName} ID must be a positive integer`),
+    ];
+  }
+
   public static CreateStaffAccount() {
     return [
       body("username")
@@ -95,14 +107,6 @@ export default class UserValidator {
         .optional()
         .isDecimal({ decimal_digits: "0,2" })
         .withMessage("Salary must be a valid decimal number"),
-    ];
-  }
-
-  public static StaffIdParam() {
-    return [
-      param("id")
-        .isInt({ min: 1 })
-        .withMessage("Staff ID must be a positive integer"),
     ];
   }
 

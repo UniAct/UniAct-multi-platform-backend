@@ -1,5 +1,5 @@
 import { StudentStatus } from '@prisma/client';
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 import { ValidateEgyptianNationalId } from './EgyptianIdValidation';
 import { Environment } from '../Utils/Environment';
 
@@ -183,6 +183,17 @@ export default class StudentValidator {
       body('semesterId')
         .isInt({ min: 1 })
         .withMessage('Valid Semester ID is required'),
+    ];
+  }
+
+  public static StudentIdParam() {
+    return [
+      param("id")
+        .exists().withMessage("Student ID is required")
+        .bail()
+        .notEmpty().withMessage("Student ID cannot be empty")
+        .bail()
+        .isInt({ min: 1 }).withMessage("Student ID must be a positive integer"),
     ];
   }
 }

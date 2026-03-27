@@ -91,7 +91,7 @@ router.patch(
   IsAuthenticated,
   attachAndValidateTenant,
   RequirePermission(permissions.account.update.name),
-  ...UserValidator.StaffIdParam(),
+  ...UserValidator.IdParam("Staff"),
   ...UserValidator.UpdateStaffAccount(),
   ValidateRequest,
   asyncHandler(UserController.UpdateStaffAccount)
@@ -102,9 +102,19 @@ router.delete(
   IsAuthenticated,
   attachAndValidateTenant,
   RequirePermission(permissions.account.delete.name),
-  ...UserValidator.StaffIdParam(),
+  ...UserValidator.IdParam("Staff"),
   ValidateRequest,
   asyncHandler(UserController.DeleteStaffAccount)
+);
+
+router.delete(
+  "/account/student/:id",
+  IsAuthenticated,
+  attachAndValidateTenant,
+  RequirePermission(permissions.account.delete.name),
+  ...UserValidator.IdParam("Student"),
+  ValidateRequest,
+  asyncHandler(StudentController.Delete)
 );
 
 router.all(/.*/, (req, res) => {

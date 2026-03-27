@@ -179,4 +179,49 @@ export class StudentService {
   static ConstructFileUrl(schema_name: string, objectName: string): string {
     return `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/${schema_name}/${objectName}`;
   }
+
+  public static async Delete(
+    studentId: number,
+    schema_name: string
+  ): Promise<Student> {
+    const startTime = Date.now();
+    const prisma = GetTenantClient(schema_name);
+
+    try {
+      const student = await StudentRepository.Delete(studentId, prisma);
+
+      logger.info({
+        action: "StudentService.Delete",
+        status: "success",
+        schema: schema_name,
+        studentId,
+        duration_ms: Date.now() - startTime,
+      });
+
+      return student;
+
+    } catch (err: any) {
+      if (err.code === "P2025") {
+        logger.warn({
+          action: "StudentService.Delete",
+          status: "failed",
+          schema: schema_name,
+          reason: "student_not_found",
+          studentId,
+          duration_ms: Date.now() - startTime,
+        });
+        throw new NotFoundError(`No student found with id '${studentId}'.`);
+      }
+
+      logger.error({
+        action: "StudentService.Delete",
+        status: "error",
+        schema: schema_name,
+        studentId,
+        error: err.message,
+        duration_ms: Date.now() - startTime,
+      });
+      throw err;
+    }
+  }
 }

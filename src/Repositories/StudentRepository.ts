@@ -1,4 +1,4 @@
-import { Fee, Prisma, PrismaClient, Student } from "@prisma/client";
+import { Fee, Prisma, PrismaClient, Student, User } from "@prisma/client";
 import { CreateStudentRequest } from "../Interfaces/Student";
 import { NotFoundError } from "../Types/Errors";
 import SystemRoles from "../Enums/SystemRoles";
@@ -173,6 +173,21 @@ export class StudentRepository {
     return await prisma.student.findMany({
       where: { programId, programLevelId },
       include: { program: true, programLevel: true }
+    });
+  }
+
+  public static async Delete(
+    studentId: number,
+    prisma: PrismaClient
+  ): Promise<Student> {
+    return await prisma.student.update({
+      where: {userId: studentId} , 
+      data: {
+        user:{
+          update: {isBlocked: true}
+        }
+      },
+      include: {user: true}
     });
   }
 

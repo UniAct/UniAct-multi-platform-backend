@@ -248,6 +248,26 @@ export class UserService {
       };
     }
 
+    if(user.isBlocked){
+      logger.warn({
+        action: "UserService.Login",
+        status: "failed",
+        schema: db_schema,
+        reason: "User Is Blocked",
+        userId: user.id
+      });
+
+      return {
+        status: StatusCodes.FORBIDDEN,
+        body: {
+          status: JSendStatus.FAIL,
+          data: {
+            message: "Your account access has been restricted. Please reach out to your student affairs office for further information.",
+          },
+        },
+      };
+    }
+
     const {roles , permissions} = await RBACRepository.GetUserRolesAndPermissions(user.id , prisma);
 
     if (!roles || roles.length === 0) {
