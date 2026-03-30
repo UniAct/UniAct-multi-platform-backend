@@ -27,6 +27,7 @@ export function ErrorHandler(
   }
 
   // fallback
+  console.log(err);
    return res.status(err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: JSendStatus.ERROR,
       message: err.message || "Internal Server Error",

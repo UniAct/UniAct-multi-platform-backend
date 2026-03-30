@@ -6,11 +6,10 @@ import { StatusCodes } from "http-status-codes";
 import MainRouter from "./Routes/MainRouter";
 import multer from "multer";
 import { ErrorHandler } from "./Middlewares/ErrorHandler";
-import { setupTenantClientShutdownHooks } from "./Utils/prismaClient";
 import { httpLogger, logger } from "./Utils/Logger";
+import { GracefulShutdown } from "./Utils/Shutdown";
 
 dotenv.config();
-setupTenantClientShutdownHooks();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -75,26 +74,28 @@ app.all(/.*/, (req, res) => {
     });
 });
 
-// ==================== Multer-specific error handler ====================
+// ==================== Graceful shutdown ====================  
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    if (err instanceof multer.MulterError || err.message?.includes("PDF")) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            status: JSendStatus.FAIL,
-            message: err.message,
-        });
-    }
-    next(err);
-});
 
-// ==================== START SERVER ====================
+// ==================== BOOTSTRAP ====================
+async function Bootstrap(): Promise<void> {
+  process.title = "UniAct Backend System";
+  logger.info({ 
+    action: "RabbitMQ", 
+    status: "Queues Asserted" 
+  });
+  const server = app.listen(PORT, () => {
+      logger.info({
+          action: "Server Start",
+          status: "Running",
+          port: PORT,
+          environment: process.env.NODE_ENV,
+          url: "http://localhost:3000",
+          process_id: process.pid,
+          process_name: process.title
+      });
+  });
+   GracefulShutdown(server);
+}
 
-app.listen(PORT, () => {
-    logger.info({
-        action: "Server Start",
-        status: "Running",
-        port: PORT,
-        environment: process.env.NODE_ENV,
-        url: "http://localhost:3000"
-    });
-});
+Bootstrap();

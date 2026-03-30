@@ -9,12 +9,17 @@
     "start": "ts-node-dev src/index.ts",
     "dev": "ts-node-dev src/index.ts",
     "prepare-start": "npm run build",
-    "prisma:push:public": "cross-env SCHEMA=public DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
-    "prisma:push:template": "cross-env SCHEMA=template DATABASE_URL=\"$DATABASE_URL?schema=$SCHEMA\" npx prisma db push --schema prisma/schema.prisma",
+
     "db:generate:snapshot": "node scripts/generate-template-snapshot.mjs",
+    "db:migrate:allTenants":"npm run db:generate:snapshot && npx ts-node ./src/Utils/runMigrationsForAllTenants.ts ",
+
     "prisma:generate": "node ./scripts/prepare-schema-beforeGenrate.mjs",
-    "knip" : "knip",
-    "permissions:sync": "npm run build && node scripts/sync-permissions.mjs"
+
+    "knip": "knip",
+    "worker": "ts-node  ./src/Workers/StudentImport/StudentImport.Worker.ts",
+    "server": "ts-node src/index.ts",
+    "docker": "docker-compose up -d",
+    "dev": "npm run docker  && concurrently \"npm run worker\" \"npm run server\""
   },
   "keywords": [],
   "author": "",

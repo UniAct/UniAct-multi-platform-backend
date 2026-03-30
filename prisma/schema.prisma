@@ -4,16 +4,17 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas = ["public","template"]
+  schemas  = ["public", "template"]
 }
 
 model SuperAdmin {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
-  email      String    @unique
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  email      String   @unique
   password   String
-  is_active  Boolean   @default(false)
-  created_at DateTime  @default(now())
+  is_active  Boolean  @default(false)
+  created_at DateTime @default(now())
+
   @@index([username], map: "idx_superadmin_username")
   @@index([email], map: "idx_superadmin_email")
   @@schema("public")
@@ -32,30 +33,745 @@ model University {
   is_active        Boolean   @default(false)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @default(now())
+
   @@schema("public")
 }
 
-// ============================================================================================================
-// ENUMS
-// ============================================================================================================
+model Job {
+  id            String    @id @default(uuid()) @db.Uuid
+  file_url      String    @db.VarChar(512)
+  status        JobStatus @default(Pending)
+  total_rows    Int?
+  inserted_rows Int?
+  failed_rows   Int?
+  error_log     Json?
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  started_at    DateTime? @db.Timestamptz(6)
+  completed_at  DateTime? @db.Timestamptz(6)
+
+  @@index([status])
+  @@index([created_at])
+  @@schema("template")
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  username         String            @unique @db.VarChar(100)
+  firstName        String            @map("first_name") @db.VarChar(100)
+  lastName         String            @map("last_name") @db.VarChar(100)
+  email            String            @unique @db.VarChar(320)
+  password         String            @db.VarChar(60)
+  isVerified       Boolean           @default(false) @map("is_verified")
+  isBlocked        Boolean           @default(false) @map("is_blocked")
+  phone            String            @db.VarChar(15)
+  dateOfBirth      DateTime          @map("date_of_birth") @db.Date
+  address          String
+  city             String            @db.VarChar(100)
+  country          String            @db.VarChar(100)
+  nationalId       String            @unique @map("national_id") @db.VarChar(50)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  roomsCreated     Room[]
+  roomMembers      RoomMember[]
+  roomPostsAuthor  RoomPost[]
+  roomPostComments RoomPostComment[]
+  staff            Staff?
+  student          Student?
+  userRoles        UserRole[]
+
+  @@index([email])
+  @@index([username])
+  @@index([nationalId])
+  @@map("User")
+  @@schema("template")
+}
+
+model Staff {
+  userId             Int                 @id @map("user_id")
+  position           String              @db.VarChar(100)
+  cvPath             String?             @map("cv_path") @db.VarChar(1000)
+  hireDate           DateTime            @map("hire_date") @db.Date
+  salary             Decimal?            @db.Decimal(12, 2)
+  attendanceSessions AttendanceSession[]
+  classSessions      ClassSession[]
+  faculties          Faculty[]
+  programs           Program[]
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([position])
+  @@map("Staff")
+  @@schema("template")
+}
+
+model Faculty {
+  id              Int          @id @default(autoincrement())
+  universityId    Int          @map("university_id")
+  name            String       @db.VarChar(255)
+  description     String?
+  deanId          Int?         @map("dean_id")
+  establishedDate DateTime?    @map("established_date") @db.Date
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  dean            Staff?       @relation(fields: [deanId], references: [userId])
+  programs        Program[]
+  regulations     Regulation[]
+
+  @@index([universityId])
+  @@index([name])
+  @@index([deanId])
+  @@map("Faculty")
+  @@schema("template")
+}
+
+model Program {
+  id                    Int                           @id @default(autoincrement())
+  facultyId             Int                           @map("faculty_id")
+  name                  String                        @db.VarChar(255)
+  description           String?
+  headId                Int?                          @map("head_id")
+  phone                 String?                       @db.VarChar(20)
+  universityCreditHours Int                           @default(0) @map("university_credit_hours")
+  facultyCreditHours    Int                           @default(0) @map("faculty_credit_hours")
+  programCreditHours    Int                           @default(0) @map("program_credit_hours")
+  programType           ProgramType                   @map("program_type")
+  resultDisplay         ResultDisplayType             @default(CourseGrade) @map("result_display")
+  blockReason           BlockReasonType?              @map("block_reason")
+  createdAt             DateTime                      @default(now()) @map("created_at")
+  updatedAt             DateTime                      @updatedAt @map("updated_at")
+  academicLoadGPAs      AcademicLoadGPA[]
+  academicLoadSemesters AcademicLoadSemester[]
+  classSessions         ClassSession[]
+  faculty               Faculty                       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  head                  Staff?                        @relation(fields: [headId], references: [userId])
+  programCourses        ProgramCourse[]
+  programLevels         ProgramLevel[]
+  programTranscriptDefs ProgramTranscriptDefinition[]
+  students              Student[]
+
+  @@index([facultyId])
+  @@index([programType])
+  @@index([headId])
+  @@map("Program")
+  @@schema("template")
+}
+
+model Student {
+  userId                Int                  @id @map("user_id")
+  universityStudentId   Int                  @unique @map("university_student_id")
+  programId             Int                  @map("program_id")
+  status                StudentStatus        @default(New)
+  enrollmentDate        DateTime             @map("enrollment_date") @db.Date
+  cgpa                  Decimal              @default(0.0000) @db.Decimal(5, 4)
+  homePhone             String?              @map("home_phone") @db.VarChar(20)
+  previousQualification String?              @map("previous_qualification") @db.VarChar(255)
+  secondarySchoolName   String?              @map("secondary_school_name") @db.VarChar(255)
+  totalHighSchoolGrades Decimal?             @map("total_high_school_grades") @db.Decimal(5, 2)
+  highSchoolSeatNumber  String?              @map("high_school_seat_number") @db.VarChar(50)
+  programLevelId        Int                  @map("program_level_id")
+  religion              String               @db.Char(1)
+  gender                String               @db.Char(1)
+  fullname              String?              @db.VarChar(100)
+  attendanceReports     AttendanceReport[]
+  courseRegistrations   CourseRegistration[]
+  program               Program              @relation(fields: [programId], references: [id])
+  programLevel          ProgramLevel         @relation(fields: [programLevelId, programId], references: [id, programId])
+  user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentAttendances    StudentAttendance[]
+  studentFeeReports     StudentFeeReport[]
+  transcripts           Transcript[]
+
+  @@index([programId])
+  @@index([status])
+  @@index([universityStudentId])
+  @@map("Student")
+  @@schema("template")
+}
+
+model Regulation {
+  id                   Int         @id @default(autoincrement())
+  facultyId            Int         @map("faculty_id")
+  name                 String      @db.VarChar(255)
+  roundToWholeNumber   Boolean     @default(false) @map("round_to_whole_number")
+  approximateFractions Boolean     @default(false) @map("approximate_fractions")
+  maxAbsence           Int         @default(0) @map("max_absence")
+  minGradeExcellent    Decimal     @map("min_grade_excellent") @db.Decimal(5, 2)
+  minGradeVeryGood     Decimal     @map("min_grade_very_good") @db.Decimal(5, 2)
+  minGradeGood         Decimal     @map("min_grade_good") @db.Decimal(5, 2)
+  minGradeAcceptable   Decimal     @map("min_grade_acceptable") @db.Decimal(5, 2)
+  minGradeVeryWeak     Decimal     @map("min_grade_very_weak") @db.Decimal(5, 2)
+  enableMercyRules     Boolean     @default(false) @map("enable_mercy_rules")
+  createdAt            DateTime    @default(now()) @map("created_at")
+  updatedAt            DateTime    @updatedAt @map("updated_at")
+  mercyRules           MercyRule[]
+  faculty              Faculty     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId])
+  @@map("Regulation")
+  @@schema("template")
+}
+
+model MercyRule {
+  id            Int        @id @default(autoincrement())
+  regulationId  Int        @map("regulation_id")
+  originalScore Decimal    @map("original_score") @db.Decimal(5, 2)
+  adjustedScore Decimal    @map("adjusted_score") @db.Decimal(5, 2)
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  regulation    Regulation @relation(fields: [regulationId], references: [id], onDelete: Cascade)
+
+  @@index([regulationId])
+  @@map("MercyRule")
+  @@schema("template")
+}
+
+model Semester {
+  id                    Int                    @id @default(autoincrement())
+  year                  Int                    @db.SmallInt
+  term                  Int                    @db.SmallInt
+  startDate             DateTime               @map("start_date") @db.Date
+  endDate               DateTime               @map("end_date") @db.Date
+  type                  SemesterType
+  academicLoadSemesters AcademicLoadSemester[]
+  classSessions         ClassSession[]
+  courseRegistrations   CourseRegistration[]
+  fees                  Fee[]
+  studentFeeReports     StudentFeeReport[]
+  transcripts           Transcript[]
+
+  @@unique([year, term])
+  @@index([year])
+  @@map("Semester")
+  @@schema("template")
+}
+
+model ProgramLevel {
+  id                    Int                    @id @default(autoincrement())
+  programId             Int                    @map("program_id")
+  level                 Int
+  minCredits            Int                    @default(0) @map("min_credits")
+  maxCredits            Int                    @default(0) @map("max_credits")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  academicLoadSemesters AcademicLoadSemester[]
+  fees                  Fee[]
+  program               Program                @relation(fields: [programId], references: [id], onDelete: Cascade)
+  student               Student[]
+  studentFeeReports     StudentFeeReport[]
+
+  @@unique([programId, level])
+  @@unique([id, programId])
+  @@index([programId])
+  @@map("ProgramLevel")
+  @@schema("template")
+}
+
+model Fee {
+  id                Int                @id @default(autoincrement())
+  programLevelId    Int                @map("program_level_id")
+  semesterId        Int                @map("semester_id")
+  feeType           FeeType            @map("fee_type")
+  amount            Decimal            @db.Decimal(12, 2)
+  description       String?
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  programLevel      ProgramLevel       @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
+  semester          Semester           @relation(fields: [semesterId], references: [id])
+  studentFeeReports StudentFeeReport[]
+
+  @@unique([programLevelId, semesterId, feeType])
+  @@index([programLevelId])
+  @@index([semesterId])
+  @@index([feeType])
+  @@map("Fee")
+  @@schema("template")
+}
+
+model ProgramTranscriptDefinition {
+  id                 Int      @id @default(autoincrement())
+  programId          Int      @map("program_id")
+  gradeLetter        String   @map("grade_letter") @db.VarChar(10)
+  minScore           Decimal  @map("min_score") @db.Decimal(5, 2)
+  maxScore           Decimal  @map("max_score") @db.Decimal(5, 2)
+  equivalentEstimate String?  @map("equivalent_estimate") @db.VarChar(20)
+  minGpa             Decimal  @map("min_gpa") @db.Decimal(5, 4)
+  maxGpa             Decimal  @map("max_gpa") @db.Decimal(5, 4)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  program            Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, gradeLetter])
+  @@index([programId])
+  @@map("ProgramTranscriptDefinition")
+  @@schema("template")
+}
+
+model AcademicLoadSemester {
+  id             Int          @id @default(autoincrement())
+  programId      Int          @map("program_id")
+  semesterId     Int          @map("semester_id")
+  programLevelId Int          @map("program_level_id")
+  minCredits     Int          @map("min_credits")
+  maxCredits     Int          @map("max_credits")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  program        Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
+  programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
+  semester       Semester     @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, semesterId, programLevelId])
+  @@index([programId])
+  @@index([semesterId])
+  @@map("AcademicLoadSemester")
+  @@schema("template")
+}
+
+model AcademicLoadGPA {
+  id         Int      @id @default(autoincrement())
+  programId  Int      @map("program_id")
+  minGpa     Decimal  @map("min_gpa") @db.Decimal(5, 4)
+  maxGpa     Decimal  @map("max_gpa") @db.Decimal(5, 4)
+  minCredits Int      @map("min_credits")
+  maxCredits Int      @map("max_credits")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  program    Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@map("AcademicLoadGPA")
+  @@schema("template")
+}
+
+model Course {
+  id                        Int                  @id @default(autoincrement())
+  name                      String               @db.VarChar(255)
+  code                      String               @unique @db.VarChar(20)
+  description               String?
+  credits                   Int
+  syllabus                  String?
+  successPercentage         Decimal?             @map("success_percentage") @db.Decimal(5, 2)
+  totalFail                 Boolean              @default(false) @map("total_fail")
+  minFinalSuccessPercentage Decimal?             @map("min_final_success_percentage") @db.Decimal(5, 2)
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  updatedAt                 DateTime             @updatedAt @map("updated_at")
+  attendanceReports         AttendanceReport[]
+  classSessions             ClassSession[]
+  coursePrerequisitesFor    CoursePrerequisite[] @relation("course")
+  coursePrerequisites       CoursePrerequisite[] @relation("prerequisite")
+  programCourses            ProgramCourse[]
+
+  @@index([code])
+  @@map("Course")
+  @@schema("template")
+}
+
+model Classroom {
+  id            Int            @id @default(autoincrement())
+  roomNumber    String         @map("room_number") @db.VarChar(50)
+  building      String         @db.VarChar(100)
+  capacity      Int
+  type          ClassroomType
+  isAvailable   Boolean        @default(true) @map("is_available")
+  classSessions ClassSession[]
+
+  @@unique([roomNumber, building])
+  @@index([building])
+  @@index([isAvailable])
+  @@map("Classroom")
+  @@schema("template")
+}
+
+model Room {
+  id                Int            @id @default(autoincrement())
+  roomName          String         @map("room_name") @db.VarChar(255)
+  description       String?
+  createdBy         Int            @map("created_by")
+  maxMembers        Int?           @map("max_members")
+  accessCode        String?        @map("access_code") @db.VarChar(50)
+  allowStudentPosts Boolean        @default(false) @map("allow_student_posts")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  classSessions     ClassSession[]
+  creator           User           @relation(fields: [createdBy], references: [id])
+  members           RoomMember[]
+  posts             RoomPost[]
+
+  @@index([createdBy])
+  @@index([accessCode])
+  @@map("Room")
+  @@schema("template")
+}
+
+model ClassSession {
+  id                  Int                  @id @default(autoincrement())
+  courseId            Int                  @map("course_id")
+  teacherId           Int                  @map("teacher_id")
+  programId           Int                  @map("program_id")
+  classroomId         Int                  @map("classroom_id")
+  semesterId          Int                  @map("semester_id")
+  roomId              Int                  @map("room_id")
+  academicLevel       Int                  @map("academic_level")
+  dayOfWeek           DayOfWeek            @map("day_of_week")
+  startTime           DateTime             @map("start_time") @db.Time(6)
+  endTime             DateTime             @map("end_time") @db.Time(6)
+  attendanceSessions  AttendanceSession[]
+  classroom           Classroom            @relation(fields: [classroomId], references: [id])
+  course              Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  program             Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
+  room                Room                 @relation(fields: [roomId], references: [id])
+  semester            Semester             @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  teacher             Staff                @relation(fields: [teacherId], references: [userId])
+  courseAssessments   CourseAssessment[]
+  courseRegistrations CourseRegistration[]
+
+  @@index([courseId])
+  @@index([teacherId])
+  @@index([programId])
+  @@index([semesterId])
+  @@index([dayOfWeek, startTime])
+  @@map("ClassSession")
+  @@schema("template")
+}
+
+model CourseAssessment {
+  id             Int                  @id @default(autoincrement())
+  classSessionId Int                  @map("class_session_id")
+  label          String               @db.VarChar(100)
+  assessmentType CourseAssessmentType @map("assessment_type")
+  marks          Decimal              @db.Decimal(5, 2)
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  classSession   ClassSession         @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  grades         Grade[]
+
+  @@index([classSessionId])
+  @@index([assessmentType])
+  @@map("CourseAssessment")
+  @@schema("template")
+}
+
+model ProgramCourse {
+  programId Int        @map("program_id")
+  courseId  Int        @map("course_id")
+  type      CourseType
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  program   Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@id([programId, courseId])
+  @@index([courseId])
+  @@index([type])
+  @@map("ProgramCourse")
+  @@schema("template")
+}
+
+model CoursePrerequisite {
+  courseId       Int    @map("course_id")
+  prerequisiteId Int    @map("prerequisite_id")
+  course         Course @relation("course", fields: [courseId], references: [id], onDelete: Cascade)
+  prerequisite   Course @relation("prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, prerequisiteId])
+  @@index([prerequisiteId])
+  @@map("CoursePrerequisite")
+  @@schema("template")
+}
+
+model StudentFeeReport {
+  id             Int          @id @default(autoincrement())
+  studentId      Int          @map("student_id")
+  programLevelId Int          @map("program_level_id")
+  semesterId     Int          @map("semester_id")
+  feeId          Int          @map("fee_id")
+  amount         Decimal      @db.Decimal(12, 2)
+  status         FeeStatus    @default(Pending)
+  generatedDate  DateTime     @default(now()) @map("generated_date") @db.Date
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  fee            Fee          @relation(fields: [feeId], references: [id])
+  programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id])
+  semester       Semester     @relation(fields: [semesterId], references: [id])
+  student        Student      @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([semesterId])
+  @@index([status])
+  @@map("StudentFeeReport")
+  @@schema("template")
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique @db.VarChar(100)
+  description String?
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  permissions RolePermission[]
+  userRoles   UserRole[]
+
+  @@index([name])
+  @@map("Role")
+  @@schema("template")
+}
+
+model Permission {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique @db.VarChar(100)
+  description     String?
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  rolePermissions RolePermission[]
+
+  @@index([name])
+  @@map("Permission")
+  @@schema("template")
+}
+
+model UserRole {
+  userId     Int      @map("user_id")
+  roleId     Int      @map("role_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("UserRole")
+  @@schema("template")
+}
+
+model RolePermission {
+  roleId       Int        @map("role_id")
+  permissionId Int        @map("permission_id")
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("RolePermission")
+  @@schema("template")
+}
+
+model CourseRegistration {
+  id             Int                @id @default(autoincrement())
+  studentId      Int                @map("student_id")
+  sessionId      Int                @map("session_id")
+  semesterId     Int                @map("semester_id")
+  enrollmentDate DateTime           @default(now()) @map("enrollment_date") @db.Date
+  status         RegistrationStatus @default(Enrolled)
+  grade          GradeEnum?
+  gradePoints    Int?               @map("grade_points")
+  semester       Semester           @relation(fields: [semesterId], references: [id])
+  session        ClassSession       @relation(fields: [sessionId], references: [id])
+  student        Student            @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  grades         Grade[]
+
+  @@unique([studentId, sessionId, semesterId])
+  @@index([studentId])
+  @@index([sessionId])
+  @@index([semesterId])
+  @@index([status])
+  @@map("CourseRegistration")
+  @@schema("template")
+}
+
+model Grade {
+  id                   Int                @id @default(autoincrement())
+  courseRegistrationId Int                @map("course_registration_id")
+  courseAssessmentId   Int                @map("course_assessment_id")
+  marks                Decimal            @db.Decimal(5, 2)
+  maxMarks             Decimal            @map("max_marks") @db.Decimal(5, 2)
+  assessmentDate       DateTime?          @map("assessment_date") @db.Date
+  comments             String?
+  courseAssessment     CourseAssessment   @relation(fields: [courseAssessmentId], references: [id], onDelete: Cascade)
+  courseRegistration   CourseRegistration @relation(fields: [courseRegistrationId], references: [id], onDelete: Cascade)
+
+  @@index([courseRegistrationId])
+  @@index([courseAssessmentId])
+  @@map("Grade")
+  @@schema("template")
+}
+
+model Transcript {
+  id            Int      @id @default(autoincrement())
+  studentId     Int      @map("student_id")
+  semesterId    Int      @map("semester_id")
+  year          Int
+  semesterGpa   Decimal  @map("semester_gpa") @db.Decimal(5, 4)
+  cumulativeGpa Decimal  @map("cumulative_gpa") @db.Decimal(5, 4)
+  totalCredits  Int      @default(0) @map("total_credits")
+  generatedDate DateTime @default(now()) @map("generated_date") @db.Date
+  semester      Semester @relation(fields: [semesterId], references: [id])
+  student       Student  @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([studentId, semesterId])
+  @@index([studentId])
+  @@index([semesterId])
+  @@index([year])
+  @@map("Transcript")
+  @@schema("template")
+}
+
+model AttendanceSession {
+  id                 Int                 @id @default(autoincrement())
+  classSessionId     Int                 @map("class_session_id")
+  facultyMemberId    Int                 @map("faculty_member_id")
+  sessionDate        DateTime            @map("session_date") @db.Date
+  startTime          DateTime            @map("start_time") @db.Time(6)
+  endTime            DateTime            @map("end_time") @db.Time(6)
+  attendanceMode     AttendanceMode      @map("attendance_mode")
+  hotspotSsid        String?             @map("hotspot_ssid") @db.VarChar(255)
+  qrCode             String?             @map("qr_code") @db.VarChar(500)
+  isActive           Boolean             @default(true) @map("is_active")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  sessionNotes       String?             @map("session_notes")
+  classSession       ClassSession        @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+  facultyMember      Staff               @relation(fields: [facultyMemberId], references: [userId])
+  studentAttendances StudentAttendance[]
+
+  @@index([classSessionId])
+  @@index([sessionDate])
+  @@index([facultyMemberId])
+  @@index([isActive])
+  @@map("AttendanceSession")
+  @@schema("template")
+}
+
+model StudentAttendance {
+  id                  Int               @id @default(autoincrement())
+  attendanceSessionId Int               @map("attendance_session_id")
+  studentId           Int               @map("student_id")
+  status              AttendanceStatus
+  recordedAt          DateTime          @default(now()) @map("recorded_at")
+  deviceIp            String?           @map("device_ip") @db.Inet
+  deviceMac           String?           @map("device_mac") @db.VarChar(17)
+  notes               String?
+  isOfflineSync       Boolean           @default(false) @map("is_offline_sync")
+  syncedAt            DateTime?         @map("synced_at")
+  attendanceSession   AttendanceSession @relation(fields: [attendanceSessionId], references: [id], onDelete: Cascade)
+  student             Student           @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([attendanceSessionId, studentId])
+  @@index([attendanceSessionId])
+  @@index([studentId])
+  @@index([status])
+  @@index([recordedAt])
+  @@map("StudentAttendance")
+  @@schema("template")
+}
+
+model AttendanceReport {
+  id                   Int      @id @default(autoincrement())
+  courseId             Int      @map("course_id")
+  studentId            Int      @map("student_id")
+  totalSessions        Int      @default(0) @map("total_sessions")
+  attendedSessions     Int      @default(0) @map("attended_sessions")
+  attendancePercentage Decimal  @map("attendance_percentage") @db.Decimal(5, 2)
+  reportPeriodStart    DateTime @map("report_period_start") @db.Date
+  reportPeriodEnd      DateTime @map("report_period_end") @db.Date
+  generatedAt          DateTime @default(now()) @map("generated_at")
+  course               Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student              Student  @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@unique([courseId, studentId, reportPeriodStart, reportPeriodEnd])
+  @@index([courseId])
+  @@index([studentId])
+  @@index([reportPeriodStart, reportPeriodEnd])
+  @@map("AttendanceReport")
+  @@schema("template")
+}
+
+model RoomMember {
+  id       Int      @id @default(autoincrement())
+  roomId   Int      @map("room_id")
+  userId   Int      @map("user_id")
+  role     RoomRole @default(Member)
+  joinedAt DateTime @default(now()) @map("joined_at")
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+  @@map("RoomMember")
+  @@schema("template")
+}
+
+model RoomPost {
+  id          Int                  @id @default(autoincrement())
+  roomId      Int                  @map("room_id")
+  authorId    Int                  @map("author_id")
+  content     String?
+  postType    PostType             @map("post_type")
+  isPinned    Boolean              @default(false) @map("is_pinned")
+  isEdited    Boolean              @default(false) @map("is_edited")
+  dueDate     DateTime?            @map("due_date")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  author      User                 @relation(fields: [authorId], references: [id])
+  room        Room                 @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  attachments RoomPostAttachment[]
+  comments    RoomPostComment[]
+
+  @@index([roomId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([isPinned, roomId])
+  @@map("RoomPost")
+  @@schema("template")
+}
+
+model RoomPostAttachment {
+  id              Int             @id @default(autoincrement())
+  postId          Int             @map("post_id")
+  fileName        String          @map("file_name") @db.VarChar(255)
+  fileType        String          @map("file_type") @db.VarChar(50)
+  storageProvider StorageProvider @map("storage_provider")
+  storagePath     String          @map("storage_path") @db.VarChar(500)
+  fileSize        BigInt?         @map("file_size")
+  uploadedAt      DateTime        @default(now()) @map("uploaded_at")
+  post            RoomPost        @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("RoomPostAttachment")
+  @@schema("template")
+}
+
+model RoomPostComment {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  authorId  Int      @map("author_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  author    User     @relation(fields: [authorId], references: [id])
+  post      RoomPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("RoomPostComment")
+  @@schema("template")
+}
 
 enum ProgramType {
   Bachelor
   Master
   Diploma
   PhD
+
   @@schema("template")
 }
 
 enum ResultDisplayType {
   CourseGrade
   DetailedEstimate
+
   @@schema("template")
 }
 
 enum BlockReasonType {
   NonPaymentCurrent
   NonPaymentOld
+
   @@schema("template")
 }
 
@@ -65,6 +781,7 @@ enum StudentStatus {
   SingleChance
   ExternalReenrollment
   Deactivate
+
   @@schema("template")
 }
 
@@ -73,6 +790,7 @@ enum SemesterType {
   Spring
   Summer
   Winter
+
   @@schema("template")
 }
 
@@ -83,6 +801,7 @@ enum FeeType {
   PerCourse
   Administrative
   Other
+
   @@schema("template")
 }
 
@@ -92,6 +811,7 @@ enum CourseAssessmentType {
   Midterm
   Final
   Project
+
   @@schema("template")
 }
 
@@ -99,12 +819,14 @@ enum CourseType {
   Mandatory
   Elective
   Project
+
   @@schema("template")
 }
 
 enum FeeStatus {
   Pending
   Paid
+
   @@schema("template")
 }
 
@@ -113,6 +835,7 @@ enum ClassroomType {
   Lab
   Auditorium
   Other
+
   @@schema("template")
 }
 
@@ -124,6 +847,7 @@ enum DayOfWeek {
   Friday
   Saturday
   Sunday
+
   @@schema("template")
 }
 
@@ -133,22 +857,24 @@ enum RegistrationStatus {
   Completed
   Failed
   InProgress
+
   @@schema("template")
 }
 
 enum GradeEnum {
-  A_PLUS @map("A+")
+  A_PLUS  @map("A+")
   A
   A_MINUS @map("A-")
-  B_PLUS @map("B+")
+  B_PLUS  @map("B+")
   B
   B_MINUS @map("B-")
-  C_PLUS @map("C+")
+  C_PLUS  @map("C+")
   C
   C_MINUS @map("C-")
-  D_PLUS @map("D+")
+  D_PLUS  @map("D+")
   D
   F
+
   @@schema("template")
 }
 
@@ -159,6 +885,7 @@ enum AttendanceMode {
   Geofencing
   Hotspot
   Online
+
   @@schema("template")
 }
 
@@ -168,12 +895,14 @@ enum AttendanceStatus {
   Late
   Excused
   Medical
+
   @@schema("template")
 }
 
 enum RoomRole {
   Owner
   Member
+
   @@schema("template")
 }
 
@@ -181,881 +910,31 @@ enum PostType {
   ANNOUNCEMENT
   ASSIGNMENT
   MATERIAL
+
   @@schema("template")
 }
 
 enum StorageProvider {
   LOCAL
   S3
-  Azure_Blob_Storage @map("Azure Blob Storage")
+  Azure_Blob_Storage   @map("Azure Blob Storage")
   Google_Cloud_Storage @map("Google Cloud Storage")
-  @@schema("template")
-}
-// ============================================================================================================
-// USER
-// ============================================================================================================
 
-model User {
-  id             Int       @id @default(autoincrement())
-  username       String    @unique @db.VarChar(100)
-  firstName      String    @map("first_name") @db.VarChar(100)
-  lastName       String    @map("last_name") @db.VarChar(100)
-  email          String    @unique @db.VarChar(320)
-  password       String    @db.VarChar(60)
-  isVerified     Boolean   @default(false) @map("is_verified")
-  isBlocked      Boolean   @default(false) @map("is_blocked")
-  phone          String    @db.VarChar(15)
-  dateOfBirth    DateTime  @map("date_of_birth") @db.Date
-  address        String
-  city           String    @db.VarChar(100)
-  country        String    @db.VarChar(100)
-  nationalId     String    @unique @map("national_id") @db.VarChar(50)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  staff             Staff?
-  student           Student?
-  userRoles         UserRole[]
-  roomsCreated      Room[]
-  roomMembers       RoomMember[]
-  roomPostsAuthor   RoomPost[]
-  roomPostComments  RoomPostComment[]
-
-  @@index([email])
-  @@index([username])
-  @@index([nationalId])
-  @@map("User")
   @@schema("template")
 }
 
-// ============================================================================================================
-// STAFF
-// ============================================================================================================
+enum JobStatus {
+  Pending
+  Processing
+  Completed
+  Failed
+  CompletedWithErrors
 
-model Staff {
-  userId    Int       @id @map("user_id")
-  position  String    @db.VarChar(100)
-  cvPath    String?   @map("cv_path") @db.VarChar(1000)
-  hireDate  DateTime  @map("hire_date") @db.Date
-  salary    Decimal?  @db.Decimal(12, 2)
-
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  faculties         Faculty[]
-  programs          Program[]
-  classSessions     ClassSession[]
-  attendanceSessions AttendanceSession[]
-
-  @@index([position])
-  @@map("Staff")
   @@schema("template")
 }
-
-// ============================================================================================================
-// FACULTY
-// ============================================================================================================
-
-model Faculty {
-  id                Int       @id @default(autoincrement())
-  universityId      Int       @map("university_id")
-  name              String    @db.VarChar(255)
-  description       String?
-  deanId            Int?      @map("dean_id")
-  establishedDate   DateTime? @map("established_date") @db.Date
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-
-  dean              Staff?    @relation(fields: [deanId], references: [userId], onDelete: SetNull)
-  programs          Program[]
-  regulations       Regulation[]
-
-  @@index([universityId])
-  @@index([name])
-  @@index([deanId])
-  @@map("Faculty")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// PROGRAM
-// ============================================================================================================
-
-model Program {
-  id                        Int               @id @default(autoincrement())
-  facultyId                 Int               @map("faculty_id")
-  name                      String            @db.VarChar(255)
-  description               String?
-  headId                    Int?              @map("head_id")
-  phone                     String?           @db.VarChar(20)
-  universityCreditHours     Int               @default(0) @map("university_credit_hours")
-  facultyCreditHours        Int               @default(0) @map("faculty_credit_hours")
-  programCreditHours        Int               @default(0) @map("program_credit_hours")
-  programType               ProgramType       @map("program_type")
-  resultDisplay             ResultDisplayType @default(CourseGrade) @map("result_display")
-  blockReason               BlockReasonType?  @map("block_reason")
-  createdAt                 DateTime          @default(now()) @map("created_at")
-  updatedAt                 DateTime          @updatedAt @map("updated_at")
-
-  faculty                   Faculty           @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  head                      Staff?            @relation(fields: [headId], references: [userId], onDelete: SetNull)
-  students                  Student[]
-  programLevels             ProgramLevel[]
-  programCourses            ProgramCourse[]
-  programTranscriptDefs     ProgramTranscriptDefinition[]
-  academicLoadSemesters     AcademicLoadSemester[]
-  academicLoadGPAs          AcademicLoadGPA[]
-  classSessions             ClassSession[]
-
-  @@index([facultyId])
-  @@index([programType])
-  @@index([headId])
-  @@map("Program")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// STUDENT
-// ============================================================================================================
-
-model Student {
-  userId                    Int           @id @map("user_id")
-  universityStudentId       Int           @unique @map("university_student_id")
-  programId                 Int           @map("program_id")
-  academicYear              String?       @map("academic_year") @db.VarChar(20)
-  status                    StudentStatus @default(New)
-  enrollmentDate            DateTime      @map("enrollment_date") @db.Date
-  cgpa                      Decimal       @default(0.0000) @db.Decimal(5, 4)
-  religion                  Boolean
-  gender                    Boolean
-  homePhone                 String?       @map("home_phone") @db.VarChar(20)
-  previousQualification     String?       @map("previous_qualification") @db.VarChar(255)
-  secondarySchoolName       String?       @map("secondary_school_name") @db.VarChar(255)
-  totalHighSchoolGrades     Decimal?      @map("total_high_school_grades") @db.Decimal(5, 2)
-  highSchoolSeatNumber      String?       @map("high_school_seat_number") @db.VarChar(50)
-
-  user                      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  program                   Program       @relation(fields: [programId], references: [id], onDelete: Restrict)
-  studentFeeReports         StudentFeeReport[]
-  courseRegistrations      CourseRegistration[]
-  transcripts              Transcript[]
-  studentAttendances       StudentAttendance[]
-  attendanceReports        AttendanceReport[]
-
-  @@index([programId])
-  @@index([status])
-  @@index([universityStudentId])
-  @@map("Student")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// REGULATION
-// ============================================================================================================
-
-model Regulation {
-  id                       Int       @id @default(autoincrement())
-  facultyId                Int       @map("faculty_id")
-  name                     String    @db.VarChar(255)
-  roundToWholeNumber       Boolean   @default(false) @map("round_to_whole_number")
-  approximateFractions     Boolean   @default(false) @map("approximate_fractions")
-  maxAbsence               Int       @default(0) @map("max_absence")
-  minGradeExcellent        Decimal   @map("min_grade_excellent") @db.Decimal(5, 2)
-  minGradeVeryGood         Decimal   @map("min_grade_very_good") @db.Decimal(5, 2)
-  minGradeGood             Decimal   @map("min_grade_good") @db.Decimal(5, 2)
-  minGradeAcceptable       Decimal   @map("min_grade_acceptable") @db.Decimal(5, 2)
-  minGradeVeryWeak         Decimal   @map("min_grade_very_weak") @db.Decimal(5, 2)
-  enableMercyRules         Boolean   @default(false) @map("enable_mercy_rules")
-  createdAt                DateTime  @default(now()) @map("created_at")
-  updatedAt                DateTime  @updatedAt @map("updated_at")
-
-  faculty                  Faculty   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  mercyRules               MercyRule[]
-
-  @@index([facultyId])
-  @@map("Regulation")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// MERCY RULE
-// ============================================================================================================
-
-model MercyRule {
-  id                Int       @id @default(autoincrement())
-  regulationId      Int       @map("regulation_id")
-  originalScore     Decimal   @map("original_score") @db.Decimal(5, 2)
-  adjustedScore     Decimal   @map("adjusted_score") @db.Decimal(5, 2)
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-
-  regulation        Regulation @relation(fields: [regulationId], references: [id], onDelete: Cascade)
-
-  @@index([regulationId])
-  @@map("MercyRule")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// SEMESTER
-// ============================================================================================================
-
-model Semester {
-  id              Int           @id @default(autoincrement())
-  year            Int           @db.SmallInt
-  term            Int           @db.SmallInt
-  startDate       DateTime      @map("start_date") @db.Date
-  endDate         DateTime      @map("end_date") @db.Date
-  type            SemesterType
-
-  fees                      Fee[]
-  academicLoadSemesters     AcademicLoadSemester[]
-  studentFeeReports         StudentFeeReport[]
-  courseRegistrations       CourseRegistration[]
-  transcripts               Transcript[]
-  classSessions             ClassSession[]
-
-  @@unique([year, term])
-  @@index([year])
-  @@map("Semester")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// PROGRAM LEVEL
-// ============================================================================================================
-
-model ProgramLevel {
-  id              Int       @id @default(autoincrement())
-  programId       Int       @map("program_id")
-  level           Int
-  minCredits      Int       @default(0) @map("min_credits")
-  maxCredits      Int       @default(0) @map("max_credits")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  program                   Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
-  fees                      Fee[]
-  academicLoadSemesters     AcademicLoadSemester[]
-  studentFeeReports         StudentFeeReport[]
-
-  @@unique([programId, level])
-  @@index([programId])
-  @@map("ProgramLevel")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// FEE
-// ============================================================================================================
-
-model Fee {
-  id              Int       @id @default(autoincrement())
-  programLevelId  Int       @map("program_level_id")
-  semesterId      Int?      @map("semester_id")
-  feeType         FeeType   @map("fee_type")
-  amount          Decimal   @db.Decimal(12, 2)
-  description     String?
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  programLevel            ProgramLevel      @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
-  semester                Semester?         @relation(fields: [semesterId], references: [id], onDelete: SetNull)
-  studentFeeReports       StudentFeeReport[]
-
-  @@index([programLevelId])
-  @@index([semesterId])
-  @@index([feeType])
-  @@map("Fee")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// PROGRAM TRANSCRIPT DEFINITION
-// ============================================================================================================
-
-model ProgramTranscriptDefinition {
-  id                Int       @id @default(autoincrement())
-  programId         Int       @map("program_id")
-  gradeLetter       String    @map("grade_letter") @db.VarChar(10)
-  minScore          Decimal   @map("min_score") @db.Decimal(5, 2)
-  maxScore          Decimal   @map("max_score") @db.Decimal(5, 2)
-  equivalentEstimate String?  @map("equivalent_estimate") @db.VarChar(20)
-  minGpa            Decimal   @map("min_gpa") @db.Decimal(5, 4)
-  maxGpa            Decimal   @map("max_gpa") @db.Decimal(5, 4)
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-
-  program           Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
-
-  @@unique([programId, gradeLetter])
-  @@index([programId])
-  @@map("ProgramTranscriptDefinition")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ACADEMIC LOAD SEMESTER
-// ============================================================================================================
-
-model AcademicLoadSemester {
-  id              Int       @id @default(autoincrement())
-  programId       Int       @map("program_id")
-  semesterId      Int       @map("semester_id")
-  programLevelId  Int       @map("program_level_id")
-  minCredits      Int       @map("min_credits")
-  maxCredits      Int       @map("max_credits")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  program         Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
-  semester        Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
-  programLevel    ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
-
-  @@unique([programId, semesterId, programLevelId])
-  @@index([programId])
-  @@index([semesterId])
-  @@map("AcademicLoadSemester")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ACADEMIC LOAD GPA
-// ============================================================================================================
-
-model AcademicLoadGPA {
-  id              Int       @id @default(autoincrement())
-  programId       Int       @map("program_id")
-  minGpa          Decimal   @map("min_gpa") @db.Decimal(5, 4)
-  maxGpa          Decimal   @map("max_gpa") @db.Decimal(5, 4)
-  minCredits      Int       @map("min_credits")
-  maxCredits      Int       @map("max_credits")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  program         Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
-
-  @@index([programId])
-  @@map("AcademicLoadGPA")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// COURSE
-// ============================================================================================================
-
-model Course {
-  id                          Int       @id @default(autoincrement())
-  name                        String    @db.VarChar(255)
-  code                        String    @unique @db.VarChar(20)
-  description                 String?
-  credits                     Int
-  syllabus                    String?
-  successPercentage           Decimal?  @map("success_percentage") @db.Decimal(5, 2)
-  totalFail                   Boolean   @default(false) @map("total_fail")
-  minFinalSuccessPercentage   Decimal?  @map("min_final_success_percentage") @db.Decimal(5, 2)
-  createdAt                   DateTime  @default(now()) @map("created_at")
-  updatedAt                   DateTime  @updatedAt @map("updated_at")
-
-  classSessions               ClassSession[]
-  programCourses              ProgramCourse[]
-  coursePrerequisitesFor      CoursePrerequisite[] @relation("course")
-  coursePrerequisites         CoursePrerequisite[] @relation("prerequisite")
-  attendanceReports           AttendanceReport[]
-
-  @@index([code])
-  @@map("Course")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// CLASSROOM
-// ============================================================================================================
-
-model Classroom {
-  id              Int       @id @default(autoincrement())
-  roomNumber      String    @map("room_number") @db.VarChar(50)
-  building        String    @db.VarChar(100)
-  capacity        Int
-  type            ClassroomType
-  isAvailable     Boolean   @default(true) @map("is_available")
-
-  classSessions   ClassSession[]
-
-  @@unique([roomNumber, building])
-  @@index([building])
-  @@index([isAvailable])
-  @@map("Classroom")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROOM
-// ============================================================================================================
-
-model Room {
-  id                      Int       @id @default(autoincrement())
-  roomName                String    @map("room_name") @db.VarChar(255)
-  description             String?
-  createdBy               Int       @map("created_by")
-  maxMembers              Int?      @map("max_members")
-  accessCode              String?   @map("access_code") @db.VarChar(50)
-  allowStudentPosts       Boolean   @default(false) @map("allow_student_posts")
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  creator                 User      @relation(fields: [createdBy], references: [id], onDelete: Restrict)
-  members                 RoomMember[]
-  posts                   RoomPost[]
-  classSessions           ClassSession[]
-
-  @@index([createdBy])
-  @@index([accessCode])
-  @@map("Room")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// CLASS SESSION
-// ============================================================================================================
-
-model ClassSession {
-  id                      Int       @id @default(autoincrement())
-  courseId                Int       @map("course_id")
-  teacherId               Int       @map("teacher_id")
-  programId               Int       @map("program_id")
-  classroomId             Int       @map("classroom_id")
-  semesterId              Int       @map("semester_id")
-  roomId                  Int       @map("room_id")
-  academicLevel           Int       @map("academic_level")
-  dayOfWeek               DayOfWeek @map("day_of_week")
-  startTime               DateTime  @map("start_time") @db.Time()
-  endTime                 DateTime  @map("end_time") @db.Time()
-
-  course                  Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher                 Staff     @relation(fields: [teacherId], references: [userId], onDelete: Restrict)
-  program                 Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
-  classroom               Classroom @relation(fields: [classroomId], references: [id], onDelete: Restrict)
-  semester                Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
-  room                    Room      @relation(fields: [roomId], references: [id], onDelete: Restrict)
-  
-  courseAssessments       CourseAssessment[]
-  courseRegistrations     CourseRegistration[]
-  attendanceSessions      AttendanceSession[]
-
-  @@index([courseId])
-  @@index([teacherId])
-  @@index([programId])
-  @@index([semesterId])
-  @@index([dayOfWeek, startTime])
-  @@map("ClassSession")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// COURSE ASSESSMENT
-// ============================================================================================================
-
-model CourseAssessment {
-  id                      Int       @id @default(autoincrement())
-  classSessionId          Int       @map("class_session_id")
-  label                   String    @db.VarChar(100)
-  assessmentType          CourseAssessmentType @map("assessment_type")
-  marks                   Decimal   @db.Decimal(5, 2)
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  classSession            ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
-  grades                  Grade[]
-
-  @@index([classSessionId])
-  @@index([assessmentType])
-  @@map("CourseAssessment")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// PROGRAM COURSE
-// ============================================================================================================
-
-model ProgramCourse {
-  programId               Int       @map("program_id")
-  courseId                Int       @map("course_id")
-  type                    CourseType
-
-  program                 Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
-  course                  Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@id([programId, courseId])
-  @@index([courseId])
-  @@index([type])
-  @@map("ProgramCourse")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// COURSE PREREQUISITE
-// ============================================================================================================
-
-model CoursePrerequisite {
-  courseId                Int       @map("course_id")
-  prerequisiteId          Int       @map("prerequisite_id")
-
-  course                  Course    @relation("course", fields: [courseId], references: [id], onDelete: Cascade)
-  prerequisite            Course    @relation("prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
-
-  @@id([courseId, prerequisiteId])
-  @@index([prerequisiteId])
-  @@map("CoursePrerequisite")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// STUDENT FEE REPORT
-// ============================================================================================================
-
-model StudentFeeReport {
-  id                      Int       @id @default(autoincrement())
-  studentId               Int       @map("student_id")
-  programLevelId          Int       @map("program_level_id")
-  semesterId              Int       @map("semester_id")
-  feeId                   Int       @map("fee_id")
-  amount                  Decimal   @db.Decimal(12, 2)
-  status                  FeeStatus @default(Pending)
-  generatedDate           DateTime  @default(now()) @map("generated_date") @db.Date
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  student                 Student   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  programLevel            ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Restrict)
-  semester                Semester  @relation(fields: [semesterId], references: [id], onDelete: Restrict)
-  fee                     Fee       @relation(fields: [feeId], references: [id], onDelete: Restrict)
-
-  @@index([studentId])
-  @@index([semesterId])
-  @@index([status])
-  @@map("StudentFeeReport")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROLE
-// ============================================================================================================
-
-model Role {
-  id                      Int       @id @default(autoincrement())
-  name                    String    @unique @db.VarChar(100)
-  description             String?
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  userRoles               UserRole[]
-  permissions             RolePermission[]
-
-  @@index([name])
-  @@map("Role")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// PERMISSION
-// ============================================================================================================
-
-model Permission {
-  id                      Int       @id @default(autoincrement())
-  name                    String    @unique @db.VarChar(100)
-  description             String?
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  rolePermissions         RolePermission[]
-
-  @@index([name])
-  @@map("Permission")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// USER ROLE
-// ============================================================================================================
-
-model UserRole {
-  userId                  Int       @map("user_id")
-  roleId                  Int       @map("role_id")
-  assignedAt              DateTime  @default(now()) @map("assigned_at")
-
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role                    Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([userId, roleId])
-  @@index([roleId])
-  @@map("UserRole")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROLE PERMISSION
-// ============================================================================================================
-
-model RolePermission {
-  roleId                  Int       @map("role_id")
-  permissionId            Int       @map("permission_id")
-
-  role                    Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission              Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
-  @@id([roleId, permissionId])
-  @@index([permissionId])
-  @@map("RolePermission")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// COURSE REGISTRATION
-// ============================================================================================================
-
-model CourseRegistration {
-  id                      Int       @id @default(autoincrement())
-  studentId               Int       @map("student_id")
-  sessionId               Int       @map("session_id")
-  semesterId              Int       @map("semester_id")
-  enrollmentDate          DateTime  @default(now()) @map("enrollment_date") @db.Date
-  status                  RegistrationStatus @default(Enrolled)
-  grade                   GradeEnum?
-  gradePoints             Int?      @map("grade_points")
-
-  student                 Student   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  session                 ClassSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
-  semester                Semester  @relation(fields: [semesterId], references: [id], onDelete: Restrict)
-  grades                  Grade[]
-
-  @@unique([studentId, sessionId, semesterId])
-  @@index([studentId])
-  @@index([sessionId])
-  @@index([semesterId])
-  @@index([status])
-  @@map("CourseRegistration")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// GRADE
-// ============================================================================================================
-
-model Grade {
-  id                      Int       @id @default(autoincrement())
-  courseRegistrationId    Int       @map("course_registration_id")
-  courseAssessmentId      Int       @map("course_assessment_id")
-  marks                   Decimal   @db.Decimal(5, 2)
-  maxMarks                Decimal   @map("max_marks") @db.Decimal(5, 2)
-  assessmentDate          DateTime? @map("assessment_date") @db.Date
-  comments                String?
-
-  courseRegistration     CourseRegistration @relation(fields: [courseRegistrationId], references: [id], onDelete: Cascade)
-  courseAssessment       CourseAssessment @relation(fields: [courseAssessmentId], references: [id], onDelete: Cascade)
-
-  @@index([courseRegistrationId])
-  @@index([courseAssessmentId])
-  @@map("Grade")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// TRANSCRIPT
-// ============================================================================================================
-
-model Transcript {
-  id                      Int       @id @default(autoincrement())
-  studentId               Int       @map("student_id")
-  semesterId              Int       @map("semester_id")
-  year                    Int
-  semesterGpa             Decimal   @map("semester_gpa") @db.Decimal(5, 4)
-  cumulativeGpa           Decimal   @map("cumulative_gpa") @db.Decimal(5, 4)
-  totalCredits            Int       @default(0) @map("total_credits")
-  generatedDate           DateTime  @default(now()) @map("generated_date") @db.Date
-
-  student                 Student   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  semester                Semester  @relation(fields: [semesterId], references: [id], onDelete: Restrict)
-
-  @@unique([studentId, semesterId])
-  @@index([studentId])
-  @@index([semesterId])
-  @@index([year])
-  @@map("Transcript")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ATTENDANCE SESSION
-// ============================================================================================================
-
-model AttendanceSession {
-  id                      Int       @id @default(autoincrement())
-  classSessionId          Int       @map("class_session_id")
-  facultyMemberId         Int       @map("faculty_member_id")
-  sessionDate             DateTime  @map("session_date") @db.Date
-  startTime               DateTime  @map("start_time") @db.Time()
-  endTime                 DateTime  @map("end_time") @db.Time()
-  attendanceMode          AttendanceMode @map("attendance_mode")
-  hotspotSsid             String?   @map("hotspot_ssid") @db.VarChar(255)
-  qrCode                  String?   @map("qr_code") @db.VarChar(500)
-  isActive                Boolean   @default(true) @map("is_active")
-  createdAt               DateTime  @default(now()) @map("created_at")
-  sessionNotes            String?   @map("session_notes")
-
-  classSession            ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
-  facultyMember           Staff     @relation(fields: [facultyMemberId], references: [userId], onDelete: Restrict)
-  studentAttendances      StudentAttendance[]
-
-  @@index([classSessionId])
-  @@index([sessionDate])
-  @@index([facultyMemberId])
-  @@index([isActive])
-  @@map("AttendanceSession")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// STUDENT ATTENDANCE
-// ============================================================================================================
-
-model StudentAttendance {
-  id                      Int       @id @default(autoincrement())
-  attendanceSessionId     Int       @map("attendance_session_id")
-  studentId               Int       @map("student_id")
-  status                  AttendanceStatus
-  recordedAt              DateTime  @default(now()) @map("recorded_at")
-  deviceIp                String?   @map("device_ip") @db.Inet
-  deviceMac String? @map("device_mac") @db.VarChar(17)
-  notes                   String?
-  isOfflineSync           Boolean   @default(false) @map("is_offline_sync")
-  syncedAt                DateTime? @map("synced_at")
-
-  attendanceSession       AttendanceSession @relation(fields: [attendanceSessionId], references: [id], onDelete: Cascade)
-  student                 Student   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  @@unique([attendanceSessionId, studentId])
-  @@index([attendanceSessionId])
-  @@index([studentId])
-  @@index([status])
-  @@index([recordedAt])
-  @@map("StudentAttendance")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ATTENDANCE REPORT
-// ============================================================================================================
-
-model AttendanceReport {
-  id                      Int       @id @default(autoincrement())
-  courseId                Int       @map("course_id")
-  studentId               Int       @map("student_id")
-  totalSessions           Int       @default(0) @map("total_sessions")
-  attendedSessions        Int       @default(0) @map("attended_sessions")
-  attendancePercentage    Decimal   @map("attendance_percentage") @db.Decimal(5, 2)
-  reportPeriodStart       DateTime  @map("report_period_start") @db.Date
-  reportPeriodEnd         DateTime  @map("report_period_end") @db.Date
-  generatedAt             DateTime  @default(now()) @map("generated_at")
-
-  course                  Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  student                 Student   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-
-  @@unique([courseId, studentId, reportPeriodStart, reportPeriodEnd])
-  @@index([courseId])
-  @@index([studentId])
-  @@index([reportPeriodStart, reportPeriodEnd])
-  @@map("AttendanceReport")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROOM MEMBER
-// ============================================================================================================
-
-model RoomMember {
-  id                      Int       @id @default(autoincrement())
-  roomId                  Int       @map("room_id")
-  userId                  Int       @map("user_id")
-  role                    RoomRole  @default(Member)
-  joinedAt                DateTime  @default(now()) @map("joined_at")
-
-  room                    Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([roomId, userId])
-  @@index([roomId])
-  @@index([userId])
-  @@map("RoomMember")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROOM POST
-// ============================================================================================================
-
-model RoomPost {
-  id                      Int       @id @default(autoincrement())
-  roomId                  Int       @map("room_id")
-  authorId                Int       @map("author_id")
-  content                 String?
-  postType                PostType  @map("post_type")
-  isPinned                Boolean   @default(false) @map("is_pinned")
-  isEdited                Boolean   @default(false) @map("is_edited")
-  dueDate                 DateTime? @map("due_date")
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  room                    Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  author                  User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
-  attachments             RoomPostAttachment[]
-  comments                RoomPostComment[]
-
-  @@index([roomId])
-  @@index([authorId])
-  @@index([createdAt])
-  @@index([isPinned, roomId])
-  @@map("RoomPost")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROOM POST ATTACHMENT
-// ============================================================================================================
-
-model RoomPostAttachment {
-  id                      Int       @id @default(autoincrement())
-  postId                  Int       @map("post_id")
-  fileName                String    @map("file_name") @db.VarChar(255)
-  fileType                String    @map("file_type") @db.VarChar(50)
-  storageProvider         StorageProvider @map("storage_provider")
-  storagePath             String    @map("storage_path") @db.VarChar(500)
-  fileSize                BigInt?   @map("file_size")
-  uploadedAt              DateTime  @default(now()) @map("uploaded_at")
-
-  post                    RoomPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@index([postId])
-  @@map("RoomPostAttachment")
-  @@schema("template")
-}
-
-// ============================================================================================================
-// ROOM POST COMMENT
-// ============================================================================================================
-
-model RoomPostComment {
-  id                      Int       @id @default(autoincrement())
-  postId                  Int       @map("post_id")
-  authorId                Int       @map("author_id")
-  content                 String
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
-
-  post                    RoomPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author                  User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
-
-  @@index([postId])
-  @@index([authorId])
-  @@index([createdAt])
-  @@map("RoomPostComment")
+model Migrations {
+  name String @id
+  applied_at DateTime @default(now())
+  @@map("migrations")
   @@schema("template")
 }

@@ -36,5 +36,5 @@ exec(cmd,(err,stdout,stderr)=>{
 
 })
 
-//return it as it was
-fs.writeFileSync(prismaSchema,content);
+//retrun the content as it was 
+fs.writeFileSync(prismaSchema, content);
