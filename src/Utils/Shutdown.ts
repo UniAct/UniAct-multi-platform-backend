@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { disconnectAllTenantClients } from "./prismaClient";
 import { logger } from "./Logger";
 import { Server } from "http";
@@ -43,22 +42,4 @@ export function GracefulShutdown(server: Server) {
 
   process.once("SIGINT", () =>{shutdown("SIGINT")});
   process.once("SIGTERM", () => shutdown("SIGTERM"));
-=======
-import { CloseAllQueuesAndWorkers } from "./BullMQConfig";
-import { logger } from "./Logger";
-
-export function GracefulShutdown(){
-  process.on('SIGTERM', async () => {
-    logger.warn({ action: 'Shutdown', status: 'Graceful shutdown started (Close All Workers And Queues)' });
-    await CloseAllQueuesAndWorkers();
-    process.exit(0);
-  });
-  
-  
-  process.on('SIGINT', async () => {
-    logger.warn({ action: 'Shutdown', status: 'Graceful shutdown started (Close All Workers And Queues)' });
-    await CloseAllQueuesAndWorkers();
-    process.exit(0);
-  });
->>>>>>> 054927e (- Add single student creation)
 }

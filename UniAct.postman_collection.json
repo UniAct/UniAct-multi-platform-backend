@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "39feee93-d30f-41ae-8453-22a14a118b9f",
-    "name": "UniAct Copy 2",
+    "_postman_id": "ed1d0670-be1f-4807-8362-73ffd405de94",
+    "name": "UniAct",
     "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "49123104",
-    "_collection_link": "https://go.postman.co/collection/49123104-39feee93-d30f-41ae-8453-22a14a118b9f?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/49123104-ed1d0670-be1f-4807-8362-73ffd405de94?source=collection_link"
   },
   "item": [
     {
@@ -139,7 +139,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM2ODUzNTYsImV4cCI6MTc3Mzc3MTc1Nn0.pv9DX5BLiWFhylpSwE-58XhSEjJe73LOWs5aDjF8OBA",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtYXJrIiwiZW1haWwiOiJtYXJrQGdtYWlsLmNvbSIsInJvbGVzIjpbIlN1cGVyQWRtaW4iXSwiaWF0IjoxNzc0NTI1NDc1LCJleHAiOjE3NzQ2MTE4NzV9.GJOlby0dTDyp78M3a9vww7GGUtxmoAAbuFat3K7Qpgw",
                   "type": "string"
                 }
               ]
@@ -155,7 +155,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Nile Valley University\",\r\n  \"address\": \"Assiut, Assiut Governorate, Egypt\",\r\n  \"phone\": \"+20 88 234 5678\",\r\n  \"email\": \"info@nilevalley.edu.eg\",\r\n  \"website\": \"https://www.nilevalley.edu.eg\",\r\n  \"established_date\": \"2006-03-22\",\r\n  \"accreditation\": \"Accredited by the Supreme Council of Universities (Egypt)\",\r\n  \"db_schema\": \"nile_valley\"\r\n}",
+              "raw": "{\r\n  \"name\": \"Alexandria National University\",\r\n  \"address\": \"Alexandria University Campus, Abis, Alexandria, Egypt\",\r\n  \"phone\": \"+20 122 885 8407\",\r\n  \"email\": \"info@anu.edu.eg\",\r\n  \"website\": \"https://anu.edu.eg\",\r\n  \"established_date\": \"2022-09-05\",\r\n  \"accreditation\": \"Established by Presidential Decree No. 425 of 2022 and affiliated with Alexandria University under the Supreme Council of Universities (Egypt)\",\r\n  \"db_schema\": \"anu\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -330,7 +330,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJNYXJrIiwiZW1haWwiOiJNYXJrQGdtYWlsLmNvbSIsInJvbGUiOiJTdXBlckFkbWluIiwiaWF0IjoxNzczMzMyNzIwLCJleHAiOjE3NzM0MTkxMjB9.R-sQwdPaSo7ZHQkpXPLzYX00R0fTZS0vQls59IUoaE0",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM3NjU5MzIsImV4cCI6MTc3Mzg1MjMzMn0.KVqBkZZPwrGvxqI_AqB3QnxSS_q_HFD3gAtR3VhXWWQ",
                   "type": "string"
                 }
               ]
@@ -338,7 +338,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/university/70",
+              "raw": "http://localhost:3000/api/university/51",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -347,7 +347,7 @@
               "path": [
                 "api",
                 "university",
-                "70"
+                "51"
               ]
             }
           },
@@ -392,7 +392,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZSI6IlN1cGVyQWRtaW4iLCJpYXQiOjE3NzM2ODUzNTYsImV4cCI6MTc3Mzc3MTc1Nn0.pv9DX5BLiWFhylpSwE-58XhSEjJe73LOWs5aDjF8OBA",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZXMiOlsiU3VwZXJBZG1pbiJdLCJpYXQiOjE3NzQ4NzUzMzcsImV4cCI6MTc3NDk2MTczN30.HvkG6qI2qbR1LdOKE8n76aIEd9Wtof4_f7ckkQqFPTA",
                   "type": "string"
                 }
               ]
@@ -408,7 +408,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"university_name\": \"Nile Valley University\",\r\n  \"username\": \"root_admin\",\r\n  \"firstName\": \"Mark\",\r\n  \"lastName\": \"Magdy\",\r\n  \"email\": \"markmagdy148@gmail.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"phone\": \"+201234567890\",\r\n  \"dateOfBirth\": \"1985-03-15\",\r\n  \"address\": \"123 University Street, Smouha\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"nationalId\": \"28503151234567\"\r\n}",
+              "raw": "{\r\n  \"university_name\": \"Alexandria National University\",\r\n  \"username\": \"root_admin\",\r\n  \"firstName\": \"Mark\",\r\n  \"lastName\": \"Magdy\",\r\n  \"email\": \"markmagdy148@gmail.com\",\r\n  \"password\": \"aaAA11!!\",\r\n  \"phone\": \"+201234567890\",\r\n  \"dateOfBirth\": \"1985-03-15\",\r\n  \"address\": \"123 University Street, Smouha\",\r\n  \"city\": \"Alexandria\",\r\n  \"country\": \"Egypt\",\r\n  \"nationalId\": \"28503151234567\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -426,1213 +426,6 @@
                 "api",
                 "user",
                 "assign-root-account"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "RBAC",
-      "item": [
-        {
-          "name": "Create Role",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Data Entry\",\r\n    \"description\": \"Responsible for entering and maintaining system data\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/rbac/role",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rbac",
-                "role"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Role",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Host",
-                "value": "www.anu.local",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/rbac/role/3",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "rbac",
-                "role",
-                "3"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Role By Id",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ5b3VyX2VtYWlsQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiYWxleGFuZHJpYV9uYXRpb25hbF91bml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQuZGVsZXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSJdLCJpYXQiOjE3NjQzNDgxMzMsImV4cCI6MTc2NDQzNDUzM30.1zmjgrVI7WnA0DpKWRJLRRajTCMvTo8PEITRrVs05AA",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Host",
-                "value": "www.anu.local",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Data Entry data records\",\r\n  \"description\": \"Responsible for creating, updating, and maintaining data records\"\r\n}\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/rbac/role/4",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "rbac",
-                "role",
-                "4"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Roles",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidGVuYW50X25hbWUiOiJOaWxlIFZhbGxleSBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIl0sImlhdCI6MTc3MzY4NjQ3MiwiZXhwIjoxNzczNzcyODcyfQ.yEPAIZsReZ-fKecpzSk11e8xm-qo2xS4ZqXeN3cf03s",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text",
-                "disabled": true
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/rbac/role",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rbac",
-                "role"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Role",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Host",
-                "value": "www.anu.local",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/rbac/role/3",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "rbac",
-                "role",
-                "3"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Permissions",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiZGVsdGFfaW50ZXJuYXRpb25hbF90ZWNobm9sb2d5X3VuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsImFjY291bnQuYXNzaWduX3JvbGUiXSwiaWF0IjoxNzY1MDAyNTMxLCJleHAiOjE3NjUwODg5MzF9.Mhl6MCSX50EVdVasr_V7biG9if-yGw7j3lZgtN1pVbU",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Host",
-                "value": "www.anu.local",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/rbac/permission",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "rbac",
-                "permission"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Permissions By Id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Host",
-                "value": "www.anu.local",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/rbac/permission/2",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "rbac",
-                "permission",
-                "2"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Assign Permissions To Role",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiYWxleGFuZHJpYV9uYXRpb25hbF91bml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyYmFjLmNyZWF0ZSIsInJiYWMucmVhZCIsInJiYWMudXBkYXRlIiwicmJhYy5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIl0sImlhdCI6MTc2NDk2MDEzMSwiZXhwIjoxNzY1MDQ2NTMxfQ.s-KYl1-OmZYmPEZPo8K1x6-BeeWzv217gbnqXHPXnok",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Host",
-                "value": "www.anu.local",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"permissions\": [\r\n    \"account.read\",\r\n    \"account.create\",\r\n    \"account.delete\",\r\n    \"account.assign_role\"\r\n  ]\r\n}\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/rbac/assign-permissions-to-role/7",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "rbac",
-                "assign-permissions-to-role",
-                "7"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Assign Role To User",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInRlbmFudF9uYW1lIjoiYmxhNyIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsiZmFjdWx0eS5yZWFkIiwicHJvZ3JhbS5kZWxldGUiLCJmYWN1bHR5LnVwZGF0ZSIsInByb2dyYW0udXBkYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJwcm9ncmFtLnJlYWQiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC5kZWxldGUiLCJyb2xlLmNyZWF0ZSIsInByb2dyYW0uY3JlYXRlIiwiYWNjb3VudC5jcmVhdGUiLCJyb2xlLmRlbGV0ZSIsInJvbGUudXBkYXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSIsInJvbGUucmVhZCJdLCJpYXQiOjE3NzM2NDg3ODIsImV4cCI6MTc3MzczNTE4Mn0.c1PKtyaLSH1iAs94CtwdE5DTtr0CzMVHcscPQvgjGNM",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"role_names\": [\r\n    \"Data Entry\"\r\n  ]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/rbac/assign-role-to-user/11",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "rbac",
-                "assign-role-to-user",
-                "11"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Program",
-      "item": [
-        {
-          "name": "Create Program",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"facultyId\": 1,\n  \"name\": \"Computer Science\",\n  \"description\": \"Undergraduate CS program\",\n  \"phone\": \"+20 111 222 3333\",\n  \"universityCreditHours\": 30,\n  \"facultyCreditHours\": 24,\n  \"programCreditHours\": 96,\n  \"programType\": \"Bachelor\",\n  \"resultDisplay\": \"CourseGrade\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/program/create",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "program",
-                "create"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Programs",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/program",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "program"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Program By Id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/program/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "program",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Program",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"facultyId\": 1,\n  \"name\": \"Computer Science - Updated\",\n  \"description\": \"Updated program details\",\n  \"phone\": \"+20 111 222 4444\",\n  \"universityCreditHours\": 30,\n  \"facultyCreditHours\": 24,\n  \"programCreditHours\": 99,\n  \"programType\": \"Bachelor\",\n  \"resultDisplay\": \"DetailedEstimate\",\n  \"blockReason\": \"NonPaymentCurrent\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/program/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "program",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Program",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/program/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "program",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Faculty",
-      "item": [
-        {
-          "name": "Create Faculty",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"universityId\": 1,\n  \"name\": \"Faculty of Engineering\",\n  \"description\": \"Engineering faculty\",\n  \"establishedDate\": \"2001-09-01\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/faculty",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "faculty"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Faculties",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/faculty",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "faculty"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Faculty By Id",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/faculty/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "faculty",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Faculty",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Faculty of Engineering and Technology\",\n  \"description\": \"Updated faculty description\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/faculty/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "faculty",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Faculty",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/faculty/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "faculty",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Course",
-      "item": [
-        {
-          "name": "Create Course",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Data Structures\",\n  \"code\": \"CS201\",\n  \"credits\": 3,\n  \"programId\": 1,\n  \"description\": \"Core CS course\",\n  \"courseType\": \"Mandatory\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/course",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "course"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Courses",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/course",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "course"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Course By Id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/course/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "course",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Course",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Advanced Data Structures\",\n  \"code\": \"CS301\",\n  \"credits\": 4,\n  \"programId\": 1,\n  \"courseType\": \"Mandatory\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/course/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "course",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Course",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/course/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "course",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Semester",
-      "item": [
-        {
-          "name": "Create Semester",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"year\": 2026,\n  \"term\": 1,\n  \"startDate\": \"2026-09-01\",\n  \"endDate\": \"2027-01-15\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/semester",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "semester"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Semesters",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/semester",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "semester"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Semester By Id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/semester/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "semester",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Semester",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"year\": 2026,\n  \"term\": 2,\n  \"startDate\": \"2027-02-01\",\n  \"endDate\": \"2027-06-15\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/semester/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "semester",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Semester",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "x-tenant-id",
-                "value": "bla7",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:3000/api/semester/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "semester",
-                "1"
               ]
             }
           },
@@ -2062,6 +855,755 @@
                 "api",
                 "user",
                 "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "RBAC",
+      "item": [
+        {
+          "name": "Create Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Student\",\r\n  \"description\": \"Represents a student who can access academic information, enroll in courses, and view personal and academic records\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/role",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiZW1haWwiOiJ5b3Vzc2VmLndhbGVkQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJEYXRhIEVudHJ5Il0sInBlcm1pc3Npb25zIjpbImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiYWNjb3VudC5yZWFkIl0sImlhdCI6MTc3Mzc2OTY3MSwiZXhwIjoxNzczODU2MDcxfQ.7boaOn07TzoXXgkaAgpMzjYUjMRq99ixO61U2DDnSCQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/role/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "role",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role By Id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ5b3VyX2VtYWlsQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiYWxleGFuZHJpYV9uYXRpb25hbF91bml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQuZGVsZXRlIiwiYWNjb3VudC5hc3NpZ25fcm9sZSJdLCJpYXQiOjE3NjQzNDgxMzMsImV4cCI6MTc2NDQzNDUzM30.1zmjgrVI7WnA0DpKWRJLRRajTCMvTo8PEITRrVs05AA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Data Entry data records\",\r\n  \"description\": \"Responsible for creating, updating, and maintaining data records\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/rbac/role/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "role",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Roles",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/role",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/rbac/role/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "role",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiZGVsdGFfaW50ZXJuYXRpb25hbF90ZWNobm9sb2d5X3VuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsImFjY291bnQuYXNzaWduX3JvbGUiXSwiaWF0IjoxNzY1MDAyNTMxLCJleHAiOjE3NjUwODg5MzF9.Mhl6MCSX50EVdVasr_V7biG9if-yGw7j3lZgtN1pVbU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/rbac/permission",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "permission"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTcsImVtYWlsIjoibWFya21hZ2R5MTQ4QGdtYWlsLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6ImFsZXhhbmRyaWFfbmF0aW9uYWxfdW5pdmVyc2l0eSIsInJvbGVzIjpbIlJvb3QiXSwicGVybWlzc2lvbnMiOlsicmJhYzpjcmVhdGUiLCJyYmFjOnJlYWQiLCJyYmFjOnVwZGF0ZSIsInJiYWM6ZGVsZXRlIiwic3lzdGVtOm1hbmFnZSIsInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSJdLCJpYXQiOjE3NjE1NDM4MjIsImV4cCI6MTc2MTYzMDIyMn0.VWKdaBBA_0V3rQ7oO4xHWVWZeOXlK2GjydEepfhg1yA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/rbac/permission/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "rbac",
+                "permission",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Permissions To Role",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Host",
+                "value": "www.anu.local",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"permissions\": [\r\n    \"role.create\",\r\n    \"role.read\",\r\n    \"role.update\",\r\n    \"role.delete\",\r\n    \"account.create\",\r\n    \"account.read\",\r\n    \"account.update\",\r\n    \"account.delete\",\r\n    \"account.assign_role\",\r\n    \"faculty.create\",\r\n    \"faculty.read\",\r\n    \"faculty.update\",\r\n    \"faculty.delete\",\r\n    \"program.create\",\r\n    \"program.read\",\r\n    \"program.update\",\r\n    \"program.delete\",\r\n    \"course.create\",\r\n    \"course.read\",\r\n    \"course.update\",\r\n    \"course.delete\",\r\n    \"semester.create\",\r\n    \"semester.read\",\r\n    \"semester.update\",\r\n    \"semester.delete\"\r\n  ]\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/assign-permissions-to-role/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "assign-permissions-to-role",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Role To User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQ2Fpcm8gTW9kZXJuIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJvbGUuY3JlYXRlIiwiZmFjdWx0eS5kZWxldGUiLCJmYWN1bHR5LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwicHJvZ3JhbS51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsInJvbGUuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJyb2xlLnJlYWQiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwicm9sZS51cGRhdGUiLCJwcm9ncmFtLmRlbGV0ZSIsImZhY3VsdHkudXBkYXRlIiwiZmFjdWx0eS5yZWFkIiwiYWNjb3VudC5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiXSwiaWF0IjoxNzczNzY5MzkzLCJleHAiOjE3NzM4NTU3OTN9.nRdpZQBEx_-vpK_-ecx3xuROYbBCVNx-3T006Qa9FEQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"role_names\": [\r\n    \"Data Entry\"\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/rbac/assign-role-to-user/7",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "rbac",
+                "assign-role-to-user",
+                "7"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Semesters",
+      "item": [
+        {
+          "name": "Add Semester",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkyIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4NDc3OCwiZXhwIjoxNzc0MjcxMTc4fQ.CDn0C6W9DaDCLtruW2fd9znSfi8eTMI3lM-oGMbElNE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2025,\r\n  \"term\": 2,\r\n  \"startDate\": \"2027-12-10\",\r\n  \"endDate\": \"2029-03-01\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Semesters",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update A Semester",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2026,\r\n  \"term\": 2,\r\n  \"startDate\": \"2026-02-01\",\r\n  \"endDate\": \"2026-06-10\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Semester By Id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete A Semester",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Program",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4MTIxODMsImV4cCI6MTc3NDg5ODU4M30.t9HWeq4EiwPwfDQH-B3tEhMnOS-vG1vfXtliWJ6pwTw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "university-name",
+                "value": "Alexandria National University",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Computer Science\",\r\n  \"facultyId\": 2,\r\n  \"description\": \"Focuses on computing, software engineering, and AI\",\r\n  \"headId\": 2,\r\n  \"phone\": \"+201234567890\",\r\n  \"universityCreditHours\": 144,\r\n  \"facultyCreditHours\": 30,\r\n  \"programCreditHours\": 114,\r\n  \"programType\": \"Bachelor\",\r\n  \"resultDisplay\": \"CourseGrade\",\r\n  \"blockReason\": \"NonPaymentCurrent\",\r\n  \"levelsNumber\": 4,\r\n\r\n  \"levels\": [\r\n    {\r\n      \"level\": 1,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5000,\r\n            \"description\": \"Level 1 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5000,\r\n            \"description\": \"Level 1 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 800\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 2,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5500,\r\n            \"description\": \"Level 2 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5500,\r\n            \"description\": \"Level 2 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 900\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 3,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6000,\r\n            \"description\": \"Level 3 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6000,\r\n            \"description\": \"Level 3 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 1000\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 4,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6500,\r\n            \"description\": \"Level 4 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6500,\r\n            \"description\": \"Level 4 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 1200\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n\r\n  \"transcriptDefinition\": [\r\n    {\r\n      \"minScore\": 90,\r\n      \"maxScore\": 100,\r\n      \"minGPA\": 3.7,\r\n      \"maxGPA\": 4.0,\r\n      \"gradeLetter\": \"A\",\r\n      \"equivalentEstimate\": \"Excellent\"\r\n    },\r\n    {\r\n      \"minScore\": 80,\r\n      \"maxScore\": 89,\r\n      \"minGPA\": 3.0,\r\n      \"maxGPA\": 3.69,\r\n      \"gradeLetter\": \"B\",\r\n      \"equivalentEstimate\": \"Very Good\"\r\n    }\r\n  ],\r\n\r\n    \"academicLoadSemester\": [\r\n    { \"level\": 1, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 15 },\r\n    { \"level\": 1, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 15 },\r\n\r\n    { \"level\": 2, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 18 },\r\n    { \"level\": 2, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 18 },\r\n\r\n    { \"level\": 3, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 18 },\r\n    { \"level\": 3, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 18 },\r\n\r\n    { \"level\": 4, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 16 },\r\n    { \"level\": 4, \"semester\": 2, \"minCredits\": 9, \"maxCredits\": 15 }\r\n    ],\r\n\r\n    \"academicLoadGPA\": [\r\n    {\r\n        \"minGPA\": 0.0,\r\n        \"maxGPA\": 1.99,\r\n        \"minCredits\": 9,\r\n        \"maxCredits\": 12\r\n    },\r\n    {\r\n        \"minGPA\": 2.0,\r\n        \"maxGPA\": 2.49,\r\n        \"minCredits\": 12,\r\n        \"maxCredits\": 15\r\n    },\r\n    {\r\n        \"minGPA\": 2.5,\r\n        \"maxGPA\": 3.19,\r\n        \"minCredits\": 12,\r\n        \"maxCredits\": 18\r\n    },\r\n    {\r\n        \"minGPA\": 3.2,\r\n        \"maxGPA\": 4.0,\r\n        \"minCredits\": 15,\r\n        \"maxCredits\": 21\r\n    }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/program/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "program",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Faculty",
+      "item": [
+        {
+          "name": "Create Faculty",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"universityId\": 2,\r\n  \"name\": \"Faculty of Engineering\",\r\n  \"description\": \"Focuses on engineering disciplines and applied sciences\",\r\n  \"deanId\": 2,\r\n  \"establishedDate\": \"2005-09-01\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/faculty",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "faculty"
               ]
             }
           },

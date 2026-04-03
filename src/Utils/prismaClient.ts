@@ -5,12 +5,12 @@ import { logger } from "./Logger";
 const prismaClients: Record<string, PrismaClient> = {};
 
 export function GetTenantClient(schema: string): PrismaClient {
-  setupTenantClientShutdownHooks();
+
   if (!prismaClients[schema]) {
     const baseUrl = process.env.DATABASE_URL;
     
     if (!baseUrl) {
-      logger.error({ action: "GetTenantClient", schema, message: "DATABASE_URL not set" });
+      logger.error({ action: "getTenantClient", schema, message: "DATABASE_URL not set" });
       throw new Error("DATABASE_URL must be set");
     }
 
@@ -29,9 +29,9 @@ export function GetTenantClient(schema: string): PrismaClient {
       log: ["error"],
     });
 
-    logger.info({ action: "GetTenantClient", schema, status: "session created" });
+    logger.info({ action: "getTenantClient", schema, status: "session created" });
   } else {
-    logger.info({ action: "GetTenantClient", schema, status: "session reused" });
+    logger.info({ action: "getTenantClient", schema, status: "session reused" });
   }
 
   return prismaClients[schema];
@@ -49,4 +49,3 @@ export async function disconnectAllTenantClients(): Promise<void> {
 
   await Promise.all(disconnectTasks);
 }
-

@@ -4,7 +4,6 @@ import {Prisma } from "@prisma/client"
 import { SuperAdmin } from "@prisma/client"
 import { TransactionService } from "./Transaction";
 import { MailService } from "./MailService/MailService";
-import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { GetTenantClient } from "../Utils/prismaClient";
 
 class SuperAdminService {

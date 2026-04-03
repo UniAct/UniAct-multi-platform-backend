@@ -73,11 +73,9 @@ app.all(/.*/, (req, res) => {
     });
 });
 
-<<<<<<< HEAD
 // ==================== Graceful shutdown ====================  
 
 
-<<<<<<< HEAD
 // ==================== BOOTSTRAP ====================
 async function Bootstrap(): Promise<void> {
   process.title = "UniAct Backend System";
@@ -99,27 +97,4 @@ async function Bootstrap(): Promise<void> {
    GracefulShutdown(server);
 }
 
-=======
-=======
->>>>>>> c062150 (add npm dev script to automate docker compose, prisma generate types , worker, and server startup)
-// ==================== Graceful shutdown ====================  
-GracefulShutdown();
-
-// ==================== BOOTSTRAP ====================
-async function Bootstrap(): Promise<void> {
-  process.title = "UniAct Backend System"
-  app.listen(PORT, () => {
-      logger.info({
-          action: "Server Start",
-          status: "Running",
-          port: PORT,
-          environment: process.env.NODE_ENV,
-          url: "http://localhost:3000",
-          process_id: process.pid,
-          process_name: process.title
-      });
-  });
-}
-
->>>>>>> 054927e (- Add single student creation)
 Bootstrap();
