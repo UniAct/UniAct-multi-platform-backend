@@ -240,7 +240,10 @@ export class programService {
   static async CreateProgram(programData: ProgramUpsertInput, schema_name: string) {
     const prisma = GetTenantClient(schema_name);
     const payload = this.normalizeProgramPayload(programData);
-
+    const p2 = this.buildBaseProgramData(payload);
+    logger.info({
+      info: p2
+    });
     const newProgram = await prisma.$transaction(async (tx) => {
       const createdProgram = await ProgramRepository.CreateProgram(
         this.buildBaseProgramData(payload),

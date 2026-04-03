@@ -37,3 +37,11 @@ export class ConnectionError extends AppError{
       super(message,StatusCodes.CONFLICT)
    }
 }
+
+export class InternalServerError extends AppError {
+  constructor(
+    message = "An unexpected error occurred on the server. Please try again later."
+  ) {
+    super(message, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}

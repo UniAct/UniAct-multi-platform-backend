@@ -4,7 +4,7 @@ import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import  SemesterValidator  from "../Validators/SemesterValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import permissions from "../Utils/Permissions.json";
 
@@ -13,7 +13,7 @@ const router = Router();
 router.post(
     "/",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.semester.create.name),
     ...SemesterValidator.Create(),
     ValidateRequest,
@@ -24,7 +24,7 @@ router.get(
     "/",
     IsAuthenticated,
     RequirePermission(permissions.semester.read.name),
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     asyncHandler(SemesterController.GetAllSemesters)
 );
 
@@ -32,7 +32,7 @@ router.get(
     "/:id",
     IsAuthenticated,
     RequirePermission(permissions.semester.read.name),
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     ...SemesterValidator.IdParam(),
     ValidateRequest,
     asyncHandler(SemesterController.GetSemesterById)
@@ -41,7 +41,7 @@ router.get(
 router.put(
     "/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.semester.update.name),
     ...SemesterValidator.Update(),
     ValidateRequest,
@@ -51,7 +51,7 @@ router.put(
 router.delete(
     "/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.semester.delete.name),
     ...SemesterValidator.IdParam(),
     ValidateRequest,

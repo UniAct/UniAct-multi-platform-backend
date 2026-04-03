@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import ProgramController from "../Controllers/ProgramController";
 import ProgramValidator from "../Validators/ProgramValidator";
@@ -14,7 +14,7 @@ const router = Router();
 router.post(
     "/create",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.program.create.name),
     ...ProgramValidator.Create(),
     ValidateRequest,
@@ -24,14 +24,14 @@ router.post(
 router.get(
     "/",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     asyncHandler(ProgramController.GetAllPrograms)
 )
 
 router.get(
     "/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     ...ProgramValidator.IdParam(),
     ValidateRequest,
     asyncHandler(ProgramController.GetProgramById)
@@ -40,7 +40,7 @@ router.get(
 router.put(
     "/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.program.update.name),
     ...ProgramValidator.Update(),
     ValidateRequest,
@@ -50,7 +50,7 @@ router.put(
 router.delete(
     "/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     ...ProgramValidator.IdParam(),
     RequirePermission(permissions.program.delete.name),
     ValidateRequest,

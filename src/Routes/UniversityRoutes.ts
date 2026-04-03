@@ -1,7 +1,7 @@
 import { Router } from "express";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { IsSuperAdmin } from "../Middlewares/SuperAdminMiddleware";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import UniversityValidator from "../Validators/UniversityValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import UniversityController from "../Controllers/UniversityController";

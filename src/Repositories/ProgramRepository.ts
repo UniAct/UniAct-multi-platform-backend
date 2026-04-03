@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient, ProgramLevel } from "@prisma/client";
+import { logger } from "../Utils/Logger";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -17,6 +18,9 @@ export class ProgramRepository {
   } as const;
 
   static async CreateProgram(programData: Prisma.ProgramCreateInput, prisma: DbClient) {
+    logger.info({
+      info: programData
+    });
     return await prisma.program.create({
         data: programData,
         include: this.programDetailsInclude,
@@ -79,5 +83,23 @@ export class ProgramRepository {
       where: { id: programLevelId },
       select,
     });
+  }
+
+  public static async IsProgramLevelBelongsToProgram(
+    programLevelId: number,
+    programId: number,
+    prisma: PrismaClient
+  ): Promise<boolean> {
+    const programLevel = await prisma.programLevel.findUnique({
+      where: {
+        id_programId: {
+          id:        programLevelId,
+          programId: programId,
+        },
+      },
+      select: { id: true },
+    });
+
+    return programLevel !== null;
   }
 }

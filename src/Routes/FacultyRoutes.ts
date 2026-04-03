@@ -4,7 +4,7 @@ import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import FacultyValidator from "../Validators/FacultyVaildator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import permissions from "../Utils/Permissions.json";
 
@@ -13,7 +13,7 @@ const router = Router();
 router.post(
     "/",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.faculty.create.name),
 
     //Request validation
@@ -24,11 +24,11 @@ router.post(
 );
 
 //Get All Faculties
-router.get("/", attachAndValidateTenant, FacultyController.GetAllFaculties),
+router.get("/", AttachAndValidateTenant, FacultyController.GetAllFaculties),
 
     //Get Faculty By Id
     router.get("/:id",
-        attachAndValidateTenant,
+        AttachAndValidateTenant,
         ...FacultyValidator.IdParam(),
         ValidateRequest,
         asyncHandler(FacultyController.GetFacultyById)
@@ -38,7 +38,7 @@ router.get("/", attachAndValidateTenant, FacultyController.GetAllFaculties),
 router.put(
     "/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.faculty.update.name),
     ...FacultyValidator.Update(),
     ValidateRequest,
@@ -48,7 +48,7 @@ router.put(
 //Delete a faculty
 router.delete("/:id",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.faculty.delete.name),
     ...FacultyValidator.IdParam(),
     ValidateRequest,

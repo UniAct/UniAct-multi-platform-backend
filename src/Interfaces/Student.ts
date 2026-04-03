@@ -10,6 +10,12 @@ export enum Religion {
   Christian = 'C'
 }
 
+export enum SortingOrder {
+  Ascending = 'asc',
+  Descending = 'desc'
+}
+
+
 export interface CreateStudentRequest {
   username: string;
   firstName: string;
@@ -37,6 +43,33 @@ export interface CreateStudentRequest {
   highSchoolSeatNumber?: string;
 }
 
+export interface UpdateStudentRequest{
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  fullname?: string;
+  universityStudentId?: number;
+  nationalId?: string;
+  programId?: number;
+  programLevelId?: number;
+  cgpa?: number;
+  email?: string;
+  phone?: string;
+  dateOfBirth?: string; 
+  address?: string;
+  city?: string;
+  country?: string;
+  status?: StudentStatus;
+  enrollmentDate?: string; 
+  religion?: Religion;
+  gender?: Gender;
+  homePhone?: string;
+  previousQualification?: string; 
+  secondarySchoolName?: string; 
+  totalHighSchoolGrades?: number; 
+  highSchoolSeatNumber?: string;
+}
+
 export interface BulkCreateResult {
   jobId: string;
   schemaName: string;
@@ -56,4 +89,37 @@ export interface FailedRow {
   row: number;
   data: Record<string, any>;
   reason: string;
+}
+
+export interface StudentQuery {
+  // Pagination stuff
+  page?:                number;
+  limit?:               number;
+
+  // Exact filters — student
+  studentId?:           number;
+  universityStudentId?: number;
+  status?:              StudentStatus;
+  gender?:              Gender;
+  religion?:            Religion;
+  programId?:           number;
+  programLevelId?:      number;
+
+  // Exact filters — user
+  nationalId?:          string;
+  city?:                string;
+  country?:             string;
+  isVerified?:          boolean;
+  isBlocked?:           boolean;
+
+  // Range filters
+  cgpaMin?:             number;
+  cgpaMax?:             number;
+  enrollmentDateFrom?:  string;
+  enrollmentDateTo?:    string;
+  createdAtFrom?:       string;
+  createdAtTo?:         string;
+
+  // Sorting
+  sortOrder?:           SortingOrder;
 }

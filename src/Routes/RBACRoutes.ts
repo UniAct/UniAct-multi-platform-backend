@@ -3,7 +3,7 @@ import { RBACValidator } from "../Validators/RBACValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RBACController } from "../Controllers/RBACController";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { AccountValidator } from "../Validators/AccountValidator";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
@@ -16,7 +16,7 @@ const router: Router = Router({mergeParams: true});
 router.post(
   "/role",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.create.name),
   ...RBACValidator.CreateRole(),
   ValidateRequest,
@@ -26,7 +26,7 @@ router.post(
 router.get(
   "/role/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.read.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -36,7 +36,7 @@ router.get(
 router.get(
   "/role",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.read.name),
   asyncHandler(RBACController.GetAllRole)
 );
@@ -44,7 +44,7 @@ router.get(
 router.put(
   "/role/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.update.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -54,7 +54,7 @@ router.put(
 router.delete(
   "/role/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.delete.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -64,7 +64,7 @@ router.delete(
 router.get(
   "/permission",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.read.name),
   asyncHandler(RBACController.ReadPermissions)
 );
@@ -72,7 +72,7 @@ router.get(
 router.get(
   "/permission/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.delete.name),
   ...RBACValidator.ValidateIdParam(),
   ValidateRequest,
@@ -82,7 +82,7 @@ router.get(
 router.post(
   "/assign-permissions-to-role/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.role.create.name),
   ...RBACValidator.AssignPermissionsToRole(),
   ValidateRequest,
@@ -92,7 +92,7 @@ router.post(
 router.post(
   "/assign-role-to-user/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.account.assign_role.name),
   ...AccountValidator.AssignRoleToUser(),
   ValidateRequest,

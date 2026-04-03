@@ -1,6 +1,6 @@
 import { Router } from "express";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
@@ -13,7 +13,7 @@ const router = Router();
 router.post(
   "/",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.course.create.name),
   ...CourseValidator.Create(),
   ValidateRequest,
@@ -23,7 +23,7 @@ router.post(
 router.get(
   "/",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.course.read.name),
   asyncHandler(CourseController.GetAllCourses),
 );
@@ -31,7 +31,7 @@ router.get(
 router.get(
   "/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.course.read.name),
   ...CourseValidator.IdParam(),
   ValidateRequest,
@@ -41,7 +41,7 @@ router.get(
 router.put(
   "/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.course.update.name),
   ...CourseValidator.Update(),
   ValidateRequest,
@@ -51,7 +51,7 @@ router.put(
 router.delete(
   "/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.course.delete.name),
   ...CourseValidator.IdParam(),
   ValidateRequest,

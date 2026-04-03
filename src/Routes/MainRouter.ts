@@ -7,6 +7,7 @@ import ProgramRoutes from "./ProgramRoutes";
 import facultyRoutes from "./FacultyRoutes";
 import courseRoutes from "./CourseRoutes";
 import semesterRoutes from "./SemesterRoutes";
+import jobRoutes from "./JobRoutes";
 
 const router = Router();
 
@@ -14,6 +15,8 @@ const router = Router();
 router.use('/superadmin', SuperAdminRoutes);
 // University Routes
 router.use('/university', UniversityRoutes);
+
+router.use('/job', jobRoutes);
 
 // User Routes (Staff/Student endpoints)
 router.use('/user', UserRoutes);

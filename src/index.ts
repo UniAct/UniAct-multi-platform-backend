@@ -107,12 +107,7 @@ GracefulShutdown();
 
 // ==================== BOOTSTRAP ====================
 async function Bootstrap(): Promise<void> {
-  process.title = "UniAct Backend System";
-  logger.info({ 
-    action: "RabbitMQ", 
-    status: "Queues Asserted" 
-  });
-
+  process.title = "UniAct Backend System"
   app.listen(PORT, () => {
       logger.info({
           action: "Server Start",

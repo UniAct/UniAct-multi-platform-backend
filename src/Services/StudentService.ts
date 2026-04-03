@@ -1,7 +1,7 @@
 import { GetTenantClient } from "../Utils/prismaClient";
-import { BulkCreateResult, CreateStudentBulkRequest, CreateStudentRequest } from "../Interfaces/Student";
+import { BulkCreateResult, CreateStudentBulkRequest, CreateStudentRequest, StudentQuery, UpdateStudentRequest } from "../Interfaces/Student";
 import { Student } from "@prisma/client";
-import { ConflictError, NotFoundError } from "../Types/Errors";
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "../Types/Errors";
 import bcrypt from "bcrypt";
 import { StudentRepository } from "../Repositories/StudentRepository";
 import { logger } from "../Utils/Logger"; 
@@ -10,6 +10,17 @@ import { JobRepository } from "../Repositories/JobRepository";
 import dotenv from 'dotenv';
 import { Queues } from "../Enums/Queues";
 import { QueueRepository } from "../Repositories/QueueRepository";
+import { IPage } from "../Interfaces/Common/PaginatedList";
+import { StudentListItem } from "../Types/StudentList";
+import { ProgramRepository } from "../Repositories/ProgramRepository";
+import { MapUpdatedStudent, UpdatedStudentResponseDto } from "../Interfaces/Student/UpdateStudent/UpdateMapper";
+import { UpdateStudentRequestDto } from "../Interfaces/Student/UpdateStudent/UpdateSchema";
+import { CreateStudentRequestDto } from "../Interfaces/Student/CreateStudent/CreateSchema";
+import { CreateStudentResponseDto, MapCreateStudent } from "../Interfaces/Student/CreateStudent/CreateMapper";
+import { CreateStudentBulkRequestDto } from "../Interfaces/Student/CreateStudent/CreateBulkSchema";
+import { DeleteStudentResponseDto, MapDeleteStudent } from "../Interfaces/Student/DeleteStudent/DeleteMapper";
+import { StudentQueryDto } from "../Interfaces/Student/GetStudentPage/QuerySchema";
+import { GetStudentItemResponseDto, MapGetStudentPage } from "../Interfaces/Student/GetStudentPage/GetMapper";
 dotenv.config();
 
 export class StudentService {
@@ -43,113 +54,40 @@ export class StudentService {
    */
 
   public static async Create(
-    data: CreateStudentRequest,
+    data: CreateStudentRequestDto,
     schema_name: string
-  ): Promise<Partial<Student>> {
+  ): Promise<CreateStudentResponseDto> {
 
     const prisma = GetTenantClient(schema_name);
     const startTime = Date.now();
 
-    // TODO: try to fix it because bcrypt is cpu bound (node js will not like it :-) )
     const hashed_password = await bcrypt.hash(data.nationalId, 10);
 
     try {
-      const student: Partial<Student> = await StudentRepository.CreateStudent(data, hashed_password, prisma);
+      const student = await StudentRepository.CreateStudent(data, hashed_password, prisma);
 
       logger.info({
         action: "StudentService.Create",
         status: "success",
         schema: schema_name,
-        studentId: student.userId,
+        studentId: student.user.id,
         username: data.username,
         email: data.email,
         duration_ms: Date.now() - startTime,
       });
 
-      return student;
+      const response : CreateStudentResponseDto = MapCreateStudent(student);
 
-    } catch (err: any) {
-
-      if (err.code === "P2002") {
-        const field = err.meta?.target?.[0];
-
-        if (field === "username") {
-          logger.warn({
-            action: "StudentService.Create",
-            status: "failed",
-            schema: schema_name,
-            reason: "duplicate_username",
-            username: data.username,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`A student with the username '${data.username}' already exists.`);
-        }
-
-        if (field === "email") {
-          logger.warn({
-            action: "StudentService.Create",
-            status: "failed",
-            schema: schema_name,
-            reason: "duplicate_email",
-            email: data.email,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`A student with the email '${data.email}' already exists.`);
-        }
-
-        if (field === "national_id") {
-          logger.warn({
-            action: "StudentService.Create",
-            status: "failed",
-            schema: schema_name,
-            reason: "duplicate_national_id",
-            nationalId: data.nationalId,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`The national ID '${data.nationalId}' is already registered.`);
-        }
-
-        if (field === "university_student_id") {
-          logger.warn({
-            action: "StudentService.Create",
-            status: "failed",
-            schema: schema_name,
-            reason: "duplicate_university_student_id",
-            universityStudentId: data.universityStudentId,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`The university student ID '${data.universityStudentId}' is already registered.`);
-        }
-      }
-
-      if (err.code === "P2003") {
-        logger.warn({
-          action: "StudentService.Create",
-          status: "failed",
-          schema: schema_name,
-          reason: "invalid_program_or_program_level",
-          programId: data.programId,
-          programLevelId: data.programLevelId,
-          duration_ms: Date.now() - startTime,
-        });
-        throw new NotFoundError(`The Selected program Or Program Level Does Not Exist Or Is Invalid.`);
-      }
-
-      logger.error({
-        action: "StudentService.Create",
-        status: "failed",
-        schema: schema_name,
-        err: err,
-        duration_ms: Date.now() - startTime,
-      });
-
-      throw err;
+      return response;
+    } 
+    catch (err: any) {
+      StudentRepository.HandleCreateError(err, schema_name, data, Date.now() - startTime);
     }
   }
 
   public static async CreateBulk(
     file: Express.Multer.File,
-    bulkData: CreateStudentBulkRequest,
+    bulkData: CreateStudentBulkRequestDto,
     schemaName: string
   ) : Promise<BulkCreateResult> { 
     const objectName : string = await MinioRepository.UploadFromBuffer(file , schemaName);
@@ -176,19 +114,15 @@ export class StudentService {
     return message;
   }
 
-  static ConstructFileUrl(schema_name: string, objectName: string): string {
-    return `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/${schema_name}/${objectName}`;
-  }
-
   public static async Delete(
     studentId: number,
     schema_name: string
-  ): Promise<Student> {
+  ) : Promise<DeleteStudentResponseDto> {
     const startTime = Date.now();
     const prisma = GetTenantClient(schema_name);
 
     try {
-      const student = await StudentRepository.Delete(studentId, prisma);
+      const student : DeleteStudentResponseDto = MapDeleteStudent(await StudentRepository.Delete(studentId, prisma));
 
       logger.info({
         action: "StudentService.Delete",
@@ -199,29 +133,120 @@ export class StudentService {
       });
 
       return student;
-
     } catch (err: any) {
-      if (err.code === "P2025") {
-        logger.warn({
-          action: "StudentService.Delete",
-          status: "failed",
-          schema: schema_name,
-          reason: "student_not_found",
-          studentId,
-          duration_ms: Date.now() - startTime,
-        });
-        throw new NotFoundError(`No student found with id '${studentId}'.`);
-      }
+      StudentRepository.HandleActivateOrDeleteError(err ,schema_name , studentId , Date.now() - startTime , "StudentService.Delete");
+    }
+  }
 
-      logger.error({
-        action: "StudentService.Delete",
-        status: "error",
+  public static async Activate(
+    studentId: number,
+    schema_name: string
+  ) : Promise<void> {
+    const startTime = Date.now();
+    const prisma = GetTenantClient(schema_name);
+
+    try {
+      await StudentRepository.Activate(studentId, prisma);
+
+      logger.info({
+        action: "StudentService.Activate",
+        status: "success",
         schema: schema_name,
         studentId,
-        error: err.message,
         duration_ms: Date.now() - startTime,
       });
-      throw err;
+
+    } catch (err: any) {
+      StudentRepository.HandleActivateOrDeleteError(err ,schema_name , studentId , Date.now() - startTime , "StudentService.Activate");
     }
+  }
+
+  public static async GetAll(
+    filters: StudentQueryDto,
+    schemaName: string
+  ): Promise<IPage<GetStudentItemResponseDto>> {
+    const startTime = Date.now();
+    const prisma    = GetTenantClient(schemaName);
+
+    try {
+      const result = MapGetStudentPage(await StudentRepository.GetAll(filters, prisma));
+
+      logger.info({
+        action:      "StudentService.GetAll",
+        status:      "success",
+        schema:      schemaName,
+        totalCount:  result.totalCount,
+        pageNumber:  filters.page,
+        duration_ms: Date.now() - startTime,
+      });
+
+      return result;
+
+    } catch (err: any) {
+      logger.error({
+        action:      "StudentService.GetAll",
+        status:      "error",
+        schema:      schemaName,
+        error:       err.message,
+        duration_ms: Date.now() - startTime,
+      });
+      throw new InternalServerError();
+    }
+  }
+
+  public static async Update(
+    studentId: number,
+    data: UpdateStudentRequestDto,
+    schemaName: string
+  ) : Promise<UpdatedStudentResponseDto> {
+    const prisma = GetTenantClient(schemaName);
+    const startTime = Date.now();
+
+    try {
+
+      if (data.programId !== undefined && data.programLevelId !== undefined) {
+        const isValid = await ProgramRepository.IsProgramLevelBelongsToProgram(
+          data.programLevelId,
+          data.programId,
+          prisma
+        );
+
+        if (!isValid) {
+          logger.warn({
+            action:         "StudentService.Update",
+            status:         "failed",
+            schema:         schemaName,
+            reason:         "program_level_not_in_program",
+            programId:      data.programId,
+            programLevelId: data.programLevelId,
+            duration_ms:    Date.now() - startTime,
+          });
+          throw new BadRequestError(
+            `Program level '${data.programLevelId}' does not belong to program '${data.programId}'.`
+          );
+        }
+      }
+
+      // Flatten the nested Prisma result (user + student) (database model) into a single response shape (client model) before returning to the client.
+      const updatedStudent : UpdatedStudentResponseDto = MapUpdatedStudent(await StudentRepository.Update(studentId, data, prisma));
+
+      logger.info({
+        action:      "StudentService.Update",
+        status:      "success",
+        schema:      schemaName,
+        studentId:   studentId,
+        duration_ms: Date.now() - startTime,
+      });
+
+      return updatedStudent;
+
+    } catch (err: any) {
+      StudentRepository.HandleUpdateError(err, studentId, data, schemaName, startTime);
+    }
+  }
+
+  
+  static ConstructFileUrl(schema_name: string, objectName: string): string {
+    return `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/${schema_name}/${objectName}`;
   }
 }

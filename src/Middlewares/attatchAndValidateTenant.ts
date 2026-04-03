@@ -26,7 +26,7 @@ import { University } from "@prisma/client";
 */
 
 
-export async function attachAndValidateTenant(
+export async function AttachAndValidateTenant(
   req: Request,
   res: Response,
   next: NextFunction

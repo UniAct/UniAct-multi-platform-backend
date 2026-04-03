@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID, UUID } from "crypto";
 import { JobStatus, Prisma, PrismaClient } from "@prisma/client";
 
 
@@ -21,5 +21,22 @@ export class JobRepository {
     });
 
     return job.id;
+  }
+
+  static async CheckStudentImportStatus(jobId: string, prisma: PrismaClient) {
+    return prisma.job.findFirst({
+      where: { id: jobId },
+      select: {
+        id:            true,
+        status:        true,
+        file_url:      true,
+        inserted_rows: true,
+        failed_rows:   true,
+        error_log:     true,
+        created_at:    true,
+        started_at:    true,
+        completed_at:  true,
+      },
+    });
   }
 }

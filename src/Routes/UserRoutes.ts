@@ -2,7 +2,7 @@ import { Router } from "express";
 import UserValidator from "../Validators/UserValidator";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { UserController } from "../Controllers/UserController";
-import { attachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
+import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
@@ -13,17 +13,21 @@ import { RequirePermission } from "../Middlewares/Authorization/RequirePermissio
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { ValidateToken } from "../Middlewares/ValidationToken";
 import permissions from "../Utils/Permissions.json";
-import StudentValidator from "../Validators/StudentValidator";
 import { StudentController } from "../Controllers/StudentController";
 import { HandleExcelUpload } from "../Middlewares/HandleExcelUpload";
 import { ValidateExcelHeaders } from "../Validators/ValidateExcelHeaders";
 import { StudentExcelHeaders } from "../Enums/StudentHeader";
+import { ZodValidator } from "../Middlewares/ZodValidation";
+import { StudentIdParamSchema, UpdateStudentBodySchema } from "../Interfaces/Student/UpdateStudent/UpdateSchema";
+import { CreateStudentSchema } from "../Interfaces/Student/CreateStudent/CreateSchema";
+import { CreateBulkStudentSchema } from "../Interfaces/Student/CreateStudent/CreateBulkSchema";
+import { StudentQuerySchema } from "../Interfaces/Student/GetStudentPage/QuerySchema";
 
 const router: Router = Router({ mergeParams: true });
 
 router.post(
   "/login",
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   ...UserValidator.Login(),
   ValidateRequest,
   asyncHandler(UserController.Login)
@@ -33,7 +37,7 @@ router.post(
   "/assign-root-account",
   IsAuthenticated,
   IsSuperAdmin,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   ...SuperAdminValidator.AssignRootAccount(),
   ValidateRequest,
   asyncHandler(SuperAdminController.AssignRootAccount)
@@ -42,7 +46,7 @@ router.post(
 router.post(
   "/account/staff",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.account.create.name),
   ...UserValidator.CreateStaffAccount(),
   ValidateRequest,
@@ -52,23 +56,69 @@ router.post(
 router.post(
     "/account/student",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.account.create.name),
-    ...StudentValidator.Create(),
-    ValidateRequest,
+    ZodValidator([
+      [CreateStudentSchema , "body"]
+    ]),
     asyncHandler(StudentController.Create)
+)
+
+//! don't forget to remove the created at from and to
+router.get(
+    "/account/student",
+    IsAuthenticated,
+    AttachAndValidateTenant,
+    RequirePermission(permissions.account.read.name),
+    ZodValidator(
+      [
+        [StudentQuerySchema, "query"]
+      ]
+    ),
+    asyncHandler(StudentController.GetAll)
+)
+
+router.patch(
+    "/account/student/:id",
+    IsAuthenticated,
+    AttachAndValidateTenant,
+    RequirePermission(permissions.account.update.name),
+    ZodValidator(
+      [
+        [StudentIdParamSchema , "params"],
+        [UpdateStudentBodySchema , "body"],
+      ]
+    ),
+    asyncHandler(StudentController.Update)
+)
+
+
+router.patch(
+    "/account/student/:id/activate",
+    IsAuthenticated,
+    AttachAndValidateTenant,
+    RequirePermission(permissions.account.update.name),
+    ZodValidator(
+      [
+        [StudentIdParamSchema , "params"],
+      ]
+    ),
+    asyncHandler(StudentController.Activate)
 )
 
 
 router.post(
     "/account/student/import",
     IsAuthenticated,
-    attachAndValidateTenant,
+    AttachAndValidateTenant,
     RequirePermission(permissions.account.create.name),
     HandleExcelUpload,
     ValidateExcelHeaders(Object.values(StudentExcelHeaders)),
-    ...StudentValidator.CreateBulk(),
-    ValidateRequest,
+    ZodValidator(
+      [
+        [CreateBulkStudentSchema , "body"]
+      ]
+    ),
     asyncHandler(StudentController.CreateBulk)
 )
 
@@ -81,7 +131,7 @@ router.get(
 router.get(
   "/account/staff",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.account.read.name),
   asyncHandler(UserController.GetAllStaffAccounts)
 );
@@ -89,7 +139,7 @@ router.get(
 router.patch(
   "/account/staff/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.account.update.name),
   ...UserValidator.IdParam("Staff"),
   ...UserValidator.UpdateStaffAccount(),
@@ -100,7 +150,7 @@ router.patch(
 router.delete(
   "/account/staff/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.account.delete.name),
   ...UserValidator.IdParam("Staff"),
   ValidateRequest,
@@ -110,10 +160,13 @@ router.delete(
 router.delete(
   "/account/student/:id",
   IsAuthenticated,
-  attachAndValidateTenant,
+  AttachAndValidateTenant,
   RequirePermission(permissions.account.delete.name),
-  ...UserValidator.IdParam("Student"),
-  ValidateRequest,
+  ZodValidator(
+    [
+      [StudentIdParamSchema , "params"]
+    ]
+  ),
   asyncHandler(StudentController.Delete)
 );
 
