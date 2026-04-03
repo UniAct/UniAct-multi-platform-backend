@@ -94,3 +94,5 @@ async function Bootstrap(): Promise<void> {
 }
 
 Bootstrap();
+
+export default app;
