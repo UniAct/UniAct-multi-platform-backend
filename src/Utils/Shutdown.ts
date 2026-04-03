@@ -1,6 +1,7 @@
 import { disconnectAllTenantClients } from "./prismaClient";
 import { logger } from "./Logger";
 import { Server } from "http";
+import { CloseAllQueuesAndWorkers } from "./BullMQConfig";
 
 export function GracefulShutdown(server: Server) {
   let isShuttingDown = false;
@@ -8,7 +9,6 @@ export function GracefulShutdown(server: Server) {
   const shutdown = async (signal: string) => {
     if (isShuttingDown) return;
     isShuttingDown = true;
-
     logger.warn({
       action: "Shutdown",
       status: `Graceful shutdown started (${signal})`,
@@ -32,6 +32,12 @@ export function GracefulShutdown(server: Server) {
       logger.info({ action: "Shutdown", status: "Prisma disconnected" });
 
       logger.info({ action: "Shutdown", status: "Graceful shutdown complete" });
+
+      
+      // 4. Close all queues and workers
+      await CloseAllQueuesAndWorkers();
+      
+      logger.info({ action: "Shutdown", status: "Close All Queues And Workers" });
 
       process.exit(0);
     } catch (error) {
