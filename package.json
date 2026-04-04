@@ -11,12 +11,10 @@
     "db:migrate:allTenants": "npm run db:generate:snapshot && npx ts-node ./src/Utils/runMigrationsForAllTenants.ts ",
     "prisma:generate": "node ./scripts/prepare-schema-beforeGenrate.mjs",
     "knip": "knip",
-    "permissions:sync": "npm run build && node scripts/sync-permissions.mjs",
-    "prisma:gen": "cd ./prisma && npx prisma generate && cd ..",
     "worker": "ts-node  ./src/Workers/StudentImport/StudentImport.Worker.ts",
     "server": "ts-node src/index.ts",
     "docker": "docker-compose up -d",
-    "dev": "npm run docker && npm run prisma:gen && concurrently \"npm run worker\" \"npm run server\"",
+    "dev": "npm run docker && concurrently \"npm run worker\" \"npm run server\"",
     "test": "vitest",
     "test:run": "vitest run"
   },

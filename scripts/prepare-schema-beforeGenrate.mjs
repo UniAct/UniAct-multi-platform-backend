@@ -33,8 +33,7 @@ exec(cmd,(err,stdout,stderr)=>{
     console.error(err)
     process.exit(1);
   }
-
+  
+  //retrun the content as it was 
+  fs.writeFileSync(prismaSchema, content);
 })
-
-//retrun the content as it was 
-fs.writeFileSync(prismaSchema, content);
