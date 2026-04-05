@@ -8,6 +8,7 @@ import facultyRoutes from "./FacultyRoutes";
 import courseRoutes from "./CourseRoutes";
 import semesterRoutes from "./SemesterRoutes";
 import jobRoutes from "./JobRoutes";
+import classroomRoutes from "./ClassroomRoutes";
 
 const router = Router();
 
@@ -29,6 +30,8 @@ router.use('/program', ProgramRoutes);
 router.use("/faculty", facultyRoutes)
 
 router.use("/course", courseRoutes)
+
+router.use('/classroom', classroomRoutes);
 
 router.use('/semester', semesterRoutes);
 
