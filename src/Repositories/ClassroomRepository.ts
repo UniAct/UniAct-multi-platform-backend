@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import { GetTenantClient } from "../Utils/prismaClient";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -7,6 +8,25 @@ export class ClassroomRepository {
   private static readonly classroomDetailsInclude = {
     classSessions: true,
   } as const;
+
+  private static getClient(schema_name: string): PrismaClient {
+    return GetTenantClient(schema_name);
+  }
+
+  public static async WithTransaction<T>(schema_name: string, operation: (tx: Prisma.TransactionClient) => Promise<T>) {
+    const prisma = this.getClient(schema_name);
+    return prisma.$transaction(operation);
+  }
+
+  public static async GetAllClassroomsBySchema(schema_name: string) {
+    const prisma = this.getClient(schema_name);
+    return this.GetAllClassrooms(prisma);
+  }
+
+  public static async GetClassroomByIdFromSchema(id: number, schema_name: string) {
+    const prisma = this.getClient(schema_name);
+    return this.GetClassroomById(id, prisma);
+  }
 
   public static async CreateClassroom(data: Prisma.ClassroomCreateInput, prisma: DbClient) {
     return prisma.classroom.create({
