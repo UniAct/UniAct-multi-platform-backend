@@ -61,28 +61,46 @@ export class StudentService {
     const prisma = GetTenantClient(schema_name);
     const startTime = Date.now();
 
+    const isValid = await ProgramRepository.IsProgramLevelBelongsToProgram(
+          data.programLevelId,
+          data.programId,
+          prisma
+        );
+
+        if (!isValid) {
+          logger.warn({
+            action:         "StudentService.Update",
+            status:         "failed",
+            schema:         schema_name,
+            reason:         "program_level_not_in_program",
+            programId:      data.programId,
+            programLevelId: data.programLevelId,
+            duration_ms:    Date.now() - startTime,
+          });
+          throw new BadRequestError(
+            `Program level '${data.programLevelId}' does not belong to program '${data.programId}'.`
+          );
+        }
+
     const hashed_password = await bcrypt.hash(data.nationalId, 10);
 
-    try {
-      const student = await StudentRepository.CreateStudent(data, hashed_password, prisma);
+  
+    const student = await StudentRepository.CreateStudent(data, hashed_password, prisma);
 
-      logger.info({
-        action: "StudentService.Create",
-        status: "success",
-        schema: schema_name,
-        studentId: student.user.id,
-        username: data.username,
-        email: data.email,
-        duration_ms: Date.now() - startTime,
-      });
+    logger.info({
+      action: "StudentService.Create",
+      status: "success",
+      schema: schema_name,
+      studentId: student.user.id,
+      username: data.username,
+      email: data.email,
+      duration_ms: Date.now() - startTime,
+    });
 
-      const response : CreateStudentResponseDto = MapCreateStudent(student);
+    const response : CreateStudentResponseDto = MapCreateStudent(student);
 
-      return response;
-    } 
-    catch (err: any) {
-      StudentRepository.HandleCreateError(err, schema_name, data, Date.now() - startTime);
-    }
+    return response;
+    
   }
 
   public static async CreateBulk(
@@ -120,8 +138,6 @@ export class StudentService {
   ) : Promise<DeleteStudentResponseDto> {
     const startTime = Date.now();
     const prisma = GetTenantClient(schema_name);
-
-    try {
       const student : DeleteStudentResponseDto = MapDeleteStudent(await StudentRepository.Delete(studentId, prisma));
 
       logger.info({
@@ -133,9 +149,6 @@ export class StudentService {
       });
 
       return student;
-    } catch (err: any) {
-      StudentRepository.HandleActivateOrDeleteError(err ,schema_name , studentId , Date.now() - startTime , "StudentService.Delete");
-    }
   }
 
   public static async Activate(
@@ -144,8 +157,7 @@ export class StudentService {
   ) : Promise<void> {
     const startTime = Date.now();
     const prisma = GetTenantClient(schema_name);
-
-    try {
+    
       await StudentRepository.Activate(studentId, prisma);
 
       logger.info({
@@ -156,9 +168,6 @@ export class StudentService {
         duration_ms: Date.now() - startTime,
       });
 
-    } catch (err: any) {
-      StudentRepository.HandleActivateOrDeleteError(err ,schema_name , studentId , Date.now() - startTime , "StudentService.Activate");
-    }
   }
 
   public static async GetAll(
@@ -190,7 +199,7 @@ export class StudentService {
         error:       err.message,
         duration_ms: Date.now() - startTime,
       });
-      throw new InternalServerError();
+      throw err
     }
   }
 
@@ -202,7 +211,6 @@ export class StudentService {
     const prisma = GetTenantClient(schemaName);
     const startTime = Date.now();
 
-    try {
 
       if (data.programId !== undefined && data.programLevelId !== undefined) {
         const isValid = await ProgramRepository.IsProgramLevelBelongsToProgram(
@@ -240,9 +248,7 @@ export class StudentService {
 
       return updatedStudent;
 
-    } catch (err: any) {
-      StudentRepository.HandleUpdateError(err, studentId, data, schemaName, startTime);
-    }
+   
   }
 
   

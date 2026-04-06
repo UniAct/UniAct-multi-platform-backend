@@ -16,9 +16,9 @@ router.get(
     IsAuthenticated,
     AttachAndValidateTenant,
     RequirePermission(permissions.account.read.name),
-    ZodValidator([
-      [JobIdParamSchema , "params"]
-    ]),
+    ZodValidator(
+      {params:JobIdParamSchema}
+      ),
     asyncHandler(JobController.CheckStudentImportStatus)
 );
 

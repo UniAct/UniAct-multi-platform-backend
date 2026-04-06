@@ -11,20 +11,15 @@ class SuperAdminRepository {
     password: string,
     prisma:PrismaClient
   ): Promise<SuperAdmin> {
-    try {
-      const newSuperAdmin : SuperAdmin = await prisma.superAdmin.create({
-        data: {
-          username,
-          email,
-          password,
-        },
-      });
+    const newSuperAdmin : SuperAdmin = await prisma.superAdmin.create({
+      data: {
+        username,
+        email,
+        password,
+      },
+    });
 
-      return newSuperAdmin;
-    } catch (err: any) {
-      console.error("Error Creating SuperAdmin:", err);
-      throw err;
-    }
+    return newSuperAdmin;
   }
 
   public static async FindByEmail(email: string,prisma:PrismaClient): Promise<SuperAdmin | null> {
@@ -52,39 +47,28 @@ class SuperAdminRepository {
   }
 
   public static async GetAllSuperAdmins(prisma:PrismaClient): Promise<SuperAdmin[]> {
-    try {
-      return await prisma.superAdmin.findMany({
-        orderBy: { username: "asc" },
-      });
-    } catch (err: any) {
-      console.error("Error Fetching SuperAdmins:", err);
-      throw err;
-    }
+  
+    return await prisma.superAdmin.findMany({
+      orderBy: { username: "asc" },
+    });
+  
   }
 
   public static async ActivateSuperAdmin(email: string,prisma:PrismaClient): Promise<SuperAdmin> {
-    try {
-      const admin = await prisma.superAdmin.update({
-        where: { email },
-        data: { is_active: true },
-      });
-      return admin;
-    } catch (err: any) {
-      console.error("Error Activating SuperAdmin:", err);
-      throw err;
-    }
+  
+    const admin = await prisma.superAdmin.update({
+      where: { email },
+      data: { is_active: true },
+    });
+    return admin;
+  
   }
 
   public static async DeleteSuperAdmin(username: string, prisma:PrismaClient): Promise<SuperAdmin> {
-    try {
-      const deletedAdmin = await prisma.superAdmin.delete({
-        where: { username },
-      });
-      return deletedAdmin;
-    } catch (err: any) {
-      console.error("Error Deleting SuperAdmin:", err);
-      throw err;
-    }
+    const deletedAdmin = await prisma.superAdmin.delete({
+      where: { username },
+    });
+    return deletedAdmin;
   }
 
   public static async CountSuperAdmins(prisma:PrismaClient) : Promise<number> {
@@ -95,34 +79,27 @@ class SuperAdminRepository {
     db_schema: string,
     user: Prisma.UserCreateInput
   ) {
-    try {
 
-      const root_account = await TransactionService.CreateRootAccount(
-        user,
-        db_schema
-      );
+    const root_account = await TransactionService.CreateRootAccount(
+      user,
+      db_schema
+    );
 
-      await MailService.SendVerificationRootAccountMail(user.email! , db_schema);
+    await MailService.SendVerificationRootAccountMail(user.email! , db_schema);
 
-      return root_account;
-    } catch (err: any) {
-      console.error("Error Assigning Root Account:", err);
-      throw err;
-    }
+    return root_account;
+  
   }
 
   public static async ActivateRootAccount(email: string , prisma:PrismaClient) {
-    try {
-      const root_account = await prisma.user.update({
-        where: { email },
-        data: { isVerified: true },
-      });
 
-      return root_account;
-    } catch (err: any) {
-      console.error("Error Activating Root Account:", err);
-      throw err;
-    }
+    const root_account = await prisma.user.update({
+      where: { email },
+      data: { isVerified: true },
+    });
+
+    return root_account;
+  
   }
 }
 

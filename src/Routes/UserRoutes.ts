@@ -58,9 +58,9 @@ router.post(
     IsAuthenticated,
     AttachAndValidateTenant,
     RequirePermission(permissions.account.create.name),
-    ZodValidator([
-      [CreateStudentSchema , "body"]
-    ]),
+    ZodValidator({
+      body:CreateStudentSchema
+    }),
     asyncHandler(StudentController.Create)
 )
 
@@ -71,9 +71,7 @@ router.get(
     AttachAndValidateTenant,
     RequirePermission(permissions.account.read.name),
     ZodValidator(
-      [
-        [StudentQuerySchema, "query"]
-      ]
+      {query:StudentQuerySchema}
     ),
     asyncHandler(StudentController.GetAll)
 )
@@ -84,10 +82,10 @@ router.patch(
     AttachAndValidateTenant,
     RequirePermission(permissions.account.update.name),
     ZodValidator(
-      [
-        [StudentIdParamSchema , "params"],
-        [UpdateStudentBodySchema , "body"],
-      ]
+      {
+        params:StudentIdParamSchema,
+        body: UpdateStudentBodySchema,
+      }
     ),
     asyncHandler(StudentController.Update)
 )
@@ -99,9 +97,9 @@ router.patch(
     AttachAndValidateTenant,
     RequirePermission(permissions.account.update.name),
     ZodValidator(
-      [
-        [StudentIdParamSchema , "params"],
-      ]
+      {
+        params:StudentIdParamSchema
+      }
     ),
     asyncHandler(StudentController.Activate)
 )
@@ -115,9 +113,7 @@ router.post(
     HandleExcelUpload,
     ValidateExcelHeaders(Object.values(StudentExcelHeaders)),
     ZodValidator(
-      [
-        [CreateBulkStudentSchema , "body"]
-      ]
+      {body:CreateBulkStudentSchema}
     ),
     asyncHandler(StudentController.CreateBulk)
 )
@@ -163,9 +159,7 @@ router.delete(
   AttachAndValidateTenant,
   RequirePermission(permissions.account.delete.name),
   ZodValidator(
-    [
-      [StudentIdParamSchema , "params"]
-    ]
+    {params:StudentIdParamSchema}
   ),
   asyncHandler(StudentController.Delete)
 );

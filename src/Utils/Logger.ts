@@ -62,6 +62,7 @@ export const logger = pino({
 
 export const httpLogger = pinoHttp({
   logger,
+  autoLogging: false,
 
   customLogLevel: (_req: any, res: any, err: any) => {
     if (res.statusCode >= 500 || err) return "error";

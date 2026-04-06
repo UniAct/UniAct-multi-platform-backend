@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { Prisma } from "@prisma/client";
 import { ConflictError, NotFoundError } from "../Types/Errors";
+import { PrismaErrorCode } from "../Enums/PrismaErrorCode";
 
 //this function is used to handle any catch part instead of handling each error individually in each catch statment 
 
@@ -18,7 +19,7 @@ export function handlePrismaError(err: any, res: Response) {
     const fields :string[] |undefined = adapterError?.cause?.constraint?.fields ?? err.meta?.target ;
     
    //unique constraint failed
-  if (err.code === "P2002") {
+  if (err.code === PrismaErrorCode.UniqueConstraint) {
 
     let message = "Unique constraint failed."; //default message
 
@@ -37,7 +38,8 @@ export function handlePrismaError(err: any, res: Response) {
   }
 
   //Not Found (e.g., delete non-existent, findUniqueOrThrow)
-  if (err.code === "P2025") {
+  if (err.code === PrismaErrorCode.NotFound) {
+     console.dir(err, { depth: null, colors: true });
     // Many P2025 errors don’t include specific field names,
     // so show model name or generic resource name
     const model = err.meta?.modelName ?? "Resource";
@@ -49,8 +51,19 @@ export function handlePrismaError(err: any, res: Response) {
       data: { message },
     });
   }
-  
+
+  if(err.code === PrismaErrorCode.ForeignKeyConstraint){
+    const message = `this ${err.meta?.driverAdapterError?.cause?.constraint.index} doesn't exist`
+
+    return res.status(StatusCodes.NOT_FOUND).json({
+      status: JSendStatus.FAIL,
+      data: {message},
+    });
+  }
+
   // Fallback
+
+  console.dir(err, { depth: null, colors: true });
   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
     status: JSendStatus.ERROR,
     message: err.message || "Internal Server Error",

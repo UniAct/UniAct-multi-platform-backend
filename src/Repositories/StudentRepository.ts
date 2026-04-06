@@ -311,99 +311,109 @@ export class StudentRepository {
     });
   }
 
-  public static async GetAll(
-    filters: StudentQueryDto,
-    prisma: PrismaClient
-  ) {
-    const {
-      page:                _page  = 1,
-      limit:               _limit = 20,
-      universityStudentId: _universityStudentId,
-      nationalId,
-      status,
-      programId:           _programId,
-      isVerified:          _isVerified,
-      isBlocked:           _isBlocked,
-      studentId: _studentId,
-      sortOrder
-    } = filters;
+public static async GetAll(
+  filters: StudentQueryDto,
+  prisma: PrismaClient
+) {
+  // 1. Pagination
+  const page  = filters.page  ?? 1;
+  const limit = filters.limit ?? 20;
 
-    const page                = Number(_page);
-    const limit               = Number(_limit);
-    const universityStudentId = _universityStudentId !== undefined ? Number(_universityStudentId) : undefined;
-    const programId           = _programId           !== undefined ? Number(_programId)           : undefined;
-    const isVerified          = _isVerified          !== undefined ? Boolean(_isVerified)         : undefined;
-    const isBlocked           = _isBlocked           !== undefined ? Boolean(_isBlocked)          : undefined;
-    const studentId           = _studentId           !== undefined ? Number(_studentId)           : undefined;
+  if (typeof page !== "number" || typeof limit !== "number") {
+  throw new Error("Pagination params must be numbers");
+}
 
-    const skip = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-    const where: Prisma.StudentWhereInput = {
-      ...(studentId           !== undefined && { userId: studentId }),
-      ...(universityStudentId !== undefined && { universityStudentId }),
-      ...(status              && { status }),
-      ...(programId           && { programId }),
+  // 2. User Filters
+  const userFilters: Prisma.UserWhereInput = {
+    ...(filters.isVerified !== undefined && { isVerified: filters.isVerified }),
+    ...(filters.isBlocked  !== undefined && { isBlocked: filters.isBlocked }),
+  };
 
-      user: {
-        ...(nationalId               && { nationalId }),
-        ...(isVerified !== undefined && { isVerified }),
-        ...(isBlocked  !== undefined && { isBlocked }),
-      },
-    };
+  // 3. Main WHERE
+  const where: Prisma.StudentWhereInput = {
+    ...(filters.studentId           !== undefined && { userId: filters.studentId }),
+    ...(filters.universityStudentId !== undefined && { universityStudentId: filters.universityStudentId }),
+    ...(filters.status              !== undefined && { status: filters.status }),
+    ...(filters.programId           !== undefined && { programId: filters.programId }),
+    ...(filters.semesterId          !== undefined && {studentFeeReports: { some: {semesterId: filters.semesterId,},},}),
 
-    const orderBy: Prisma.StudentOrderByWithRelationInput = {
-      user: { createdAt: sortOrder },
-    };
+    ...(Object.keys(userFilters).length > 0 && {
+      user: userFilters,
+    }),
+  };
 
-    const [data, total] = await prisma.$transaction([
-      prisma.student.findMany({
-        where,
-        orderBy,
-        skip,
-        take: limit,
-        include: {
-          user: {
-            select: {
-              id:         true,
-              username:   true,
-              firstName:  true,
-              lastName:   true,
-              email:      true,
-              phone:      true,
-              city:       true,
-              country:    true,
-              nationalId: true,
-              isVerified: true,
-              isBlocked:  true,
-              createdAt:  true,
-            },
-          },
-          program: {
-            select: {
-              id:          true,
-              name:        true,
-              programType: true,
-            },
-          },
-          programLevel: {
-            select: {
-              id:    true,
-              level: true,
-            },
+  // 4. Sorting
+  const orderBy: Prisma.StudentOrderByWithRelationInput = {
+    user: {
+      createdAt: filters.sortOrder ?? "desc",
+    },
+  };
+
+  // 5. Query (parallel)
+  const [items, totalCount] = await Promise.all([
+    prisma.student.findMany({
+      where,
+      orderBy,
+      skip,
+      take: limit,
+      select: {
+        userId: true,
+        universityStudentId: true,
+        status: true,
+        enrollmentDate: true,
+        cgpa: true,
+        gender: true,
+        religion: true,
+        fullname: true,
+
+        user: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            city: true,
+            country: true,
+            nationalId: true,
+            isVerified: true,
+            isBlocked: true,
+            createdAt: true,
           },
         },
-      }),
-      prisma.student.count({ where }),
-    ]);
 
-    return {
-      pageNumber: page,
-      pageSize:   limit,
-      totalPages: Math.ceil(total / limit),
-      totalCount: total,
-      items:      data,
-    };
-  }
+        program: {
+          select: {
+            id: true,
+            name: true,
+            programType: true,
+          },
+        },
+
+        programLevel: {
+          select: {
+            id: true,
+            level: true,
+          },
+        },
+      },
+    }),
+
+    prisma.student.count({ where }),
+  ]);
+
+  // 6. Response
+  return {
+    pageNumber: page,
+    pageSize: limit,
+    totalPages: Math.ceil(totalCount / limit),
+    totalCount,
+    items,
+  };
+}
 
   public static async Update(
     studentId: number,
@@ -414,36 +424,36 @@ export class StudentRepository {
       prisma.user.update({
         where: { id: studentId },
         data: {
-          username:    data.username    !== undefined ? data.username              : undefined,
-          firstName:   data.firstName   !== undefined ? data.firstName             : undefined,
-          lastName:    data.lastName    !== undefined ? data.lastName              : undefined,
-          email:       data.email       !== undefined ? data.email                 : undefined,
-          phone:       data.phone       !== undefined ? data.phone                 : undefined,
-          dateOfBirth: data.dateOfBirth !== undefined ? new Date(data.dateOfBirth) : undefined,
-          address:     data.address     !== undefined ? data.address               : undefined,
-          city:        data.city        !== undefined ? data.city                  : undefined,
-          country:     data.country     !== undefined ? data.country               : undefined,
-          nationalId:  data.nationalId  !== undefined ? data.nationalId            : undefined,
+          username:    data.username,
+          firstName:   data.firstName,
+          lastName:    data.lastName,
+          email:       data.email,
+          phone:       data.phone,
+          dateOfBirth: (data.dateOfBirth !== undefined )? new Date(data.dateOfBirth) : undefined,
+          address:     data.address,
+          city:        data.city,
+          country:     data.country,
+          nationalId:  data.nationalId,
         },
       }),
 
       prisma.student.update({
         where: { userId: studentId },
         data: {
-          fullname:              data.fullname              !== undefined ? data.fullname                 : undefined,
-          universityStudentId:   data.universityStudentId   !== undefined ? data.universityStudentId      : undefined,
-          programId:             data.programId             !== undefined ? data.programId                : undefined,
-          programLevelId:        data.programLevelId        !== undefined ? data.programLevelId           : undefined,
-          status:                data.status                !== undefined ? data.status                   : undefined,
-          enrollmentDate:        data.enrollmentDate        !== undefined ? new Date(data.enrollmentDate) : undefined,
-          cgpa:                  data.cgpa                  !== undefined ? data.cgpa                     : undefined,
-          religion:              data.religion              !== undefined ? data.religion                 : undefined,
-          gender:                data.gender                !== undefined ? data.gender                   : undefined,
-          homePhone:             data.homePhone             !== undefined ? data.homePhone                : undefined,
-          previousQualification: data.previousQualification !== undefined ? data.previousQualification    : undefined,
-          secondarySchoolName:   data.secondarySchoolName   !== undefined ? data.secondarySchoolName      : undefined,
-          totalHighSchoolGrades: data.totalHighSchoolGrades !== undefined ? data.totalHighSchoolGrades    : undefined,
-          highSchoolSeatNumber:  data.highSchoolSeatNumber  !== undefined ? data.highSchoolSeatNumber     : undefined,
+          fullname:              data.fullname,
+          universityStudentId:   data.universityStudentId,
+          programId:             data.programId,
+          programLevelId:        data.programLevelId,
+          status:                data.status,
+          enrollmentDate:        (data.enrollmentDate !== undefined)? new Date(data.enrollmentDate) : undefined,
+          cgpa:                  data.cgpa,
+          religion:              data.religion,
+          gender:                data.gender,
+          homePhone:             data.homePhone,
+          previousQualification: data.previousQualification,
+          secondarySchoolName:   data.secondarySchoolName,
+          totalHighSchoolGrades: data.totalHighSchoolGrades,
+          highSchoolSeatNumber:  data.highSchoolSeatNumber,
         } satisfies Prisma.StudentUncheckedUpdateInput,
 
         select: {
@@ -480,247 +490,5 @@ export class StudentRepository {
     ]);
 
     return student;
-  }
-  
-  // Translates Prisma-specific errors into domain errors (NotFoundError, ConflictError, etc.)
-  // Belongs in the repository layer — the service layer should never be aware of Prisma internals.
-  public static HandleUpdateError(
-    err: any,
-    studentId: number,
-    data: UpdateStudentRequestDto,
-    schemaName: string,
-    startTime: number
-  ): never {
-
-    if (err instanceof BadRequestError || err instanceof NotFoundError || err instanceof ConflictError) throw err;
-
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
-
-      if (err.code === PrismaErrorCode.NotFound) {
-        const cause = (err.meta?.cause as string) ?? "";
-
-        if (cause.includes("ProgramLevel") || cause.includes("Program Level")) {
-          logger.warn({
-            action:         "StudentService.Update",
-            status:         "failed",
-            schema:         schemaName,
-            reason:         "program_level_not_found",
-            programLevelId: data.programLevelId,
-            duration_ms:    Date.now() - startTime,
-          });
-          throw new NotFoundError(`Program level with ID '${data.programLevelId}' does not exist.`);
-        }
-
-        if (cause.includes("Program")) {
-          logger.warn({
-            action:      "StudentService.Update",
-            status:      "failed",
-            schema:      schemaName,
-            reason:      "program_not_found",
-            programId:   data.programId,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new NotFoundError(`Program with ID '${data.programId}' does not exist.`);
-        }
-
-        if (cause.includes("Student")) {
-          logger.warn({
-            action:      "StudentService.Update",
-            status:      "failed",
-            schema:      schemaName,
-            reason:      "student_not_found",
-            studentId:   studentId,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new NotFoundError(`Student with ID '${studentId}' does not exist.`);
-        }
-
-        logger.warn({
-          action:      "StudentService.Update",
-          status:      "failed",
-          schema:      schemaName,
-          reason:      "record_not_found",
-          cause:       cause,
-          duration_ms: Date.now() - startTime,
-        });
-        throw new NotFoundError(`A required record was not found.`);
-      }
-
-      if (err.code === PrismaErrorCode.UniqueConstraint) {
-        const field = (err.meta?.target as string[])?.[0];
-
-        if (field === "username") {
-          logger.warn({
-            action:      "StudentService.Update",
-            status:      "failed",
-            schema:      schemaName,
-            reason:      "duplicate_username",
-            username:    data.username,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`A student with the username '${data.username}' already exists.`);
-        }
-
-        if (field === "email") {
-          logger.warn({
-            action:      "StudentService.Update",
-            status:      "failed",
-            schema:      schemaName,
-            reason:      "duplicate_email",
-            email:       data.email,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`A student with the email '${data.email}' already exists.`);
-        }
-
-        if (field === "national_id") {
-          logger.warn({
-            action:      "StudentService.Update",
-            status:      "failed",
-            schema:      schemaName,
-            reason:      "duplicate_national_id",
-            nationalId:  data.nationalId,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new ConflictError(`The national ID '${data.nationalId}' is already registered.`);
-        }
-
-        if (field === "university_student_id") {
-          logger.warn({
-            action:              "StudentService.Update",
-            status:              "failed",
-            schema:              schemaName,
-            reason:              "duplicate_university_student_id",
-            universityStudentId: data.universityStudentId,
-            duration_ms:         Date.now() - startTime,
-          });
-          throw new ConflictError(`The university student ID '${data.universityStudentId}' is already registered.`);
-        }
-      }
-
-      if (err.code === PrismaErrorCode.ForeignKeyConstraint) {
-        const field = (err.meta?.field_name as string) ?? "";
-
-        if (field.includes("program_level_id")) {
-          logger.warn({
-            action:         "StudentService.Update",
-            status:         "failed",
-            schema:         schemaName,
-            reason:         "invalid_program_level",
-            programLevelId: data.programLevelId,
-            duration_ms:    Date.now() - startTime,
-          });
-          throw new NotFoundError(`Program level with ID '${data.programLevelId}' does not exist.`);
-        }
-
-        if (field.includes("program_id")) {
-          logger.warn({
-            action:      "StudentService.Update",
-            status:      "failed",
-            schema:      schemaName,
-            reason:      "invalid_program",
-            programId:   data.programId,
-            duration_ms: Date.now() - startTime,
-          });
-          throw new NotFoundError(`Program with ID '${data.programId}' does not exist.`);
-        }
-      }
-    }
-
-    logger.error({
-      action:      "StudentService.Update",
-      status:      "failed",
-      schema:      schemaName,
-      err:         err,
-      duration_ms: Date.now() - startTime,
-    });
-
-    throw new InternalServerError();
-  }
-
-  public static HandleCreateError(
-    err: any,
-    schema: string,
-    data: CreateStudentRequestDto,
-    duration_ms: number
-  ): never {
-    
-    const baseLog = { action: "StudentRepository.HandleCreateError", schema, duration_ms };
-    if (err.code === PrismaErrorCode.UniqueConstraint) {
-      const field: string = err.meta?.driverAdapterError?.cause?.constraint?.fields?.[0]; 
-
-      const conflictMap: Record<string, { reason: string; detail: Record<string, unknown>; message: string }> = {
-        username: {
-          reason: "duplicate_username",
-          detail: { username: data.username },
-          message: `A student with the username '${data.username}' already exists.`,
-        },
-        email: {
-          reason: "duplicate_email",
-          detail: { email: data.email },
-          message: `A student with the email '${data.email}' already exists.`,
-        },
-        national_id: {
-          reason: "duplicate_national_id",
-          detail: { nationalId: data.nationalId },
-          message: `The national ID '${data.nationalId}' is already registered.`,
-        },
-        university_student_id: {
-          reason: "duplicate_university_student_id",
-          detail: { universityStudentId: data.universityStudentId },
-          message: `The university student ID '${data.universityStudentId}' is already registered.`,
-        },
-      };
-      const conflict = conflictMap[field];
-      if (conflict) {
-        logger.warn({ ...baseLog, status: "failed", reason: conflict.reason, ...conflict.detail });
-        throw new ConflictError(conflict.message);
-      }
-    }
-    
-    if (err.code === PrismaErrorCode.ForeignKeyConstraint) {
-      logger.warn({
-        ...baseLog,
-        status: "failed",
-        reason: "invalid_program_or_program_level",
-        programId: data.programId,
-        programLevelId: data.programLevelId,
-      });
-      throw new NotFoundError(`The Selected program Or Program Level Does Not Exist Or Is Invalid.`);
-    }
-
-    logger.error({ ...baseLog, status: "failed", err });
-    throw new InternalServerError();
-  }
-
-  public static HandleActivateOrDeleteError(
-    err: any,
-    schema: string,
-    studentId: number,
-    duration_ms: number,
-    action: string
-  ) : never {
-    if (err.code === PrismaErrorCode.NotFound) {
-      logger.warn({
-        action,
-        status: "failed",
-        schema: schema,
-        reason: "student_not_found",
-        studentId,
-        duration_ms: duration_ms,
-      });
-      throw new NotFoundError(`No student found with id '${studentId}'.`);
-    }
-
-    logger.error({
-      action,
-      status: "error",
-      schema: schema,
-      studentId,
-      error: err.message,
-      duration_ms: duration_ms,
-    });
-      
-    throw new InternalServerError();
   }
 }

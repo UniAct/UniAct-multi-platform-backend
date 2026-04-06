@@ -27,14 +27,14 @@ function MapGetStudentItem(raw: GetAllRawItem) {
     religion:            raw.religion,
     cgpa:                raw.cgpa,
     enrollmentDate:      raw.enrollmentDate,
-    programId:           raw.programId,
+    programId:           raw.program.id,
     
     // ── Program ───────────────────────────────────────────
     programName:        raw.program.name,
     programType:        raw.program.programType,
     
     // ── Program Level ─────────────────────────────────────
-    programLevelId:      raw.programLevelId,
+    programLevelId:      raw.programLevel.id,
     programLevelName:   raw.programLevel.level,
   };
 }

@@ -1,15 +1,12 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
-import { CreateStudentBulkRequest, CreateStudentRequest, StudentQuery, UpdateStudentRequest } from "../Interfaces/Student";
 import { StudentService } from "../Services/StudentService";
 import { IPage } from "../Interfaces/Common/PaginatedList";
-import { StudentListItem } from "../Types/StudentList";
 import { UpdateStudentRequestDto } from "../Interfaces/Student/UpdateStudent/UpdateSchema";
 import { CreateStudentRequestDto } from "../Interfaces/Student/CreateStudent/CreateSchema";
 import { CreateStudentBulkRequestDto } from "../Interfaces/Student/CreateStudent/CreateBulkSchema";
-import { StudentQueryDto } from "../Interfaces/Student/GetStudentPage/QuerySchema";
-import { logger } from "../Utils/Logger";
+import { StudentQueryDto} from "../Interfaces/Student/GetStudentPage/QuerySchema";
 import { GetStudentItemResponseDto } from "../Interfaces/Student/GetStudentPage/GetMapper";
 
 export class StudentController {
@@ -70,7 +67,7 @@ export class StudentController {
   }
 
   public static async GetAll(req: Request, res: Response): Promise<void> {
-    const filters : StudentQueryDto = req.query;
+    const filters : StudentQueryDto =req.query;
     const schemaName = req.schema_name!;
 
     const result: IPage<GetStudentItemResponseDto> = await StudentService.GetAll(filters, schemaName);
