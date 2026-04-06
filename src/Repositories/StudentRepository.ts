@@ -322,6 +322,7 @@ export class StudentRepository {
       nationalId,
       status,
       programId:           _programId,
+      semesterId:          _semesterId,
       isVerified:          _isVerified,
       isBlocked:           _isBlocked,
       studentId: _studentId,
@@ -332,6 +333,7 @@ export class StudentRepository {
     const limit               = Number(_limit);
     const universityStudentId = _universityStudentId !== undefined ? Number(_universityStudentId) : undefined;
     const programId           = _programId           !== undefined ? Number(_programId)           : undefined;
+    const semesterId          = _semesterId          !== undefined ? Number(_semesterId)          : undefined;
     const isVerified          = _isVerified          !== undefined ? Boolean(_isVerified)         : undefined;
     const isBlocked           = _isBlocked           !== undefined ? Boolean(_isBlocked)          : undefined;
     const studentId           = _studentId           !== undefined ? Number(_studentId)           : undefined;
@@ -343,6 +345,7 @@ export class StudentRepository {
       ...(universityStudentId !== undefined && { universityStudentId }),
       ...(status              && { status }),
       ...(programId           && { programId }),
+      ...(semesterId          && { studentFeeReports: { some: { semesterId } } }),
 
       user: {
         ...(nationalId               && { nationalId }),
