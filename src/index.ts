@@ -78,19 +78,19 @@ app.all(/.*/, (req, res) => {
 
 // ==================== BOOTSTRAP ====================
 async function Bootstrap(): Promise<void> {
-  process.title = "UniAct Backend System";
-  const server = app.listen(PORT, () => {
-      logger.info({
-          action: "Server Start",
-          status: "Running",
-          port: PORT,
-          environment: process.env.NODE_ENV,
-          url: "http://localhost:3000",
-          process_id: process.pid,
-          process_name: process.title
-      });
-  });
-  GracefulShutdown(server);
+    process.title = "UniAct Backend System";
+    const server = app.listen(PORT, () => {
+        logger.info({
+            action: "Server Start",
+            status: "Running",
+            port: PORT,
+            environment: process.env.NODE_ENV,
+            url: `http://localhost:${PORT}`,
+            process_id: process.pid,
+            process_name: process.title
+        });
+    });
+    GracefulShutdown(server);
 }
 
 Bootstrap();

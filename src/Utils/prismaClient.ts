@@ -2,39 +2,58 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { logger } from "./Logger";
 
-const prismaClients: Record<string, PrismaClient> = {};
+type TenantClientCache = Record<string, PrismaClient>;
+
+const globalForTenantPrisma = globalThis as typeof globalThis & {
+  __tenantPrismaClients?: TenantClientCache;
+};
+
+const prismaClients: TenantClientCache =
+  globalForTenantPrisma.__tenantPrismaClients ?? {};
+
+if (!globalForTenantPrisma.__tenantPrismaClients) {
+  globalForTenantPrisma.__tenantPrismaClients = prismaClients;
+}
 
 export function GetTenantClient(schema: string): PrismaClient {
+  const normalizedSchema = schema.trim();
 
-  if (!prismaClients[schema]) {
-    const baseUrl = process.env.DATABASE_URL;
-    
-    if (!baseUrl) {
-      logger.error({ action: "getTenantClient", schema, message: "DATABASE_URL not set" });
-      throw new Error("DATABASE_URL must be set");
-    }
-
-    // Append schema parameter
-    const url = new URL(baseUrl);
-    url.searchParams.set("schema", schema);
-
-    // Create the adapter with the connection string
-    const adapter = new PrismaPg(
-      { connectionString: url.toString() },
-      { schema }
-    );
-
-    prismaClients[schema] = new PrismaClient({
-      adapter,
-      log: ["error"],
-    });
-
-    logger.info({ action: "getTenantClient", schema, status: "session created" });
-  } else {
-    logger.info({ action: "getTenantClient", schema, status: "session reused" });
+  if (!normalizedSchema) {
+    logger.error({ action: "getTenantClient", schema, message: "schema must be provided" });
+    throw new Error("schema must be provided");
   }
 
-  return prismaClients[schema];
+  if (prismaClients[normalizedSchema]) {
+    logger.info({ action: "getTenantClient", schema: normalizedSchema, status: "session reused" });
+    return prismaClients[normalizedSchema];
+  }
+
+  const baseUrl = process.env.DATABASE_URL;
+
+  if (!baseUrl) {
+    logger.error({ action: "getTenantClient", schema: normalizedSchema, message: "DATABASE_URL not set" });
+    throw new Error("DATABASE_URL must be set");
+  }
+
+  // Append schema parameter
+  const url = new URL(baseUrl);
+  url.searchParams.set("schema", normalizedSchema);
+
+  // Create the adapter with the connection string
+  const adapter = new PrismaPg(
+    { connectionString: url.toString() },
+    { schema: normalizedSchema }
+  );
+
+  const client = new PrismaClient({
+    adapter,
+    log: ["error"],
+  });
+
+  prismaClients[normalizedSchema] = client;
+  logger.info({ action: "getTenantClient", schema: normalizedSchema, status: "session created" });
+
+  return client;
 }
 
 
@@ -48,4 +67,8 @@ export async function disconnectAllTenantClients(): Promise<void> {
   );
 
   await Promise.all(disconnectTasks);
+
+  for (const key of Object.keys(prismaClients)) {
+    delete prismaClients[key];
+  }
 }
