@@ -1,4 +1,4 @@
-import { BlockReasonType, CourseType, ProgramType, Prisma, ResultDisplayType } from "@prisma/client";
+import { BlockReasonType, CourseType, ProgramType, Prisma, ResultDisplayType, ClassroomType } from "@prisma/client";
 
 type ProgramFeeBase = Pick<Prisma.FeeCreateManyInput, "feeType" | "amount" | "description">;
 
@@ -75,4 +75,12 @@ export interface CourseUpsertInput {
   programId: number;
   courseType: CourseType;
   prerequisiteIds?: number[];
+}
+
+export interface ClassroomUpsertInput {
+  roomNumber: string;
+  building: string;
+  capacity: number;
+  type: ClassroomType;
+  isAvailable?: boolean;
 }
