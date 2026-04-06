@@ -9,6 +9,7 @@ import courseRoutes from "./CourseRoutes";
 import semesterRoutes from "./SemesterRoutes";
 import jobRoutes from "./JobRoutes";
 import classroomRoutes from "./ClassroomRoutes";
+import classSessionRoutes from "./ClassSessionRoutes";
 
 const router = Router();
 
@@ -34,5 +35,7 @@ router.use("/course", courseRoutes)
 router.use('/classroom', classroomRoutes);
 
 router.use('/semester', semesterRoutes);
+
+router.use('/class-session', classSessionRoutes);
 
 export default router;
