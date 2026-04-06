@@ -17,6 +17,7 @@ export const StudentQuerySchema = z.object({
 
   status:    z.enum(Object.values(StudentStatus) as [StudentStatus, ...StudentStatus[]] , `status must be one of: ${Object.values(StudentStatus).join(", ")}`).optional(),
   programId: z.string().optional().transform(v => v !== undefined ? parseInt(v, 10) : undefined).pipe(z.number().int().min(1).optional()),
+  semesterId: z.string().optional().transform(v => v !== undefined ? parseInt(v, 10) : undefined).pipe(z.number().int().min(1).optional()),
 
   isVerified: z.enum(["true", "false"] , `isVerified must be one of: true , false`).optional().transform(v => v !== undefined ? v === "true" : undefined).pipe(z.boolean().optional()),
   isBlocked:  z.enum(["true", "false"] , `isBlocked must be one of: true , false`).optional().transform(v => v !== undefined ? v === "true" : undefined).pipe(z.boolean().optional()),
