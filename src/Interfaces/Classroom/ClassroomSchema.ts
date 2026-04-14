@@ -10,7 +10,7 @@ export const ClassroomIdParamSchema = z.object({
 });
 
 export const ClassroomUpsertSchema = z.object({
-  roomNumber: z
+  classroomNumber: z
     .string({ error: "Room number is required" })
     .trim()
     .min(1, "Room number is required")
@@ -27,11 +27,7 @@ export const ClassroomUpsertSchema = z.object({
     .positive("Capacity must be a positive integer"),
   type: z.enum(ClassroomType, {
     error: `Classroom type must be one of: ${Object.values(ClassroomType).join(", ")}`,
-  }),
-  isAvailable: z
-    .coerce
-    .boolean()
-    .optional(),
+  })
 });
 
 export type ClassroomIdParam = z.infer<typeof ClassroomIdParamSchema>;

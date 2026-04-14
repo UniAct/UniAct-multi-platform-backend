@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { ProgramUpsertInput } from "../Interfaces/AcademicProgram";
 import { programService } from "../Services/ProgramService";
+import { BadRequestError } from "../Types/Errors";
 
 export default class ProgramController {
 
@@ -36,6 +37,18 @@ export default class ProgramController {
             status:JSendStatus.SUCCESS,
             data: program
         });
+    }
+
+    static async GetProgramsByFacultyId(req: Request, res: Response) {
+        const facultyId = parseInt(req.params.facultyId);
+        if(!facultyId)
+            throw new BadRequestError("Faculty Id param is missing");
+        const programs:any [] = await programService.GetProgramsByFacultyId(facultyId,req.schema_name!);
+
+        return res.status(200).json({
+            data:programs,
+            message: "programs fetched successfully"
+        })
     }
 
     static async UpdateProgram(req: Request, res: Response){

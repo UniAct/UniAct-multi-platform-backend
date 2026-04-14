@@ -16,12 +16,7 @@ export async function RequireSemesterHeader(req: Request, _res: Response, next: 
     throw new BadRequestError("semester-id header must be a positive integer");
   }
 
-  const schemaName = req.schema_name;
-  if (!schemaName) {
-    throw new BadRequestError("Tenant schema is missing from request context");
-  }
-
-  const prisma = GetTenantClient(schemaName);
+  const prisma = GetTenantClient(req.schema_name!);
   const semester = await SemesterRepository.GetSemesterById(semesterId, prisma);
 
   if (!semester) {

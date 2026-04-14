@@ -5,33 +5,30 @@ import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import permissions from "../Utils/Permissions.json";
 import { ZodValidator } from "../Middlewares/ZodValidation";
-import {
-  ClassSessionLevelQuerySchema,
-  SaveClassSessionLevelBodySchema,
-} from "../Interfaces/ClassSession/ClassSessionSchema";
-import { ClassSessionController } from "../Controllers/ClassSessionController";
+import { ScheduleController } from "../Controllers/ScheduleController";
 import { RequireSemesterHeader } from "../Middlewares/RequireSemesterHeader";
+import { GetScheduleQuerySchema, SaveScheduleSchema } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 
 const router = Router();
 
 router.get(
-  "/level",
+  "/",
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.program.read.name),
-  asyncHandler(RequireSemesterHeader),
-  ZodValidator([[ClassSessionLevelQuerySchema, "query"]]),
-  asyncHandler(ClassSessionController.GetLevelTimetable),
+  RequireSemesterHeader, 
+  ZodValidator({ query: GetScheduleQuerySchema }),
+  asyncHandler(ScheduleController.GetSchedule)
 );
 
 router.put(
-  "/level",
+  "/",
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.program.update.name),
-  asyncHandler(RequireSemesterHeader),
-  ZodValidator([[SaveClassSessionLevelBodySchema, "body"]]),
-  asyncHandler(ClassSessionController.SaveLevelTimetable),
+  RequireSemesterHeader,
+  ZodValidator({ body: SaveScheduleSchema }),
+  asyncHandler(ScheduleController.SaveSchedule)
 );
 
 export default router;

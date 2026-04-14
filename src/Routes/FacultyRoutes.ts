@@ -26,13 +26,13 @@ router.post(
 //Get All Faculties
 router.get("/", AttachAndValidateTenant, FacultyController.GetAllFaculties),
 
-    //Get Faculty By Id
-    router.get("/:id",
-        AttachAndValidateTenant,
-        ...FacultyValidator.IdParam(),
-        ValidateRequest,
-        asyncHandler(FacultyController.GetFacultyById)
-    );
+//Get Faculty By Id
+router.get("/:id",
+    AttachAndValidateTenant,
+    ...FacultyValidator.IdParam(),
+    ValidateRequest,
+    asyncHandler(FacultyController.GetFacultyById)
+);
 
 // Update Faculty by Id
 router.put(

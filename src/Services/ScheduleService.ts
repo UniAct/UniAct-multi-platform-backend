@@ -1,0 +1,267 @@
+import { DayOfWeek, Prisma } from "@prisma/client";
+import { ClassSessionRepository } from "../Repositories/ScheduleSlotRepository";
+import { ConflictError, NotFoundError } from "../Types/Errors";
+import {GetScheduleResponse, SaveScheduleInput, ScheduleSlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
+import { GetTenantClient } from "../Utils/prismaClient";
+
+export class ScheduleService {
+  
+
+  public static async GetSchedule(
+    params: { programId: number; academicLevel: number },
+    semesterId: number,
+    schemaName: string,
+  ): Promise<GetScheduleResponse> {
+    const { programId, academicLevel } = params;
+    const prisma = GetTenantClient(schemaName);
+
+    // 1. Fetch EVERYTHING in parallel. 
+    // We don't wait for the program check to start fetching sessions.
+    const [program, level, courses, classrooms, staff, scheduleSlots] = await Promise.all([
+      ClassSessionRepository.GetProgramById(programId, prisma),
+      ClassSessionRepository.GetProgramLevel(programId, academicLevel, prisma),
+      ClassSessionRepository.GetCoursesByProgramId(programId, prisma),
+      ClassSessionRepository.GetAllAvailableClassrooms(prisma),
+      ClassSessionRepository.GetAllStaff(prisma),
+      ClassSessionRepository.GetScheduleSlots(programId, academicLevel, semesterId, prisma),
+    ]);
+
+    // 2. Fail-fast validation
+    if (!program) throw new NotFoundError(`Program ${programId} not found`);
+    if (!level) throw new NotFoundError(`Level ${academicLevel} not found for this program`);
+
+    // 3. Transform data using clean mapping
+    return {
+      meta: {
+        programId,
+        programName: program.name,
+        academicLevel,
+        semesterId,
+      },
+      lookups: {
+        courses: courses.map((c) => c.course),
+        classrooms,
+        staff: staff.map((member) => ({
+          id: member.userId,
+          position: member.position,
+          name: this.formatFullName(member.user.firstName, member.user.lastName),
+          email: member.user.email,
+        })),
+      },
+      scheduleSlots: scheduleSlots.map((slot) => ({
+        id: slot.id,
+        dayOfWeek: slot.dayOfWeek,
+        startTime: this.formatTime(slot.startTime),
+        endTime: this.formatTime(slot.endTime),
+        type:slot.type,
+        course:{
+          id:slot.courseId,
+          code: slot.course.code,
+          name: slot.course.name
+        },
+        teacher:{
+          id: slot.teacherId,
+          name: this.formatFullName(slot.teacher.user.firstName, slot.teacher.user.lastName)
+        },
+        classroom:{
+          id: slot.classroomId,
+          label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`
+        },
+        learningGroup:slot.learningGroup?{
+          id:slot.learningGroup.id,
+          name:slot.learningGroup.GroupName,
+        }:null,
+      })),
+    };
+  }
+
+
+  public static async SaveSchedule(
+    payload: SaveScheduleInput,
+    semesterId: number,
+    tx: Prisma.TransactionClient
+  ) {
+    console.dir(payload);
+    const { programId, academicLevel, scheduleSlots } = payload;
+    // 1. MUST VALIDATE HERE: Ensure the new state isn't self-conflicting
+    this.validateInternalConsistency(scheduleSlots);
+
+    // 2. Fetch current DB state
+    const existingSessions = await tx.scheduleSlot.findMany({
+      where: { programId, academicLevel, semesterId },
+    });
+    
+
+    const existingMap = new Map(existingSessions.map((s) => [s.id, s]));
+    const incomingNew: ScheduleSlotInput[] = [];
+    const incomingExisting: ScheduleSlotInput[] = [];
+
+    scheduleSlots.forEach(s => {
+      // If it's a number and exists in DB, it's an update/unchanged
+      if (s.id && existingMap.has(s.id)) incomingExisting.push(s);
+      else incomingNew.push(s);
+    });
+
+    const incomingIds = new Set(incomingExisting.map((s) => s.id));
+    const idsToDelete = existingSessions
+      .filter((s) => !incomingIds.has(s.id))
+      .map((s) => s.id);
+
+    const sessionsToUpdate = incomingExisting.filter((incoming) => {
+      const dbRecord = existingMap.get(incoming.id!);
+      return this.getFingerprint(incoming) !== this.getFingerprint(dbRecord as any);
+    });
+
+    // 3. Execution Phase
+    await Promise.all([
+      // A. CREATE
+      incomingNew.length > 0 && tx.scheduleSlot.createMany({
+        data: incomingNew.map((session) => {
+          // Extract helper names so they aren't sent to the DB
+          // We also extract 'id' to ensure it's not passed as null
+          const { id, teacherName, classroomName, ...dbdata } = session;
+          
+          return {
+            ...dbdata,
+            programId,
+            semesterId,
+            academicLevel,
+          };
+        }),
+      }),
+
+      // B. DELETE
+      idsToDelete.length > 0 && tx.scheduleSlot.deleteMany({
+        where: { id: { in: idsToDelete } },
+      }),
+
+      // C. UPDATE
+      ...sessionsToUpdate.map(({ id,teacherName,classroomName, ...s }) => // Destructure to use id in where, rest in data
+        tx.scheduleSlot.update({
+          where: { id },
+          data: { ...s }, // Spreads all fields validated by Zod
+        })
+      ),
+    ]);
+
+    // --- 4. NEW: Refresh Phase ---
+  // We fetch the entire updated state for this program/level/semester.
+  // This ensures all new records have their IDs and all relations are populated.
+  const refreshedSlots = await tx.scheduleSlot.findMany({
+    where: { 
+      programId, 
+      academicLevel, 
+      semesterId 
+    },
+    include: {
+      course: {select:{id:true, code:true, name:true}},
+      teacher: {select:{user:{select:{firstName:true, lastName:true}}}},
+      classroom: {select:{id:true, building:true, classroomNumber:true}},
+      learningGroup: {select:{id:true, GroupName:true}},
+    }
+  });
+
+  // Map the database results to match your "label" requirements in the Classroom schema
+  const mappedSlots = refreshedSlots.map(slot => { return{
+    ...slot,
+    startTime: slot.startTime.toISOString(), // Ensure they are ISO strings
+    endTime: slot.endTime.toISOString(),
+
+    classroom: {
+      id: slot.classroom.id,
+      label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`
+    },
+
+    teacher:{
+      id:slot.teacherId,
+      name:`${slot.teacher.user.firstName} ${slot.teacher.user.lastName}`
+    },
+
+    learningGroup: slot.learningGroup? {
+      id:slot.learningGroup?.id,
+      name: slot.learningGroup?.GroupName
+    }:null
+  }});
+
+  return {
+    deleted: idsToDelete.length,
+    created: incomingNew.length,
+    updated: sessionsToUpdate.length,
+    unchanged: incomingExisting.length - sessionsToUpdate.length,
+    scheduleSlots: mappedSlots // Return the fresh data
+  };
+}
+
+
+
+  
+// Fingerprint ignores the ID and database-specific metadata.
+// It only cares about the "Value" of the session.
+  private static getFingerprint(s: ScheduleSlotInput): string {
+    return `${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.courseId}-${s.teacherId}-${s.classroomId}-${s.learningGroupId}`;
+  }
+
+  
+// Validates that the batch of sessions does not contain internal overlaps.
+// This is a "pre-flight" check before hitting the database.
+  private static validateInternalConsistency(sessions: ScheduleSlotInput[]): void {
+    // 1. Define day order for logical sorting (Optional, but helps with error reporting)
+    const dayOrder: Record<DayOfWeek, number> = {
+      Saturday: 0, Sunday: 1, Monday: 2, Tuesday: 3, Wednesday: 4, Thursday: 5, Friday: 6
+    };
+
+    // 2. Sort sessions: First by day, then by startTime.
+    // This groups all sessions for the same day together and puts them in chronological order.
+    const sorted = [...sessions].sort((a, b) => {
+      if (a.dayOfWeek !== b.dayOfWeek) {
+        return dayOrder[a.dayOfWeek] - dayOrder[b.dayOfWeek];
+      }
+      return a.startTime.getTime() - b.startTime.getTime();
+    });
+
+    // 3. Single-pass overlap check
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const current = sorted[i];
+      const next = sorted[i + 1];
+
+      // Only compare sessions occurring on the same day
+      if (current.dayOfWeek === next.dayOfWeek && current.endTime > next.startTime) {
+        // Overlap occurs if the current session ends after the next one starts
+
+          
+          const timeRange = `${this.formatTime(current.startTime)}–${this.formatTime(current.endTime)}`;
+          const nextTimeRange = `${this.formatTime(next.startTime)}–${this.formatTime(next.endTime)}`;
+          
+          if (current.teacherId === next.teacherId) {
+
+            throw new ConflictError(
+              `Teacher ${current.teacherName} has overlapping sessions on ${current.dayOfWeek} (${timeRange} and ${nextTimeRange}).`
+            );
+          }
+
+          if (current.classroomId === next.classroomId) {
+
+            const classroomName = current.classroomName;
+
+            throw new ConflictError(
+              `Classroom ${classroomName} is double-booked on ${current.dayOfWeek} (${timeRange} and ${nextTimeRange}).`
+            );
+          }
+      }
+    }
+  }
+  
+   // Utility to format names consistently across the service.
+
+  private static formatFullName(first?: string | null, last?: string | null): string {
+    return [first, last].filter(Boolean).join(" ").trim() || "Unknown";
+  }
+
+  
+   // Formats DB Time objects to HH:mm string format.
+  private static formatTime(date: Date): string {
+    const h = date.getUTCHours().toString().padStart(2, '0');
+    const m = date.getUTCMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
+  }
+}

@@ -15,7 +15,7 @@ router.post(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.classroom.create.name),
-  ZodValidator([[ClassroomUpsertSchema, "body"]]),
+  ZodValidator({body:ClassroomUpsertSchema}),
   asyncHandler(ClassroomController.CreateClassroom),
 );
 
@@ -32,7 +32,7 @@ router.get(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.classroom.read.name),
-  ZodValidator([[ClassroomIdParamSchema, "params"]]),
+  ZodValidator({params:ClassroomIdParamSchema}),
   asyncHandler(ClassroomController.GetClassroomById),
 );
 
@@ -41,10 +41,8 @@ router.put(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.classroom.update.name),
-  ZodValidator([
-    [ClassroomIdParamSchema, "params"],
-    [ClassroomUpsertSchema, "body"],
-  ]),
+  ZodValidator({params:ClassroomIdParamSchema}),
+  ZodValidator({body:ClassroomUpsertSchema}),
   asyncHandler(ClassroomController.UpdateClassroom),
 );
 
@@ -53,7 +51,7 @@ router.delete(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.classroom.delete.name),
-  ZodValidator([[ClassroomIdParamSchema, "params"]]),
+  ZodValidator({params:ClassroomIdParamSchema}),
   asyncHandler(ClassroomController.DeleteClassroom),
 );
 

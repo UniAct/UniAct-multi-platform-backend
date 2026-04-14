@@ -52,17 +52,58 @@ export function handlePrismaError(err: any, res: Response) {
     });
   }
 
-  if(err.code === PrismaErrorCode.ForeignKeyConstraint){
-    const message = `this ${err.meta?.driverAdapterError?.cause?.constraint.index} doesn't exist`
+ if (err.code === PrismaErrorCode.ForeignKeyConstraint) {
+  const rawConstraint = err.meta?.driverAdapterError?.cause?.constraint?.index || "";
+  const model = err.meta?.modelName || "";
 
-    return res.status(StatusCodes.NOT_FOUND).json({
-      status: JSendStatus.FAIL,
-      data: {message},
-    });
+  // 1. Start with the raw string: "ClassSession_program_id_fkey"
+  let entityName = rawConstraint
+    .replace(`${model}_`, "")    // -> "program_id_fkey"
+    .replace("_fkey", "")        // -> "program_id"
+    .replace(/_?id/i, "")        // -> "program" (removes _id or Id case-insensitively)
+    .replace(/_/g, " ")          // -> "program"
+    .trim();
+
+  // 2. Capitalize the first letter: "program" -> "Program"
+  if (entityName) {
+    entityName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
+  } else {
+    entityName = "Related record";
   }
 
-  // Fallback
+  // 3. Craft a friendly message
+  // Example: "The selected Program does not exist."
+  const message = `The selected ${entityName} does not exist.`;
 
+  return res.status(StatusCodes.BAD_REQUEST).json({
+    status: JSendStatus.FAIL,
+    data: { message },
+  });
+}
+
+  const cause = err.meta?.driverAdapterError?.cause || err.cause;
+  const errorCode = cause?.originalCode || cause?.code
+  
+  if(errorCode === "23P01"){
+    const constraintName = cause?.constraint || cause?.message?.match(/"(.+?)"/)?.[1] || "";
+
+    let message:string = "Error";
+    if(constraintName === "no_teacher_overlap"){
+      message = "The selected teacher is already booked for another session at this time."
+    }
+    else if(constraintName === "no_classroom_overlap"){
+      message = "The selected classroom is already occupied by another session at this time."
+    }
+    return res.status(StatusCodes.CONFLICT).json({
+      status:JSendStatus.FAIL,
+      data: {message}
+    })
+  }
+
+
+
+  // Fallback
+  console.log("--------------------------------")
   console.dir(err, { depth: null, colors: true });
   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
     status: JSendStatus.ERROR,

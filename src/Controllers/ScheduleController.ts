@@ -1,0 +1,40 @@
+import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import JSendStatus from "../Enums/Jsend";
+import { ScheduleService } from "../Services/ScheduleService";
+import { GetScheduleQuery, SaveScheduleInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
+import { GetTenantClient } from "../Utils/prismaClient";
+
+
+export class ScheduleController {
+  static async GetSchedule(req: Request, res: Response) {
+
+    const {programId, academicLevel}= req.query as unknown as GetScheduleQuery;
+  
+    const Timetable = await ScheduleService.GetSchedule(
+      {programId, academicLevel},
+      req.semester_id!,
+      req.schema_name!,
+    );
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data:Timetable,
+    });
+  }
+
+  static async SaveSchedule(req: Request, res: Response) {
+
+    const payload = req.body as SaveScheduleInput;
+    
+    const result =await GetTenantClient(req.schema_name!).$transaction(async (tx) =>{
+        return await ScheduleService.SaveSchedule(payload, req.semester_id!, tx);
+    })
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+      message: "Timetable saved successfully",
+    });
+  }
+}

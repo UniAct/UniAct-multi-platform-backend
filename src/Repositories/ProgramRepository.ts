@@ -102,4 +102,8 @@ export class ProgramRepository {
 
     return programLevel !== null;
   }
+  static async GetProgramsByFacultyId(facultyId:number, prisma: PrismaClient){
+   return await prisma.program.findMany({where:{facultyId:facultyId}});
+  
+  }
 }

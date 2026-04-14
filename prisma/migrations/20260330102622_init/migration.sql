@@ -59,7 +59,7 @@ CREATE TYPE "template"."StorageProvider" AS ENUM ('LOCAL', 'S3', 'Azure Blob Sto
 CREATE TYPE "template"."JobStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed', 'CompletedWithErrors');
 
 -- CreateTable
-CREATE TABLE "SuperAdmin" (
+CREATE TABLE IF Not EXISTS "SuperAdmin" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE "SuperAdmin" (
 );
 
 -- CreateTable
-CREATE TABLE "University" (
+CREATE TABLE IF NOT EXISTS "University" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "address" TEXT,
@@ -597,22 +597,22 @@ CREATE TABLE "template"."RoomPostComment" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "SuperAdmin_username_key" ON "SuperAdmin"("username");
+CREATE UNIQUE INDEX IF NOT EXISTS "SuperAdmin_username_key" ON "SuperAdmin"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "SuperAdmin_email_key" ON "SuperAdmin"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "SuperAdmin_email_key" ON "SuperAdmin"("email");
 
 -- CreateIndex
-CREATE INDEX "idx_superadmin_username" ON "SuperAdmin"("username");
+CREATE INDEX IF NOT EXISTS "idx_superadmin_username" ON "SuperAdmin"("username");
 
 -- CreateIndex
-CREATE INDEX "idx_superadmin_email" ON "SuperAdmin"("email");
+CREATE INDEX IF NOT EXISTS"idx_superadmin_email" ON "SuperAdmin"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "University_name_key" ON "University"("name");
+CREATE UNIQUE INDEX IF NOT EXISTS"University_name_key" ON "University"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "University_db_schema_key" ON "University"("db_schema");
+CREATE UNIQUE INDEX IF NOT EXISTS "University_db_schema_key" ON "University"("db_schema");
 
 -- CreateIndex
 CREATE INDEX "Job_status_idx" ON "template"."Job"("status");

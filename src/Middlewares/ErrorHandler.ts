@@ -12,7 +12,7 @@ export function ErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-
+  console.log("---------------------------")
   // Custom application errors
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -21,17 +21,10 @@ export function ErrorHandler(
     });
   }
 
-  // Prisma unique constraint
-  if (err instanceof Prisma.PrismaClientKnownRequestError){
+
+  else{
       return handlePrismaError(err,res)
   }
-
-  // fallback
-  console.log(err);
-   return res.status(err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: JSendStatus.ERROR,
-      message: err.message || "Internal Server Error",
-   });
 }
 
 //This wrapper forwards async errors to Express's error middleware automatically without the need for repeating try{}catc{} every wehere on each function

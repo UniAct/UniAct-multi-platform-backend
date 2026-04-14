@@ -88,7 +88,6 @@ export class programService {
       programCreditHours: payload.programCreditHours ?? 0,
       programType: payload.programType,
       resultDisplay: payload.resultDisplay ?? "CourseGrade",
-      blockReason: payload.blockReason,
       faculty: {
         connect: { id: payload.facultyId },
       },
@@ -110,7 +109,7 @@ export class programService {
       programCreditHours: payload.programCreditHours ?? 0,
       programType: payload.programType,
       resultDisplay: payload.resultDisplay ?? "CourseGrade",
-      blockReason: payload.blockReason,
+
       faculty: {
         connect: { id: payload.facultyId },
       },
@@ -320,4 +319,14 @@ export class programService {
     const prisma = GetTenantClient(schema_name);
     await ProgramRepository.DeleteProgramById(id, prisma);
   }
+
+  static async GetProgramsByFacultyId(FacultyId:number, schema_name:string){
+    const prisma = GetTenantClient(schema_name);
+    const programs:any[] = await ProgramRepository.GetProgramsByFacultyId(FacultyId, prisma)
+
+    return programs;
+  }
+
 }
+
+

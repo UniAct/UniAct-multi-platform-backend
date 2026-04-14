@@ -2,14 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// generator zod {
-//   provider          = "zod-prisma-types"
-//   useMultipleFiles  = true
-// }
-
 datasource db {
   provider = "postgresql"
   schemas  = ["public", "template"]
+  
 }
 
 model SuperAdmin {
@@ -19,6 +15,8 @@ model SuperAdmin {
   password   String
   is_active  Boolean  @default(false)
   created_at DateTime @default(now())
+
+  refreshTokens RefreshToken[]
 
   @@index([username], map: "idx_superadmin_username")
   @@index([email], map: "idx_superadmin_email")
@@ -42,6 +40,21 @@ model University {
   @@schema("public")
 }
 
+model RefreshToken {
+  id             Int        @id @default(autoincrement())
+  super_admin_id Int
+  token          String     @unique
+  expires_at     DateTime
+  is_revoked     Boolean    @default(false)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime
+  SuperAdmin     SuperAdmin @relation(fields: [super_admin_id], references: [id], onDelete: Cascade)
+
+  @@index([expires_at])
+  @@index([super_admin_id])
+  @@schema("public")
+}
+
 model Job {
   id            String    @id @default(uuid()) @db.Uuid
   file_url      String    @db.VarChar(512)
@@ -60,29 +73,30 @@ model Job {
 }
 
 model User {
-  id               Int               @id @default(autoincrement())
-  username         String            @unique @db.VarChar(100)
-  firstName        String            @map("first_name") @db.VarChar(100)
-  lastName         String            @map("last_name") @db.VarChar(100)
-  email            String            @unique @db.VarChar(320)
-  password         String            @db.VarChar(60)
-  isVerified       Boolean           @default(false) @map("is_verified")
-  isBlocked        Boolean           @default(false) @map("is_blocked")
-  phone            String            @db.VarChar(15)
-  dateOfBirth      DateTime          @map("date_of_birth") @db.Date
-  address          String
-  city             String            @db.VarChar(100)
-  country          String            @db.VarChar(100)
-  nationalId       String            @unique @map("national_id") @db.VarChar(50)
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
-  roomsCreated     Room[]
-  roomMembers      RoomMember[]
-  roomPostsAuthor  RoomPost[]
-  roomPostComments RoomPostComment[]
-  staff            Staff?
-  student          Student?
-  userRoles        UserRole[]
+  id                        Int                        @id @default(autoincrement())
+  username                  String                     @unique @db.VarChar(100)
+  firstName                 String                     @map("first_name") @db.VarChar(100)
+  lastName                  String                     @map("last_name") @db.VarChar(100)
+  email                     String                     @unique @db.VarChar(320)
+  password                  String                     @db.VarChar(60)
+  isVerified                Boolean                    @default(false) @map("is_verified")
+  isBlocked                 Boolean                    @default(false) @map("is_blocked")
+  blockReason               BlockReasonType?
+  phone                     String                     @db.VarChar(15)
+  dateOfBirth               DateTime                   @map("date_of_birth") @db.Date
+  address                   String
+  city                      String                     @db.VarChar(100)
+  country                   String                     @db.VarChar(100)
+  nationalId                String                     @unique @map("national_id") @db.VarChar(50)
+  createdAt                 DateTime                   @default(now()) @map("created_at")
+  updatedAt                 DateTime                   @updatedAt @map("updated_at")
+  LearningGroups            LearningGroup[]
+  LearningGroupMembers      LearningGroupMember[]
+  LearningGroupPostsAuthor  LearningGroupPost[]
+  LearningGroupPostComments LearningGroupPostComment[]
+  staff                     Staff?
+  student                   Student?
+  userRoles                 UserRole[]
 
   @@index([email])
   @@index([username])
@@ -98,7 +112,7 @@ model Staff {
   hireDate           DateTime            @map("hire_date") @db.Date
   salary             Decimal?            @db.Decimal(12, 2)
   attendanceSessions AttendanceSession[]
-  classSessions      ClassSession[]
+  ScheduleSlots      ScheduleSlot[]
   faculties          Faculty[]
   programs           Program[]
   user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -140,12 +154,11 @@ model Program {
   programCreditHours    Int                           @default(0) @map("program_credit_hours")
   programType           ProgramType                   @map("program_type")
   resultDisplay         ResultDisplayType             @default(CourseGrade) @map("result_display")
-  blockReason           BlockReasonType?              @map("block_reason")
   createdAt             DateTime                      @default(now()) @map("created_at")
   updatedAt             DateTime                      @updatedAt @map("updated_at")
   academicLoadGPAs      AcademicLoadGPA[]
   academicLoadSemesters AcademicLoadSemester[]
-  classSessions         ClassSession[]
+  scheduleSlots         ScheduleSlot[]
   faculty               Faculty                       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   head                  Staff?                        @relation(fields: [headId], references: [userId])
   programCourses        ProgramCourse[]
@@ -237,11 +250,12 @@ model Semester {
   endDate               DateTime               @map("end_date") @db.Date
   type                  SemesterType
   academicLoadSemesters AcademicLoadSemester[]
-  classSessions         ClassSession[]
+  scheduleSlots         ScheduleSlot[]
   courseRegistrations   CourseRegistration[]
   fees                  Fee[]
   studentFeeReports     StudentFeeReport[]
   transcripts           Transcript[]
+  courseAssessments     CourseAssessment[]
 
   @@unique([year, term])
   @@index([year])
@@ -359,10 +373,11 @@ model Course {
   createdAt                 DateTime             @default(now()) @map("created_at")
   updatedAt                 DateTime             @updatedAt @map("updated_at")
   attendanceReports         AttendanceReport[]
-  classSessions             ClassSession[]
+  scheduleSlots             ScheduleSlot[]
   coursePrerequisitesFor    CoursePrerequisite[] @relation("course")
   coursePrerequisites       CoursePrerequisite[] @relation("prerequisite")
   programCourses            ProgramCourse[]
+  courseAssessments         CourseAssessment[]
 
   @@index([code])
   @@map("Course")
@@ -370,85 +385,93 @@ model Course {
 }
 
 model Classroom {
-  id            Int            @id @default(autoincrement())
-  roomNumber    String         @map("room_number") @db.VarChar(50)
-  building      String         @db.VarChar(100)
-  capacity      Int
-  type          ClassroomType
-  isAvailable   Boolean        @default(true) @map("is_available")
-  classSessions ClassSession[]
+  id               Int            @id @default(autoincrement())
+  classroomNumber  String         @map("classroom_number") @db.VarChar(50)
+  underMaintenance Boolean        @default(false)
+  building         String         @db.VarChar(100)
+  capacity         Int
+  type             ClassroomType
+  //remember to remove it (replaced it with under maintenance)
+  isAvailable      Boolean        @default(true) @map("is_available")
+  scheduleSlot     ScheduleSlot[]
 
-  @@unique([roomNumber, building])
+  @@unique([classroomNumber, building])
   @@index([building])
   @@index([isAvailable])
   @@map("Classroom")
   @@schema("template")
 }
 
-model Room {
-  id                Int            @id @default(autoincrement())
-  roomName          String         @map("room_name") @db.VarChar(255)
-  description       String?
-  createdBy         Int            @map("created_by")
-  maxMembers        Int?           @map("max_members")
-  accessCode        String?        @map("access_code") @db.VarChar(50)
-  allowStudentPosts Boolean        @default(false) @map("allow_student_posts")
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  classSessions     ClassSession[]
-  creator           User           @relation(fields: [createdBy], references: [id])
-  members           RoomMember[]
-  posts             RoomPost[]
+model LearningGroup {
+  id                Int      @id @default(autoincrement())
+  GroupName         String   @map("group_name") @db.VarChar(255)
+  accessCode        String?  @map("access_code") @db.VarChar(50)
+  allowStudentPosts Boolean  @default(false) @map("allow_student_posts")
+  createdAt         DateTime @default(now()) @map("created_at")
 
-  @@index([createdBy])
-  @@index([accessCode])
-  @@map("Room")
+  ScheduleSlot ScheduleSlot[]
+  posts        LearningGroupPost[]
+  members      LearningGroupMember[]
+  user         User?                 @relation(fields: [userId], references: [id])
+  userId       Int?
+
+  @@map("LearningGroup")
   @@schema("template")
 }
 
-model ClassSession {
-  id                  Int                  @id @default(autoincrement())
-  courseId            Int                  @map("course_id")
-  teacherId           Int                  @map("teacher_id")
-  programId           Int                  @map("program_id")
-  classroomId         Int                  @map("classroom_id")
-  semesterId          Int                  @map("semester_id")
-  roomId              Int                  @map("room_id")
-  academicLevel       Int                  @map("academic_level")
-  dayOfWeek           DayOfWeek            @map("day_of_week")
-  startTime           DateTime             @map("start_time") @db.Time(6)
-  endTime             DateTime             @map("end_time") @db.Time(6)
-  attendanceSessions  AttendanceSession[]
-  classroom           Classroom            @relation(fields: [classroomId], references: [id])
-  course              Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  program             Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
-  room                Room                 @relation(fields: [roomId], references: [id])
-  semester            Semester             @relation(fields: [semesterId], references: [id], onDelete: Cascade)
-  teacher             Staff                @relation(fields: [teacherId], references: [userId])
-  courseAssessments   CourseAssessment[]
-  courseRegistrations CourseRegistration[]
+model ScheduleSlot {
+  id              Int  @id @default(autoincrement())
+  courseId        Int  @map("course_id")
+  teacherId       Int  @map("teacher_id")
+  programId       Int  @map("program_id")
+  classroomId     Int  @map("classroom_id") // Physical Location
+  semesterId      Int  @map("semester_id")
+  learningGroupId Int? @map("learning_group_id") // Virtual group (Teams-like)
+  academicLevel   Int  @map("academic_level")
 
-  @@index([courseId])
-  @@index([teacherId])
-  @@index([programId])
-  @@index([semesterId])
-  @@index([dayOfWeek, startTime])
-  @@map("ClassSession")
+  dayOfWeek DayOfWeek @map("day_of_week")
+  startTime DateTime  @map("start_time") @db.Time(6)
+  endTime   DateTime  @map("end_time") @db.Time(6)
+  type      SlotType  @default(Lecture) // Distinguishes Lab/Lecture
+
+  // Relations
+  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher       Staff          @relation(fields: [teacherId], references: [userId])
+  program       Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
+  semester      Semester       @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  classroom     Classroom      @relation(fields: [classroomId], references: [id])
+  learningGroup LearningGroup? @relation(fields: [learningGroupId], references: [id])
+
+  attendanceSessions AttendanceSession[]
+  registrations      CourseRegistration[]
+
+  // 4. For Physical Room availability lookups
+  @@index([classroomId, dayOfWeek])
+
+  // For the Program's main timetable
+  @@index([programId, semesterId, academicLevel])
+  // For course Schedule in a specific semster
+  @@index([semesterId, courseId])
+  @@index([teacherId, semesterId, dayOfWeek])
+  @@map("ScheduleSlot")
   @@schema("template")
 }
 
 model CourseAssessment {
   id             Int                  @id @default(autoincrement())
-  classSessionId Int                  @map("class_session_id")
+  courseId       Int                  @map("course_id")
+  semesterId     Int                  @map("semester_id")
   label          String               @db.VarChar(100)
-  assessmentType CourseAssessmentType @map("assessment_type")
-  marks          Decimal              @db.Decimal(5, 2)
   createdAt      DateTime             @default(now()) @map("created_at")
   updatedAt      DateTime             @updatedAt @map("updated_at")
-  classSession   ClassSession         @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
-  grades         Grade[]
+  assessmentType CourseAssessmentType @map("assessment_type")
+  marks          Decimal              @db.Decimal(5, 2)
 
-  @@index([classSessionId])
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  semester Semester @relation(fields: [semesterId], references: [id])
+  grades   Grade[]
+
+  @@index([courseId, semesterId])
   @@index([assessmentType])
   @@map("CourseAssessment")
   @@schema("template")
@@ -558,20 +581,20 @@ model RolePermission {
 model CourseRegistration {
   id             Int                @id @default(autoincrement())
   studentId      Int                @map("student_id")
-  sessionId      Int                @map("session_id")
+  scheduleSlotId Int                @map("schedule_slot_id")
   semesterId     Int                @map("semester_id")
   enrollmentDate DateTime           @default(now()) @map("enrollment_date") @db.Date
   status         RegistrationStatus @default(Enrolled)
   grade          GradeEnum?
   gradePoints    Int?               @map("grade_points")
   semester       Semester           @relation(fields: [semesterId], references: [id])
-  session        ClassSession       @relation(fields: [sessionId], references: [id])
+  ScheduleSlot   ScheduleSlot       @relation(fields: [scheduleSlotId], references: [id])
   student        Student            @relation(fields: [studentId], references: [userId], onDelete: Cascade)
   grades         Grade[]
 
-  @@unique([studentId, sessionId, semesterId])
+  @@unique([studentId, scheduleSlotId, semesterId])
   @@index([studentId])
-  @@index([sessionId])
+  @@index([scheduleSlotId])
   @@index([semesterId])
   @@index([status])
   @@map("CourseRegistration")
@@ -616,26 +639,24 @@ model Transcript {
 }
 
 model AttendanceSession {
-  id                 Int                 @id @default(autoincrement())
-  classSessionId     Int                 @map("class_session_id")
-  facultyMemberId    Int                 @map("faculty_member_id")
-  sessionDate        DateTime            @map("session_date") @db.Date
-  startTime          DateTime            @map("start_time") @db.Time(6)
-  endTime            DateTime            @map("end_time") @db.Time(6)
-  attendanceMode     AttendanceMode      @map("attendance_mode")
-  hotspotSsid        String?             @map("hotspot_ssid") @db.VarChar(255)
-  qrCode             String?             @map("qr_code") @db.VarChar(500)
-  isActive           Boolean             @default(true) @map("is_active")
-  createdAt          DateTime            @default(now()) @map("created_at")
-  sessionNotes       String?             @map("session_notes")
-  classSession       ClassSession        @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
-  facultyMember      Staff               @relation(fields: [facultyMemberId], references: [userId])
-  studentAttendances StudentAttendance[]
+  id              Int            @id @default(autoincrement())
+  scheduleSlotId  Int            @map("schedule_slot_id")
+  facultyMemberId Int            @map("faculty_member_id")
+  sessionDate     DateTime       @map("session_date") @db.Date
+  startTime       DateTime       @map("start_time") @db.Time(6)
+  endTime         DateTime       @map("end_time") @db.Time(6)
+  attendanceMode  AttendanceMode @map("attendance_mode")
+  hotspotSsid     String?        @map("hotspot_ssid") @db.VarChar(255)
+  qrCode          String?        @map("qr_code") @db.VarChar(500)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  sessionNotes    String?        @map("session_notes")
 
-  @@index([classSessionId])
+  scheduleSlot  ScheduleSlot        @relation(fields: [scheduleSlotId], references: [id], onDelete: Cascade)
+  facultyMember Staff               @relation(fields: [facultyMemberId], references: [userId])
+  attendance    StudentAttendance[]
+
+  @@index([scheduleSlotId, sessionDate])
   @@index([sessionDate])
-  @@index([facultyMemberId])
-  @@index([isActive])
   @@map("AttendanceSession")
   @@schema("template")
 }
@@ -684,76 +705,77 @@ model AttendanceReport {
   @@schema("template")
 }
 
-model RoomMember {
-  id       Int      @id @default(autoincrement())
-  roomId   Int      @map("room_id")
-  userId   Int      @map("user_id")
-  role     RoomRole @default(Member)
-  joinedAt DateTime @default(now()) @map("joined_at")
-  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model LearningGroupMember {
+  id                 Int                 @id @default(autoincrement())
+  learningGroupId    Int                 @map("learning_group_id")
+  userId             Int                 @map("user_id")
+  role               LearningGroupRole   @default(Member)
+  joinedAt           DateTime            @default(now()) @map("joined_at")
+  group              LearningGroup       @relation(fields: [learningGroupId], references: [id], onDelete: Cascade)
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningGroupPosts LearningGroupPost[]
 
-  @@unique([roomId, userId])
-  @@index([roomId])
+  @@unique([learningGroupId, userId])
+  @@index([learningGroupId])
   @@index([userId])
-  @@map("RoomMember")
+  @@map("LearningGroupMember")
   @@schema("template")
 }
 
-model RoomPost {
-  id          Int                  @id @default(autoincrement())
-  roomId      Int                  @map("room_id")
-  authorId    Int                  @map("author_id")
-  content     String?
-  postType    PostType             @map("post_type")
-  isPinned    Boolean              @default(false) @map("is_pinned")
-  isEdited    Boolean              @default(false) @map("is_edited")
-  dueDate     DateTime?            @map("due_date")
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt @map("updated_at")
-  author      User                 @relation(fields: [authorId], references: [id])
-  room        Room                 @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  attachments RoomPostAttachment[]
-  comments    RoomPostComment[]
+model LearningGroupPost {
+  id                    Int                           @id @default(autoincrement())
+  learningGroupId       Int                           @map("learning_group_id")
+  authorId              Int                           @map("author_id")
+  content               String?
+  postType              PostType                      @map("post_type")
+  isPinned              Boolean                       @default(false) @map("is_pinned")
+  isEdited              Boolean                       @default(false) @map("is_edited")
+  dueDate               DateTime?                     @map("due_date")
+  createdAt             DateTime                      @default(now()) @map("created_at")
+  updatedAt             DateTime                      @updatedAt @map("updated_at")
+  author                User                          @relation(fields: [authorId], references: [id])
+  attachments           LearningGroupPostAttachment[]
+  comments              LearningGroupPostComment[]
+  learningGroup         LearningGroup                 @relation(fields: [learningGroupId], references: [id])
+  learningGroupMember   LearningGroupMember?          @relation(fields: [learningGroupMemberId], references: [id])
+  learningGroupMemberId Int?
 
-  @@index([roomId])
+  @@index([learningGroupId])
   @@index([authorId])
-  @@index([createdAt])
-  @@index([isPinned, roomId])
-  @@map("RoomPost")
+  @@map("LearningGroupPost")
   @@schema("template")
 }
 
-model RoomPostAttachment {
-  id              Int             @id @default(autoincrement())
-  postId          Int             @map("post_id")
-  fileName        String          @map("file_name") @db.VarChar(255)
-  fileType        String          @map("file_type") @db.VarChar(50)
-  storageProvider StorageProvider @map("storage_provider")
-  storagePath     String          @map("storage_path") @db.VarChar(500)
-  fileSize        BigInt?         @map("file_size")
-  uploadedAt      DateTime        @default(now()) @map("uploaded_at")
-  post            RoomPost        @relation(fields: [postId], references: [id], onDelete: Cascade)
+model LearningGroupPostAttachment {
+  id              Int               @id @default(autoincrement())
+  postId          Int               @map("post_id")
+  fileName        String            @map("file_name") @db.VarChar(255)
+  fileType        String            @map("file_type") @db.VarChar(50)
+  storageProvider StorageProvider   @map("storage_provider")
+  storagePath     String            @map("storage_path") @db.VarChar(500)
+  fileSize        BigInt?           @map("file_size")
+  uploadedAt      DateTime          @default(now()) @map("uploaded_at")
+  post            LearningGroupPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
-  @@map("RoomPostAttachment")
+  @@map("LearningGroupPostAttachment")
   @@schema("template")
 }
 
-model RoomPostComment {
-  id        Int      @id @default(autoincrement())
-  postId    Int      @map("post_id")
-  authorId  Int      @map("author_id")
+model LearningGroupPostComment {
+  id        Int               @id @default(autoincrement())
+  postId    Int               @map("post_id")
+  authorId  Int               @map("author_id")
   content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  author    User     @relation(fields: [authorId], references: [id])
-  post      RoomPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  author    User              @relation(fields: [authorId], references: [id])
+  post      LearningGroupPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([authorId])
   @@index([createdAt])
-  @@map("RoomPostComment")
+  @@map("LearningGroupPostComment")
   @@schema("template")
 }
 
@@ -836,7 +858,7 @@ enum FeeStatus {
 }
 
 enum ClassroomType {
-  Lecture
+  Hall
   Lab
   Auditorium
   Other
@@ -852,6 +874,14 @@ enum DayOfWeek {
   Friday
   Saturday
   Sunday
+
+  @@schema("template")
+}
+
+enum SlotType {
+  Lecture
+  Lab
+  Tutorial
 
   @@schema("template")
 }
@@ -904,7 +934,7 @@ enum AttendanceStatus {
   @@schema("template")
 }
 
-enum RoomRole {
+enum LearningGroupRole {
   Owner
   Member
 
@@ -937,9 +967,11 @@ enum JobStatus {
 
   @@schema("template")
 }
+
 model Migrations {
-  name String @id
+  name       String   @id
   applied_at DateTime @default(now())
+
   @@map("migrations")
   @@schema("template")
 }

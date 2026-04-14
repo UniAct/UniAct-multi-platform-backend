@@ -7,11 +7,8 @@ import { ClassroomRepository } from "../Repositories/ClassroomRepository";
 export class ClassroomService {
   private static buildCreateData(payload: ClassroomUpsertInput): Prisma.ClassroomCreateInput {
     return {
-      roomNumber: payload.roomNumber,
-      building: payload.building,
-      capacity: payload.capacity,
-      type: payload.type,
       isAvailable: payload.isAvailable ?? true,
+      ...payload
     };
   }
 

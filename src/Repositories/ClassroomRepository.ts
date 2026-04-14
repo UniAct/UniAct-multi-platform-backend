@@ -6,7 +6,7 @@ type DbClient = PrismaClient | Prisma.TransactionClient;
 export class ClassroomRepository {
   // Keep response shape consistent across create/read/update so frontend does not branch by endpoint.
   private static readonly classroomDetailsInclude = {
-    classSessions: true,
+    scheduleSlot: true,
   } as const;
 
   private static getClient(schema_name: string): PrismaClient {
@@ -38,7 +38,7 @@ export class ClassroomRepository {
   public static async GetAllClassrooms(prisma: DbClient) {
     return prisma.classroom.findMany({
       include: this.classroomDetailsInclude,
-      orderBy: [{ building: "asc" }, { roomNumber: "asc" }],
+      orderBy: [{ building: "asc" }, { classroomNumber: "asc" }],
     });
   }
 

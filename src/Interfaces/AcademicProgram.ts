@@ -78,7 +78,7 @@ export interface CourseUpsertInput {
 }
 
 export interface ClassroomUpsertInput {
-  roomNumber: string;
+  classroomNumber: string;
   building: string;
   capacity: number;
   type: ClassroomType;

@@ -8,7 +8,7 @@ import { UserLoginRequest } from "../Interfaces/User";
 
 export class UserController {
   public static async Login(req: Request, res: Response) {
-    try {
+    
       const db_schema = req.schema_name!;
       const university_name = req.university_name!;
       const { email, password } = req.body as UserLoginRequest;
@@ -16,14 +16,7 @@ export class UserController {
       const result = await UserService.Login(email, password, db_schema, university_name);
 
       return res.status(result.status).json(result.body);
-    } catch (err: any) {
-      console.error("Login error:", err);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        status: JSendStatus.ERROR,
-        message: "An unexpected error occurred during login.",
-        data: { error: err.message },
-      });
-    }
+    
   }
 
 
