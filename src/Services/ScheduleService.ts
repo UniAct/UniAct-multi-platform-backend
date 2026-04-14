@@ -198,7 +198,7 @@ export class ScheduleService {
 // Fingerprint ignores the ID and database-specific metadata.
 // It only cares about the "Value" of the session.
   private static getFingerprint(s: ScheduleSlotInput): string {
-    return `${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.courseId}-${s.teacherId}-${s.classroomId}-${s.learningGroupId}`;
+    return `${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.courseId}-${s.teacherId}-${s.classroomId}-${s.learningGroupId}-${s.type}`;
   }
 
   
