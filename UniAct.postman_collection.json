@@ -1,11 +1,10 @@
 {
   "info": {
-    "_postman_id": "ed1d0670-be1f-4807-8362-73ffd405de94",
+    "_postman_id": "d8f15594-113e-4215-ba59-c525d0c505f2",
     "name": "UniAct",
     "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "49123104",
-    "_collection_link": "https://go.postman.co/collection/49123104-ed1d0670-be1f-4807-8362-73ffd405de94?source=collection_link"
+    "_exporter_id": "50083579"
   },
   "item": [
     {
@@ -837,7 +836,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"mohamed2.hassan@example.com\",\r\n    \"password\": \"29902021367891\"\r\n}",
+              "raw": "{\r\n    \"email\": \"markmagdy148@gmail.com\",\r\n    \"password\": \"aaAA11!!\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1641,6 +1640,176 @@
                 "job",
                 "student-import",
                 "41605e38-9c7f-4b84-91f1-e0fcdb891541"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schedule",
+      "item": [
+        {
+          "name": "Get",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI1NDUxMSwiZXhwIjoxNzc2MzQwOTExfQ.7CHAm5_TDVJL2xepxwAIJoW796ZuhFdAm6e9c49LTf0",
+                "type": "text"
+              },
+              {
+                "key": "Semester-id",
+                "value": "3",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/schedule/?programId=1&academicLevel=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "schedule",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "programId",
+                  "value": "1"
+                },
+                {
+                  "key": "academicLevel",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Save Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Semester-id",
+                "value": "3",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI1NDUxMSwiZXhwIjoxNzc2MzQwOTExfQ.7CHAm5_TDVJL2xepxwAIJoW796ZuhFdAm6e9c49LTf0",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"programId\": 1,\r\n  \"academicLevel\": 1,\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"courseId\": 1,\r\n      \"teacherId\": 2,\r\n      \"teacherName\": \"youssef\",\r\n      \"classroomId\": 4,\r\n      \"classroomName\": \"A0l1\",\r\n      \"roomId\": 2,\r\n      \"dayOfWeek\": \"Monday\",\r\n      \"startTime\": \"2024-01-01T08:00:00.000Z\",\r\n      \"endTime\": \"2024-01-01T10:00:00.000Z\",\r\n      \"type\":\"Lecture\"\r\n    },\r\n    {\r\n      \"courseId\": 2,\r\n      \"teacherId\": 2,\r\n      \"teacherName\": \"youssef\",\r\n      \"classroomId\": 4,\r\n      \"classroomName\": \"A0l1\",\r\n      \"roomId\": 1,\r\n      \"dayOfWeek\": \"Wednesday\",\r\n      \"startTime\": \"2024-01-01T13:30:00.000Z\",\r\n      \"endTime\": \"2024-01-01T15:00:00.000Z\",\r\n      \"type\":\"Lab\"\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/schedule/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "schedule",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "conflicting times",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI1NDUxMSwiZXhwIjoxNzc2MzQwOTExfQ.7CHAm5_TDVJL2xepxwAIJoW796ZuhFdAm6e9c49LTf0",
+                "type": "text"
+              },
+              {
+                "key": "Semester-id",
+                "value": "1",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"programId\": 1,\r\n  \"academicLevel\": 1,\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"courseId\": 101,\r\n      \"teacherId\": 2,\r\n      \"teacherName\":\"youssef\",\r\n      \"classroomId\": 4,\r\n      \"classroomName\": \"A0l1\",\r\n      \"learningGroupId\": 1,\r\n      \"dayOfWeek\": \"Monday\",\r\n      \"startTime\": \"2026-04-13T08:00:00.000Z\",\r\n      \"endTime\": \"2026-04-13T10:00:00.000Z\",\r\n      \"type\":\"Lecture\"\r\n    },\r\n    {\r\n      \"courseId\": 102,\r\n      \"teacherId\": 2,\r\n      \"teacherName\":\"youssef\",\r\n      \"classroomId\": 2,\r\n      \"classroomName\": \"A0l1\",\r\n      \"learningGroupId\": 2,\r\n      \"dayOfWeek\": \"Monday\",\r\n      \"startTime\": \"2026-04-13T09:30:00.000Z\",\r\n      \"endTime\": \"2026-04-13T11:00:00.000Z\",\r\n      \"type\":\"Tutorial\"\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/schedule/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "schedule",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Classroom",
+      "item": [
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjE1NDE4MiwiZXhwIjoxNzc2MjQwNTgyfQ._bQjDQCPTUM42HtpCbNtTm-1Z1vdF1SvQBFJtGR5XOg",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"roomNumber\":\"A0l1\",\r\n    \"building\":\"A\",\r\n    \"capacity\":50,\r\n    \"type\":\"Hall\"\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/classroom/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "classroom",
+                ""
               ]
             }
           },
