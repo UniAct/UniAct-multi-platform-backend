@@ -40,7 +40,7 @@ export default class ProgramController {
     }
 
     static async GetProgramsByFacultyId(req: Request, res: Response) {
-        const facultyId = parseInt(req.params.facultyId);
+        const facultyId = parseInt(req.params.facultyId as string);
         if(!facultyId)
             throw new BadRequestError("Faculty Id param is missing");
         const programs:any [] = await programService.GetProgramsByFacultyId(facultyId,req.schema_name!);

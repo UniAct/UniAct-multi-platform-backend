@@ -37,6 +37,15 @@ export class SemesterController {
         });
     }
 
+    public static async GetCurrentSemester(req: Request, res: Response) {
+        const semester = await SemesterService.GetCurrentSemester(req.schema_name!);
+
+        res.status(StatusCodes.OK).json({
+            status: JSendStatus.SUCCESS,
+            data: semester,
+        });
+    }
+
     static async UpdateSemester(req: Request, res: Response) {
         const id = parseInt(req.params.id as string);
         const semesterData : UpdateSemesterRequest = req.body as UpdateSemesterRequest;

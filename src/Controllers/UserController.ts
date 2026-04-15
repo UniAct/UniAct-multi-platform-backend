@@ -16,7 +16,6 @@ export class UserController {
       const result = await UserService.Login(email, password, db_schema, university_name);
 
       return res.status(result.status).json(result.body);
-    
   }
 
 

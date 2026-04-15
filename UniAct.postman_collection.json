@@ -1,10 +1,11 @@
 {
   "info": {
-    "_postman_id": "d8f15594-113e-4215-ba59-c525d0c505f2",
+    "_postman_id": "053372ca-3e3f-4c8a-9489-0e1d1af44f73",
     "name": "UniAct",
     "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "50083579"
+    "_exporter_id": "49123104",
+    "_collection_link": "https://go.postman.co/collection/49123104-053372ca-3e3f-4c8a-9489-0e1d1af44f73?source=collection_link"
   },
   "item": [
     {
@@ -1275,7 +1276,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkyIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4NDc3OCwiZXhwIjoxNzc0MjcxMTc4fQ.CDn0C6W9DaDCLtruW2fd9znSfi8eTMI3lM-oGMbElNE",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI4MjczNiwiZXhwIjoxNzc2MzY5MTM2fQ.0GkEygX50e4Q1YHyl-sIo76n6KZ4mzNwVeObMmjMywQ",
                   "type": "string"
                 }
               ]
@@ -1291,7 +1292,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"year\": 2025,\r\n  \"term\": 2,\r\n  \"startDate\": \"2027-12-10\",\r\n  \"endDate\": \"2029-03-01\"\r\n}",
+              "raw": "{\r\n  \"year\": 2026,\r\n  \"term\": 2,\r\n  \"startDate\": \"2026-02-15\",\r\n  \"endDate\": \"2026-06-23\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1324,7 +1325,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiTW9kZXJuIEFjYWRlbXkzIiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlhdCI6MTc3NDE4MzQzOCwiZXhwIjoxNzc0MjY5ODM4fQ.Pw4vsE6pZp4PVgJYJ5jnjD9otsH7xcDQDl2ER6yDrNM",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI4MjczNiwiZXhwIjoxNzc2MzY5MTM2fQ.0GkEygX50e4Q1YHyl-sIo76n6KZ4mzNwVeObMmjMywQ",
                   "type": "string"
                 }
               ]
@@ -1357,6 +1358,56 @@
               "path": [
                 "api",
                 "semester"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Semester",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI4MjczNiwiZXhwIjoxNzc2MzY5MTM2fQ.0GkEygX50e4Q1YHyl-sIo76n6KZ4mzNwVeObMmjMywQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2024,\r\n  \"number\": 1,\r\n  \"startDate\": \"2024-09-01\",\r\n  \"endDate\": \"2024-12-20\",\r\n  \"type\": \"Spring\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/semester/current",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "semester",
+                "current"
               ]
             }
           },

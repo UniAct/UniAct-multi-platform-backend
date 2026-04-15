@@ -29,6 +29,14 @@ router.get(
 );
 
 router.get(
+    "/current",
+    IsAuthenticated,
+    RequirePermission(permissions.semester.read.name),
+    AttachAndValidateTenant,
+    asyncHandler(SemesterController.GetCurrentSemester)
+);
+
+router.get(
     "/:id",
     IsAuthenticated,
     RequirePermission(permissions.semester.read.name),
@@ -37,6 +45,7 @@ router.get(
     ValidateRequest,
     asyncHandler(SemesterController.GetSemesterById)
 );
+
 
 router.put(
     "/:id",

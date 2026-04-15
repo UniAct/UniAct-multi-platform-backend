@@ -151,4 +151,43 @@ export class SemesterService {
 
     return semester;
   }
+
+  public static async GetCurrentSemester(
+    schema_name: string
+  ): Promise<Semester> {
+    const prisma = GetTenantClient(schema_name);
+
+    const semester: Semester | null =
+      await SemesterRepository.GetCurrentSemester(prisma , {
+        id: true,
+        year: true,
+        term: true,
+        startDate: true,
+        endDate: true,
+        type: true,
+      });
+
+    if (!semester) {
+      logger.warn({
+        action: "SemesterService.GetCurrentSemester",
+        status: "failed",
+        schema: schema_name,
+        reason: "no active semester found"
+      });
+
+      throw new NotFoundError("No Current Semester Found");
+    }
+
+    logger.info({
+      action: "SemesterService.GetCurrentSemester",
+      status: "success",
+      schema: schema_name,
+      semesterId: semester.id,
+      year: semester.year,
+      term: semester.term,
+      type: semester.type
+    });
+
+    return semester;
+  }
 }

@@ -11,6 +11,7 @@ import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { NotFoundError } from "../Types/Errors";
 import { logger } from "../Utils/Logger";
+import { SemesterRepository } from "../Repositories/SemesterRepository";
 
 export class UserService {
 
@@ -191,8 +192,10 @@ export class UserService {
     university_name: string,
   ) {
     const prisma = GetTenantClient(db_schema);
-    const user = await UserRepository.GetUserWithProfileByEmail(email , prisma);
-
+    const [user , currentSemester] = await Promise.all([
+      await UserRepository.GetUserWithProfileByEmail(email , prisma),
+      await SemesterRepository.GetCurrentSemester(prisma , {id: true})
+    ]);
     if (!user) {
       logger.warn({
         action: "UserService.Login",
@@ -296,8 +299,14 @@ export class UserService {
       permissions,
       isStaff:         !!user.staff,
       isStudent:       !!user.student,
+      ...(user.student && {
+        programId:      user.student.programId,
+        programLevelId: user.student.programLevelId,
+        studentFullname: user.student.fullname,
+        currentSemesterId: currentSemester?.id
+      }),
     });
-
+    
     logger.info({
       action:   "UserService.Login",
       status:   "success",

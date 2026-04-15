@@ -51,6 +51,21 @@ export class SemesterRepository {
     });
   }
 
+  public static async GetCurrentSemester<T extends Prisma.SemesterSelect>(
+    prisma: PrismaClient,
+    select?: T
+  ): Promise<Prisma.SemesterGetPayload<{ select: T }> | null> {
+    const now = new Date();
+
+    return await prisma.semester.findFirst({
+      where: {
+        startDate: { lte: now },
+        endDate:   { gte: now },
+      },
+      ...(select && { select }),
+    }) as Prisma.SemesterGetPayload<{ select: T }> | null;
+  }
+
 
   public static async SemesterExistsByYearAndTerm(
     year: number,
