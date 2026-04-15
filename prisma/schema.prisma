@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   schemas  = ["public", "template"]
-  
 }
 
 model SuperAdmin {
@@ -106,16 +105,20 @@ model User {
 }
 
 model Staff {
-  userId             Int                 @id @map("user_id")
-  position           String              @db.VarChar(100)
-  cvPath             String?             @map("cv_path") @db.VarChar(1000)
-  hireDate           DateTime            @map("hire_date") @db.Date
-  salary             Decimal?            @db.Decimal(12, 2)
+  userId Int  @id @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  position String   @db.VarChar(100)
+  cvPath   String?  @map("cv_path") @db.VarChar(1000)
+  hireDate DateTime @map("hire_date") @db.Date
+  salary   Decimal? @db.Decimal(12, 2)
+
   attendanceSessions AttendanceSession[]
   ScheduleSlots      ScheduleSlot[]
-  faculties          Faculty[]
-  programs           Program[]
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  programStaffs  ProgramStaff[]
+  headedPrograms Program[] @relation("ProgramHead") // tells which programs he is the head of
+  deanOfFaculties          Faculty[]
 
   @@index([position])
   @@map("Staff")
@@ -123,17 +126,18 @@ model Staff {
 }
 
 model Faculty {
-  id              Int          @id @default(autoincrement())
-  universityId    Int          @map("university_id")
-  name            String       @db.VarChar(255)
+  id              Int            @id @default(autoincrement())
+  universityId    Int            @map("university_id")
+  name            String         @db.VarChar(255)
   description     String?
-  deanId          Int?         @map("dean_id")
-  establishedDate DateTime?    @map("established_date") @db.Date
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
-  dean            Staff?       @relation(fields: [deanId], references: [userId])
+  deanId          Int?           @map("dean_id")
+  establishedDate DateTime?      @map("established_date") @db.Date
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  dean            Staff?         @relation(fields: [deanId], references: [userId])
   programs        Program[]
   regulations     Regulation[]
+  programStaffs   ProgramStaff[]
 
   @@index([universityId])
   @@index([name])
@@ -143,33 +147,59 @@ model Faculty {
 }
 
 model Program {
-  id                    Int                           @id @default(autoincrement())
-  facultyId             Int                           @map("faculty_id")
-  name                  String                        @db.VarChar(255)
+  id                    Int      @id @default(autoincrement())
+  facultyId             Int      @map("faculty_id")
+  name                  String   @db.VarChar(255)
   description           String?
-  headId                Int?                          @map("head_id")
-  phone                 String?                       @db.VarChar(20)
-  universityCreditHours Int                           @default(0) @map("university_credit_hours")
-  facultyCreditHours    Int                           @default(0) @map("faculty_credit_hours")
-  programCreditHours    Int                           @default(0) @map("program_credit_hours")
-  programType           ProgramType                   @map("program_type")
-  resultDisplay         ResultDisplayType             @default(CourseGrade) @map("result_display")
-  createdAt             DateTime                      @default(now()) @map("created_at")
-  updatedAt             DateTime                      @updatedAt @map("updated_at")
+  headId                Int?     @map("head_id")
+  phone                 String?  @db.VarChar(20)
+  universityCreditHours Int      @default(0) @map("university_credit_hours")
+  facultyCreditHours    Int      @default(0) @map("faculty_credit_hours")
+  programCreditHours    Int      @default(0) @map("program_credit_hours")
+  durationYears         Int?      @map("duration_years")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  head                  Staff?   @relation(fields: [headId], references: [userId], name: "ProgramHead")
+  faculty               Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  programType   ProgramType       @map("program_type")
+  resultDisplay ResultDisplayType @default(CourseGrade) @map("result_display")
+
   academicLoadGPAs      AcademicLoadGPA[]
   academicLoadSemesters AcademicLoadSemester[]
   scheduleSlots         ScheduleSlot[]
-  faculty               Faculty                       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  head                  Staff?                        @relation(fields: [headId], references: [userId])
   programCourses        ProgramCourse[]
   programLevels         ProgramLevel[]
   programTranscriptDefs ProgramTranscriptDefinition[]
   students              Student[]
+  programStaffs         ProgramStaff[]
+  staffUserId           Int?
 
   @@index([facultyId])
   @@index([programType])
   @@index([headId])
   @@map("Program")
+  @@schema("template")
+}
+
+model ProgramStaff {
+  id Int @id @default(autoincrement())
+
+  staffId Int   @map("staff_id")
+  staff   Staff @relation(fields: [staffId], references: [userId], onDelete: Cascade)
+
+  programId Int     @map("program_id")
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  // Denormalization: This allows us to say "Give me all staff in this Faculty"
+  // without jumping through the Program table.
+  facultyId Int     @map("faculty_id")
+  faculty   Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@unique([staffId, programId])
+  @@index([facultyId])
+  @@index([staffId, facultyId]) // Added for "Teacher-in-Faculty" lookups
+  @@map("ProgramStaff")
   @@schema("template")
 }
 
@@ -276,6 +306,7 @@ model ProgramLevel {
   program               Program                @relation(fields: [programId], references: [id], onDelete: Cascade)
   student               Student[]
   studentFeeReports     StudentFeeReport[]
+  programCourses        ProgramCourse[]
 
   @@unique([programId, level])
   @@unique([id, programId])
@@ -387,17 +418,16 @@ model Course {
 model Classroom {
   id               Int            @id @default(autoincrement())
   classroomNumber  String         @map("classroom_number") @db.VarChar(50)
-  underMaintenance Boolean        @default(false)
   building         String         @db.VarChar(100)
   capacity         Int
   type             ClassroomType
-  //remember to remove it (replaced it with under maintenance)
-  isAvailable      Boolean        @default(true) @map("is_available")
+  underMaintenance Boolean        @default(false)
+  
   scheduleSlot     ScheduleSlot[]
 
   @@unique([classroomNumber, building])
   @@index([building])
-  @@index([isAvailable])
+  @@index([underMaintenance])
   @@map("Classroom")
   @@schema("template")
 }
@@ -447,7 +477,6 @@ model ScheduleSlot {
 
   // 4. For Physical Room availability lookups
   @@index([classroomId, dayOfWeek])
-
   // For the Program's main timetable
   @@index([programId, semesterId, academicLevel])
   // For course Schedule in a specific semster
@@ -478,13 +507,21 @@ model CourseAssessment {
 }
 
 model ProgramCourse {
-  programId Int        @map("program_id")
-  courseId  Int        @map("course_id")
-  type      CourseType
-  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  program   Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  id Int @id @default(autoincrement())
 
-  @@id([programId, courseId])
+  programId Int
+  program   Program? @relation(fields: [programId], references: [id])
+
+  programLevelId Int          @map("program_level_id")
+  programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
+
+  courseId Int    @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  type CourseType
+
+  @@unique([programLevelId, courseId])
+  @@index([programId])
   @@index([courseId])
   @@index([type])
   @@map("ProgramCourse")

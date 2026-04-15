@@ -1,5 +1,5 @@
 import { DayOfWeek, Prisma } from "@prisma/client";
-import { ClassSessionRepository } from "../Repositories/ScheduleSlotRepository";
+import {ScheduleRepository } from "../Repositories/ScheduleRepository";
 import { ConflictError, NotFoundError } from "../Types/Errors";
 import {GetScheduleResponse, SaveScheduleInput, ScheduleSlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
@@ -8,72 +8,61 @@ export class ScheduleService {
   
 
   public static async GetSchedule(
-    params: { programId: number; academicLevel: number },
-    semesterId: number,
-    schemaName: string,
-  ): Promise<GetScheduleResponse> {
-    const { programId, academicLevel } = params;
-    const prisma = GetTenantClient(schemaName);
+  params: { programId: number; academicLevel: number },
+  semesterId: number,
+  schemaName: string,
+): Promise<GetScheduleResponse> {
+  const { programId, academicLevel } = params;
+  const prisma = GetTenantClient(schemaName);
 
-    // 1. Fetch EVERYTHING in parallel. 
-    // We don't wait for the program check to start fetching sessions.
-    const [program, level, courses, classrooms, staff, scheduleSlots] = await Promise.all([
-      ClassSessionRepository.GetProgramById(programId, prisma),
-      ClassSessionRepository.GetProgramLevel(programId, academicLevel, prisma),
-      ClassSessionRepository.GetCoursesByProgramId(programId, prisma),
-      ClassSessionRepository.GetAllAvailableClassrooms(prisma),
-      ClassSessionRepository.GetAllStaff(prisma),
-      ClassSessionRepository.GetScheduleSlots(programId, academicLevel, semesterId, prisma),
-    ]);
+  // 1. First, get the Program & Faculty ID (needed to scope the staff)
+  // We combine this with the Level check to save one round-trip
+  const program = await prisma.program.findUnique({
+    where: { id: programId },
+    select: {
+      name: true,
+      facultyId: true,
+      programLevels: {
+        where: { level: academicLevel },
+        select: { id: true }
+      }
+    }
+  });
 
-    // 2. Fail-fast validation
-    if (!program) throw new NotFoundError(`Program ${programId} not found`);
-    if (!level) throw new NotFoundError(`Level ${academicLevel} not found for this program`);
+  if (!program) throw new NotFoundError(`Program ${programId} not found`);
+  const levelId = program.programLevels[0]?.id;
+  if (!levelId) throw new NotFoundError(`Level ${academicLevel} is not defined for this program`);
 
-    // 3. Transform data using clean mapping
-    return {
-      meta: {
-        programId,
-        programName: program.name,
-        academicLevel,
-        semesterId,
-      },
-      lookups: {
-        courses: courses.map((c) => c.course),
-        classrooms,
-        staff: staff.map((member) => ({
-          id: member.userId,
-          position: member.position,
-          name: this.formatFullName(member.user.firstName, member.user.lastName),
-          email: member.user.email,
-        })),
-      },
-      scheduleSlots: scheduleSlots.map((slot) => ({
-        id: slot.id,
-        dayOfWeek: slot.dayOfWeek,
-        startTime: this.formatTime(slot.startTime),
-        endTime: this.formatTime(slot.endTime),
-        type:slot.type,
-        course:{
-          id:slot.courseId,
-          code: slot.course.code,
-          name: slot.course.name
-        },
-        teacher:{
-          id: slot.teacherId,
-          name: this.formatFullName(slot.teacher.user.firstName, slot.teacher.user.lastName)
-        },
-        classroom:{
-          id: slot.classroomId,
-          label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`
-        },
-        learningGroup:slot.learningGroup?{
-          id:slot.learningGroup.id,
-          name:slot.learningGroup.GroupName,
-        }:null,
+  // 2. Parallel Fetch with Scoping
+  // We only fetch staff from the same faculty and courses for this specific level
+  const [courses, classrooms, staff, scheduleSlots] = await Promise.all([
+    ScheduleRepository.GetCoursesByLevel(levelId, prisma),
+    ScheduleRepository.GetAllAvailableClassrooms(prisma),
+    ScheduleRepository.GetStaffByFaculty(program.facultyId, prisma),
+    ScheduleRepository.GetScheduleSlots(programId, academicLevel, semesterId, prisma)
+  ]);
+
+  return {
+    meta: {
+      programId,
+      programName: program.name,
+      academicLevel,
+      semesterId,
+    },
+    lookups: {
+      courses: courses.map(c => c.course),
+      classrooms: classrooms.map(c => ({
+        ...c,
+        label: `${c.building} / ${c.classroomNumber}`
       })),
-    };
-  }
+      staff: staff.map(s => ({
+        id: s.staffId,
+        name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
+      })),
+    },
+    scheduleSlots: scheduleSlots.map(slot => this.mapSlotToResponse(slot))
+  };
+}
 
 
   public static async SaveSchedule(
@@ -81,7 +70,6 @@ export class ScheduleService {
     semesterId: number,
     tx: Prisma.TransactionClient
   ) {
-    console.dir(payload);
     const { programId, academicLevel, scheduleSlots } = payload;
     // 1. MUST VALIDATE HERE: Ensure the new state isn't self-conflicting
     this.validateInternalConsistency(scheduleSlots);
@@ -139,7 +127,11 @@ export class ScheduleService {
       ...sessionsToUpdate.map(({ id,teacherName,classroomName, ...s }) => // Destructure to use id in where, rest in data
         tx.scheduleSlot.update({
           where: { id },
-          data: { ...s }, // Spreads all fields validated by Zod
+          data: { ...s,
+            programId,     
+            academicLevel, 
+            semesterId
+           },
         })
       ),
     ]);
@@ -161,34 +153,14 @@ export class ScheduleService {
     }
   });
 
-  // Map the database results to match your "label" requirements in the Classroom schema
-  const mappedSlots = refreshedSlots.map(slot => { return{
-    ...slot,
-    startTime: slot.startTime.toISOString(), // Ensure they are ISO strings
-    endTime: slot.endTime.toISOString(),
-
-    classroom: {
-      id: slot.classroom.id,
-      label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`
-    },
-
-    teacher:{
-      id:slot.teacherId,
-      name:`${slot.teacher.user.firstName} ${slot.teacher.user.lastName}`
-    },
-
-    learningGroup: slot.learningGroup? {
-      id:slot.learningGroup?.id,
-      name: slot.learningGroup?.GroupName
-    }:null
-  }});
+  const mappedSlots = refreshedSlots.map(slot=> this.mapSlotToResponse(slot));
 
   return {
     deleted: idsToDelete.length,
     created: incomingNew.length,
     updated: sessionsToUpdate.length,
     unchanged: incomingExisting.length - sessionsToUpdate.length,
-    scheduleSlots: mappedSlots // Return the fresh data
+    scheduleSlots: mappedSlots 
   };
 }
 
@@ -250,6 +222,33 @@ export class ScheduleService {
       }
     }
   }
+
+  private static mapSlotToResponse(slot: any) {
+  return {
+    id: slot.id,
+    dayOfWeek: slot.dayOfWeek,
+    startTime: this.formatTime(slot.startTime),
+    endTime: this.formatTime(slot.endTime),
+    type: slot.type,
+    course: {
+      id: slot.courseId,
+      code: slot.course.code,
+      name: slot.course.name
+    },
+    teacher: {
+      id: slot.teacherId,
+      name: this.formatFullName(slot.teacher.user.firstName, slot.teacher.user.lastName)
+    },
+    classroom: {
+      id: slot.classroomId,
+      label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`
+    },
+    learningGroup: slot.learningGroup ? {
+      id: slot.learningGroup.id,
+      name: slot.learningGroup.GroupName,
+    } : null,
+  };
+}
   
    // Utility to format names consistently across the service.
 
