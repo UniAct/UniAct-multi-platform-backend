@@ -194,7 +194,7 @@ export class UserService {
     const prisma = GetTenantClient(db_schema);
     const [user , currentSemester] = await Promise.all([
       await UserRepository.GetUserWithProfileByEmail(email , prisma),
-      await SemesterRepository.GetCurrentSemester(prisma , {id: true})
+      await SemesterRepository.GetCurrentSemester(prisma , {id: true , year: true , term: true , type: true})
     ]);
     if (!user) {
       logger.warn({
@@ -300,10 +300,28 @@ export class UserService {
       isStaff:         !!user.staff,
       isStudent:       !!user.student,
       ...(user.student && {
-        programId:      user.student.programId,
-        programLevelId: user.student.programLevelId,
-        studentFullname: user.student.fullname,
-        currentSemesterId: currentSemester?.id
+        program: {
+          id: user.student.program.id,
+          programName: user.student.program.name,
+        },
+        programLevel: {
+          id: user.student.programLevel.id,
+          level: user.student.programLevel.level,
+        },
+        student: {
+          fullname: user.student.fullname,
+          nationalId: user.nationalId,
+          cgpa: user.student.cgpa,
+          gender: user.student.gender,
+          religion: user.student.religion,
+          universityStudentId: user.student.universityStudentId
+        },
+        semester: {
+          id: currentSemester?.id,
+          year: currentSemester?.year,
+          type: currentSemester?.type,
+          term: currentSemester?.term
+        }
       }),
     });
     

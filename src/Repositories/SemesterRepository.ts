@@ -57,13 +57,23 @@ export class SemesterRepository {
   ): Promise<Prisma.SemesterGetPayload<{ select: T }> | null> {
     const now = new Date();
 
-    return await prisma.semester.findFirst({
+    const current = await prisma.semester.findFirst({
       where: {
         startDate: { lte: now },
         endDate:   { gte: now },
       },
       ...(select && { select }),
-    }) as Prisma.SemesterGetPayload<{ select: T }> | null;
+    });
+
+    if (current) return current as Prisma.SemesterGetPayload<{ select: T }>;
+
+    // Fallback: latest semester by startDate
+    const latest = await prisma.semester.findFirst({
+      orderBy: { startDate: 'desc' },
+      ...(select && { select }),
+    });
+
+    return latest as Prisma.SemesterGetPayload<{ select: T }> | null;
   }
 
 

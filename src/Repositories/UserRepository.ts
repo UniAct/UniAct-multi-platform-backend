@@ -200,18 +200,21 @@ export class UserRepository {
   }
 
   public static async GetUserWithProfileByEmail(
-    email: string, 
-    prisma : PrismaClient
-  ) : Promise<User & {staff: Staff | null; student: Student | null} | null>{
-    return prisma.user.findUnique(
-      {
-        where: {email},
-        include: {
-          staff : true, 
-          student : true
-        }
-      }
-    );
+    email: string,
+    prisma: PrismaClient
+  ) {
+    return prisma.user.findUnique({
+      where: { email },
+      include: {
+        staff: true,
+        student: {
+          include: {
+            program:      true,
+            programLevel: true,
+          },
+        },
+      },
+    });
   }
 }
 
