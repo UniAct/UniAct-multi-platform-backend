@@ -20,19 +20,22 @@ export class CourseService {
       programCourses: {
         create: {
           type: payload.courseType,
-          program: {
-            connect: { id: payload.programId },
+          programLevel: {
+            connect: { id: payload.programLevelId }
           },
+          program:{
+            connect:{id:payload.programId}
+          }
         },
       },
       coursePrerequisitesFor: prerequisiteIds.length
         ? {
-            create: prerequisiteIds.map((prerequisiteId) => ({
-              prerequisite: {
-                connect: { id: prerequisiteId },
-              },
-            })),
-          }
+          create: prerequisiteIds.map((prerequisiteId) => ({
+            prerequisite: {
+              connect: { id: prerequisiteId },
+            },
+          })),
+        }
         : undefined,
     };
   }
@@ -85,20 +88,21 @@ export class CourseService {
           programCourses: {
             create: {
               type: payload.courseType,
-              program: {
-                connect: { id: payload.programId },
+              programLevel: {
+                connect: { id: payload.programLevelId }
               },
+              program:{connect:{id:payload.programId}}
             },
           },
           coursePrerequisitesFor:
             payload.prerequisiteIds && payload.prerequisiteIds.length > 0
               ? {
-                  create: Array.from(new Set(payload.prerequisiteIds)).map((prerequisiteId) => ({
-                    prerequisite: {
-                      connect: { id: prerequisiteId },
-                    },
-                  })),
-                }
+                create: Array.from(new Set(payload.prerequisiteIds)).map((prerequisiteId) => ({
+                  prerequisite: {
+                    connect: { id: prerequisiteId },
+                  },
+                })),
+              }
               : undefined,
         },
         tx,

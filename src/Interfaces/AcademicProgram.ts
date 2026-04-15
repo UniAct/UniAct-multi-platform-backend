@@ -72,7 +72,8 @@ export interface CourseUpsertInput {
   successPercentage?: number;
   minFinalSuccessPercentage?: number;
   totalFail?: boolean;
-  programId: number;
+  programLevelId: number;
+  programId:number;
   courseType: CourseType;
   prerequisiteIds?: number[];
 }

@@ -51,6 +51,7 @@ export const ScheduleSlotResponseSchema = z.object({
   startTime: z.string(), // ISO time string
   endTime: z.string(),
   type: z.enum(SlotType),
+  enrolledSeats:z.number().default(0),
   
   // Hierarchical Data
   course: BaseCourseSchema,
@@ -58,6 +59,7 @@ export const ScheduleSlotResponseSchema = z.object({
   classroom: z.object({
     id: z.number(),
     label: z.string(),
+    capacity:z.number(),
   }),
   learningGroup: z.object({
     id: z.number(),

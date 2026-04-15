@@ -463,6 +463,7 @@ model ScheduleSlot {
   startTime DateTime  @map("start_time") @db.Time(6)
   endTime   DateTime  @map("end_time") @db.Time(6)
   type      SlotType  @default(Lecture) // Distinguishes Lab/Lecture
+  enrolledSeats Int   @default(0) @map("enrolled_seats") @db.SmallInt
 
   // Relations
   course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -510,7 +511,7 @@ model ProgramCourse {
   id Int @id @default(autoincrement())
 
   programId Int
-  program   Program? @relation(fields: [programId], references: [id])
+  program   Program @relation(fields: [programId], references: [id])
 
   programLevelId Int          @map("program_level_id")
   programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)

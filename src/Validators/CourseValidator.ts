@@ -20,6 +20,11 @@ export default class CourseValidator {
         .withMessage("Credits must be a positive integer")
         .toInt(),
 
+      body("programLevelId")
+        .isInt({ gt: 0 })
+        .withMessage("Program Level ID must be a positive integer")
+        .toInt(),
+
       body("programId")
         .isInt({ gt: 0 })
         .withMessage("Program ID must be a positive integer")
@@ -44,8 +49,8 @@ export default class CourseValidator {
         .toFloat(),
 
       body("courseType")
-        .optional()
-        .isIn(["Mandatory", "Elective", "Project"]),
+        .isIn(["Mandatory", "Elective", "Project"])
+        .withMessage("Course Type must be one of the following (Mandatory, Elective, Project"),
 
       body("prerequisiteIds")
         .optional()

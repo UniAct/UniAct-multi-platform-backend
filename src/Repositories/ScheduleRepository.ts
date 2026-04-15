@@ -44,7 +44,7 @@ export class ScheduleRepository {
       include: {
         course: { select: { id: true, code: true, name: true } },
         teacher: { select: { user: { select: { firstName: true, lastName: true } } } },
-        classroom: { select: { id: true, building: true, classroomNumber: true } },
+        classroom: { select: { id: true, building: true, classroomNumber: true , capacity:true} },
         learningGroup: { select: { id: true, GroupName: true } },
       }
     });

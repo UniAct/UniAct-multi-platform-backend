@@ -230,6 +230,8 @@ export class ScheduleService {
     startTime: this.formatTime(slot.startTime),
     endTime: this.formatTime(slot.endTime),
     type: slot.type,
+    enrolledSeats:slot.enrolledSeats,
+    
     course: {
       id: slot.courseId,
       code: slot.course.code,
@@ -241,7 +243,8 @@ export class ScheduleService {
     },
     classroom: {
       id: slot.classroomId,
-      label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`
+      label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`,
+      capacity: slot.classroom.capacity
     },
     learningGroup: slot.learningGroup ? {
       id: slot.learningGroup.id,
