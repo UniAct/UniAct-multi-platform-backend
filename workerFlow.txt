@@ -1,0 +1,27 @@
+perfect, now we finish from Student → API → Queue , let's implement the worker
+
+
+
+what the responsibilities of the worker are ?
+
+     1. the worker first sum the credit hours that the student selects (each schedule slot has a course that has a credit hours) , this stage will be passed if the student allowed credit hours >= sum of courses he selected from the schedule 
+
+
+
+how that will happens ?
+
+i will go to programlevelid of the that exists in the student table to get its program level id
+
+that program level table has min_credits and max credits , if the sum is in between of them then pass this stage
+
+
+second check if the selected course has a prerequisits or not , if it has then check if the user finish them or not using CoursePrerequistis table
+
+
+
+if he passes all prerequists then check available seats of each schedule slot using ScheduleSlot.enrolledSeats and ScheduleSlot join with class room to see capacity 
+
+
+
+ if the capacity - enrolled seats = 0 then the class room is full , if not then enroll that student to the course 
+

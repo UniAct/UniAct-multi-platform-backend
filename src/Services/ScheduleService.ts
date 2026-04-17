@@ -278,6 +278,7 @@ export class ScheduleService {
     schemaName : string,
     studentId : number,
     currentStudentProgramLevelId : number,
+    studentProgramId: number,
     currentSemesterId : number,
     schedule : EnrollInScheduleRequestDto
   ){
@@ -291,6 +292,7 @@ export class ScheduleService {
       studentId,
       currentStudentProgramLevelId,
       currentSemesterId,
+      studentProgramId,
       schedule
     };
 

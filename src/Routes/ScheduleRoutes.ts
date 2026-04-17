@@ -40,7 +40,7 @@ router.put(
 
 /**
  * Enrollment logic for self-registration:
- * - Student ID , Student Program Level ID and Semester ID are taken from the authenticated JWT (not from request body).
+ * - Student ID , Student Program Level ID , Student Program Id and Semester ID are taken from the authenticated JWT (not from request body).
  * - Students can only register for the current active semester (they cannot choose other semesters).
  * - The selected schedule slots are passed in the request body as an array.
  */

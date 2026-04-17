@@ -4,7 +4,8 @@ export type EnrollmentJobMessage = {
   jobId: string;
   schemaName: string;
   studentId: number;
-  programLevelId : number;
-  semesterId: number;
+  currentStudentProgramLevelId : number;
+  currentSemesterId: number;
+  studentProgramId: number;
   schedule: EnrollInScheduleRequestDto;
 };

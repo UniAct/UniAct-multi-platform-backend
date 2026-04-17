@@ -43,9 +43,10 @@ export class ScheduleController {
     const currentSemester = Number(req.user?.semester?.id);
     const studentId = Number(req.user?.id);
     const currentStudentProgramLevelId = Number(req.user?.programLevel?.id);
+    const studentProgramId = Number(req.user?.program?.id);
     const schedule = req.body as EnrollInScheduleRequestDto;
     
-    const result = await ScheduleService.Enroll(req.schema_name! , studentId , currentStudentProgramLevelId , currentSemester , schedule);
+    const result = await ScheduleService.Enroll(req.schema_name! , studentId , currentStudentProgramLevelId , studentProgramId , currentSemester , schedule);
 
     res.status(StatusCodes.ACCEPTED).json({
       status: JSendStatus.SUCCESS,
