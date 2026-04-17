@@ -41,5 +41,8 @@
     "read":   { "name": "classroom.read",   "description": "View classroom details and list all classrooms" },
     "update": { "name": "classroom.update", "description": "Update existing classroom information" },
     "delete": { "name": "classroom.delete", "description": "Delete a classroom from the system" }
+  },
+  "schedule": {
+    "enroll": { "name": "schedule.enroll", "description": "Enroll a student into a specific schedule" }
   }
 }

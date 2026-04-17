@@ -1,3 +1,4 @@
 export enum Queues{
-  StudentBulkData = "StudentBulkData"
+  StudentBulkData = "StudentBulkData",
+  StudentEnrollment = "StudentEnrollment"
 }

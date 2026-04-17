@@ -4,6 +4,7 @@ import JSendStatus from "../Enums/Jsend";
 import { ScheduleService } from "../Services/ScheduleService";
 import { GetScheduleQuery, SaveScheduleInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
+import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
 
 
 export class ScheduleController {
@@ -35,6 +36,21 @@ export class ScheduleController {
       status: JSendStatus.SUCCESS,
       data: result,
       message: "Timetable saved successfully",
+    });
+  }
+
+  static async Enroll(req: Request, res: Response) {
+    const currentSemester = Number(req.user?.semester?.id);
+    const studentId = Number(req.user?.id);
+    const currentStudentProgramLevelId = Number(req.user?.programLevel?.id);
+    const schedule = req.body as EnrollInScheduleRequestDto;
+    
+    const result = await ScheduleService.Enroll(req.schema_name! , studentId , currentStudentProgramLevelId , currentSemester , schedule);
+
+    res.status(StatusCodes.ACCEPTED).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+      message: "Your enrollment request has been received and is being processed.",
     });
   }
 }

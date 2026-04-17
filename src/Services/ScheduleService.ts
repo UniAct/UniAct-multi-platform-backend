@@ -3,6 +3,12 @@ import {ScheduleRepository } from "../Repositories/ScheduleRepository";
 import { ConflictError, NotFoundError } from "../Types/Errors";
 import {GetScheduleResponse, SaveScheduleInput, ScheduleSlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
+import { JobRepository } from "../Repositories/JobRepository";
+import { QueueRepository } from "../Repositories/QueueRepository";
+import { EnrollmentJobMessage } from "../Interfaces/Enrollment/EnrollmentJobMessage";
+import { Queues } from "../Enums/Queues";
+import { logger } from "../Utils/Logger";
+import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
 
 export class ScheduleService {
   
@@ -17,6 +23,7 @@ export class ScheduleService {
 
   // 1. First, get the Program & Faculty ID (needed to scope the staff)
   // We combine this with the Level check to save one round-trip
+  //NOTE: accessing prisma not in service layer 
   const program = await prisma.program.findUnique({
     where: { id: programId },
     select: {
@@ -265,5 +272,43 @@ export class ScheduleService {
     const h = date.getUTCHours().toString().padStart(2, '0');
     const m = date.getUTCMinutes().toString().padStart(2, '0');
     return `${h}:${m}`;
+  }
+
+  public static async Enroll(
+    schemaName : string,
+    studentId : number,
+    currentStudentProgramLevelId : number,
+    currentSemesterId : number,
+    schedule : EnrollInScheduleRequestDto
+  ){
+    const prisma = GetTenantClient(schemaName);
+
+    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId , currentSemesterId , prisma);
+
+    const message : EnrollmentJobMessage = {
+      jobId,
+      schemaName,
+      studentId,
+      currentStudentProgramLevelId,
+      currentSemesterId,
+      schedule
+    };
+
+    await QueueRepository.Publish<EnrollmentJobMessage>(
+      Queues.StudentEnrollment,
+      message
+    );
+
+    logger.info({
+      action: "ScheduleService.Enroll",
+      status: "success",
+      schema: schemaName,
+      jobId,
+      studentId,
+      currentSemesterId,
+      scheduleSlotCount: schedule.scheduleSlots.length,
+    });
+
+    return { jobId };
   }
 }

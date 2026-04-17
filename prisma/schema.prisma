@@ -71,6 +71,24 @@ model Job {
   @@schema("template")
 }
 
+model EnrollmentJob {
+  id        String          @id @default(uuid()) @db.Uuid
+  studentId Int             @map("student_id")
+  semesterId Int            @map("semester_id")
+  status    EnrollmentJobStatus @default(Pending)
+  result    Json?           // per-slot outcomes written by worker
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  student  Student  @relation(fields: [studentId], references: [userId])
+  semester Semester @relation(fields: [semesterId], references: [id])
+
+  @@index([studentId, semesterId])
+  @@index([status])
+  @@map("EnrollmentJob")
+  @@schema("template")
+}
+
 model User {
   id                        Int                        @id @default(autoincrement())
   username                  String                     @unique @db.VarChar(100)
@@ -227,6 +245,7 @@ model Student {
   studentAttendances    StudentAttendance[]
   studentFeeReports     StudentFeeReport[]
   transcripts           Transcript[]
+  enrollmentJobs EnrollmentJob[]
 
   @@index([programId])
   @@index([status])
@@ -286,6 +305,7 @@ model Semester {
   studentFeeReports     StudentFeeReport[]
   transcripts           Transcript[]
   courseAssessments     CourseAssessment[]
+  enrollmentJobs EnrollmentJob[]
 
   @@unique([year, term])
   @@index([year])
@@ -814,6 +834,14 @@ model LearningGroupPostComment {
   @@index([authorId])
   @@index([createdAt])
   @@map("LearningGroupPostComment")
+  @@schema("template")
+}
+
+enum EnrollmentJobStatus {
+  Pending
+  Processing
+  Done
+
   @@schema("template")
 }
 

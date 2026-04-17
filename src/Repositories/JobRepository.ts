@@ -1,7 +1,6 @@
-import { randomUUID, UUID } from "crypto";
-import { JobStatus, Prisma, PrismaClient } from "@prisma/client";
+import { EnrollmentJobStatus, JobStatus, Prisma, PrismaClient } from "@prisma/client";
 
-
+type DbClient = PrismaClient | Prisma.TransactionClient;
 export class JobRepository {
 
   static async CreateJobRecord(file_url: string, prisma: PrismaClient): Promise<string> {
@@ -38,5 +37,23 @@ export class JobRepository {
         completed_at:  true,
       },
     });
+  }
+
+  static async CreateEnrollmentJobRecord(
+    studentId: number,
+    semesterId: number,
+    prisma: DbClient
+  ): Promise<string> {
+    const job = await prisma.enrollmentJob.create({
+      data: {
+        studentId,
+        semesterId,
+        status: EnrollmentJobStatus.Pending,
+        result: Prisma.JsonNull,
+      },
+      select: { id: true }
+    });
+
+    return job.id;
   }
 }
