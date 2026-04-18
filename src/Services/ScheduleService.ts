@@ -17,17 +17,7 @@ export class ScheduleService {
 
   // 1. First, get the Program & Faculty ID (needed to scope the staff)
   // We combine this with the Level check to save one round-trip
-  const program = await prisma.program.findUnique({
-    where: { id: programId },
-    select: {
-      name: true,
-      facultyId: true,
-      programLevels: {
-        where: { level: academicLevel },
-        select: { id: true }
-      }
-    }
-  });
+  const program = await ScheduleRepository.GetProgram(programId,academicLevel, prisma);
 
   if (!program) throw new NotFoundError(`Program ${programId} not found`);
   const levelId = program.programLevels[0]?.id;

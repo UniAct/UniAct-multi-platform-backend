@@ -5,6 +5,20 @@ type DbClient = PrismaClient | Prisma.TransactionClient;
 
 export class ScheduleRepository {
 
+  public static async GetProgram(programId: number, level:number, prisma: DbClient){
+    return prisma.program.findUnique({
+        where: { id: programId },
+        select: {
+          name: true,
+          facultyId: true,
+          programLevels: {
+            where: { level},
+            select: { id: true }
+          }
+        }
+      });
+  }
+
   public static async GetAllAvailableClassrooms(prisma: DbClient) {
     return prisma.classroom.findMany({
       where: { underMaintenance: false },
@@ -22,6 +36,7 @@ export class ScheduleRepository {
   public static async GetStaffByFaculty(facultyId: number, prisma: PrismaClient) {
     return prisma.programStaff.findMany({
       where: { facultyId },
+      distinct:['staffId'],
       select: {
         staffId: true,
         staff: { select: { user: { select: { firstName: true, lastName: true } } } }
