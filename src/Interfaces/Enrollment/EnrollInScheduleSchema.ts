@@ -66,7 +66,7 @@ export const EnrollInScheduleSchema = z.object({
       }),
 
       type: z.enum(SlotType, {
-        message: "Invalid slot type (Lecture, Lab, Section...)",
+        message: `Invalid slot type ${Object.values(SlotType).join(", ")}`,
       }),
 
       course: z.object({

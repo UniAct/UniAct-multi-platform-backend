@@ -1,4 +1,4 @@
-import { PrismaClient, Staff, Student, User } from "@prisma/client";
+import { PrismaClient , User } from "@prisma/client";
 import { RBACRepository } from "../Repositories/RBACRepository";
 import { UserRepository } from "../Repositories/UserRepository";
 import { IStaffAccount } from "../Interfaces/StaffAccount"
@@ -12,6 +12,7 @@ import { UniversityRepository } from "../Repositories/UniversityRepository";
 import { NotFoundError } from "../Types/Errors";
 import { logger } from "../Utils/Logger";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
+import { TokenPayload } from "../Interfaces/TokenPayload";
 
 export class UserService {
 
@@ -323,7 +324,7 @@ export class UserService {
           term: currentSemester?.term
         }
       }),
-    });
+    } as TokenPayload);
     
     logger.info({
       action:   "UserService.Login",

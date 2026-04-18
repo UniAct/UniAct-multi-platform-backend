@@ -1,5 +1,6 @@
 import { JwtPayload } from "jsonwebtoken";
 import JwtService from "../../Utils/JwtService";
+import { TokenPayload } from "../../Interfaces/TokenPayload";
 export class EmailTemplate {
     private static Template(url: string): string {
         return `
@@ -223,7 +224,7 @@ export class EmailTemplate {
         `;
     }
 
-    private static GenerateUrl(route: string, payload: JwtPayload): string {
+    private static GenerateUrl(route: string, payload: TokenPayload): string {
         const port = process.env.PORT;
         if (!port)
             throw new Error("PORT is not defined in environment variables");

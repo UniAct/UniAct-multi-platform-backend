@@ -6,6 +6,7 @@ import { EnrollmentJobMessage } from "../../Interfaces/Enrollment/EnrollmentJobM
 import { GetTenantClient } from "../../Utils/prismaClient";
 import { EnrollmentJobStatus, Prisma } from "@prisma/client";
 import { RedisPublisher } from "../../Utils/RedisPubSub";
+import { Channels } from "../../Enums/Channels";
 
 /**
  * Enrollment Worker
@@ -233,9 +234,16 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
         // 7d. Publish seat update event via Redis pub/sub
         // Used to propagate real-time seat availability changes to subscribed clients through the WebSocket layer
         await RedisPublisher.publish(
-          "enrollment:seats",
+          Channels.StudentEnrollment,
           JSON.stringify({ slotId: slot.id, remainingSeats })
-        );
+        )
+        .catch(err => {
+          logger.warn({
+            slotId: slot.id,
+            err,
+            message: "Seat Update Publish Failed."
+          });
+        });
 
         outcomes.push({
           slotId: slot.id,

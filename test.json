@@ -1,0 +1,134 @@
+{
+  "scheduleSlots": [
+            {
+                "id": 130,
+                "dayOfWeek": "Saturday",
+                "startTime": "11:00",
+                "endTime": "12:30",
+                "type": "Lecture",
+                "enrolledSeats": 0,
+                "course": {
+                    "id": 48,
+                    "code": "02-24-06415",
+                    "name": "Internet of Things"
+                },
+                "teacher": {
+                    "id": 90,
+                    "name": "arsany osama"
+                },
+                "classroom": {
+                    "id": 7,
+                    "label": "E / E2L2",
+                    "capacity": 50
+                },
+                "learningGroup": {
+                    "id": 1,
+                    "name": "Fetyan el kowa"
+                }
+            },
+            {
+                "id": 131,
+                "dayOfWeek": "Saturday",
+                "startTime": "13:00",
+                "endTime": "14:30",
+                "type": "Lecture",
+                "enrolledSeats": 0,
+                "course": {
+                    "id": 16,
+                    "code": "02-24-00205",
+                    "name": "Machine Learning"
+                },
+                "teacher": {
+                    "id": 90,
+                    "name": "arsany osama"
+                },
+                "classroom": {
+                    "id": 7,
+                    "label": "E / E2L2",
+                    "capacity": 50
+                },
+                "learningGroup": {
+                    "id": 1,
+                    "name": "Fetyan el kowa"
+                }
+            },
+            {
+                "id": 132,
+                "dayOfWeek": "Sunday",
+                "startTime": "09:00",
+                "endTime": "10:30",
+                "type": "Lab",
+                "enrolledSeats": 0,
+                "course": {
+                    "id": 3,
+                    "code": "02-24-00102",
+                    "name": "Calculus"
+                },
+                "teacher": {
+                    "id": 89,
+                    "name": "mark magdy"
+                },
+                "classroom": {
+                    "id": 5,
+                    "label": "C / C0L2",
+                    "capacity": 50
+                },
+                "learningGroup": {
+                    "id": 1,
+                    "name": "Fetyan el kowa"
+                }
+            },
+            {
+                "id": 133,
+                "dayOfWeek": "Sunday",
+                "startTime": "11:00",
+                "endTime": "12:30",
+                "type": "Lecture",
+                "enrolledSeats": 0,
+                "course": {
+                    "id": 3,
+                    "code": "02-24-00102",
+                    "name": "Calculus"
+                },
+                "teacher": {
+                    "id": 2,
+                    "name": "youssef waled"
+                },
+                "classroom": {
+                    "id": 4,
+                    "label": "A / A0L1",
+                    "capacity": 50
+                },
+                "learningGroup": {
+                    "id": 1,
+                    "name": "Fetyan el kowa"
+                }
+            },
+            {
+                "id": 134,
+                "dayOfWeek": "Tuesday",
+                "startTime": "11:00",
+                "endTime": "12:30",
+                "type": "Tutorial",
+                "enrolledSeats": 0,
+                "course": {
+                    "id": 2,
+                    "code": "02-24-00101",
+                    "name": "Linear Algebra"
+                },
+                "teacher": {
+                    "id": 90,
+                    "name": "arsany osama"
+                },
+                "classroom": {
+                    "id": 7,
+                    "label": "E / E2L2",
+                    "capacity": 50
+                },
+                "learningGroup": {
+                    "id": 1,
+                    "name": "Fetyan el kowa"
+                }
+            }
+        ]
+}
