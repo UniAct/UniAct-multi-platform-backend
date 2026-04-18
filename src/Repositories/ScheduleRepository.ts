@@ -33,7 +33,7 @@ export class ScheduleRepository {
     return prisma.programCourse.findMany({
       where: { programLevelId: levelId },
       select: {
-        course: { select: { id: true, code: true, name: true } }
+        course: { select: { id: true, code: true, name: true, credits:true } }
       }
     });
   }
@@ -42,7 +42,7 @@ export class ScheduleRepository {
      return prisma.scheduleSlot.findMany({
       where: { programId, academicLevel: level, semesterId },
       include: {
-        course: { select: { id: true, code: true, name: true } },
+        course: { select: { id: true, code: true, name: true , credits: true} },
         teacher: { select: { user: { select: { firstName: true, lastName: true } } } },
         classroom: { select: { id: true, building: true, classroomNumber: true , capacity:true} },
         learningGroup: { select: { id: true, GroupName: true } },

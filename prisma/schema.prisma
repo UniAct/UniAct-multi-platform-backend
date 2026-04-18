@@ -116,9 +116,9 @@ model Staff {
   attendanceSessions AttendanceSession[]
   ScheduleSlots      ScheduleSlot[]
 
-  programStaffs  ProgramStaff[]
-  headedPrograms Program[] @relation("ProgramHead") // tells which programs he is the head of
-  deanOfFaculties          Faculty[]
+  programStaffs   ProgramStaff[]
+  headedPrograms  Program[]      @relation("ProgramHead") // tells which programs he is the head of
+  deanOfFaculties Faculty[]
 
   @@index([position])
   @@map("Staff")
@@ -156,7 +156,7 @@ model Program {
   universityCreditHours Int      @default(0) @map("university_credit_hours")
   facultyCreditHours    Int      @default(0) @map("faculty_credit_hours")
   programCreditHours    Int      @default(0) @map("program_credit_hours")
-  durationYears         Int?      @map("duration_years")
+  durationYears         Int?     @map("duration_years")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
   head                  Staff?   @relation(fields: [headId], references: [userId], name: "ProgramHead")
@@ -227,6 +227,7 @@ model Student {
   studentAttendances    StudentAttendance[]
   studentFeeReports     StudentFeeReport[]
   transcripts           Transcript[]
+  enrollmentJobs        EnrollmentJob[]
 
   @@index([programId])
   @@index([status])
@@ -286,6 +287,7 @@ model Semester {
   studentFeeReports     StudentFeeReport[]
   transcripts           Transcript[]
   courseAssessments     CourseAssessment[]
+  enrollmentJobs        EnrollmentJob[]
 
   @@unique([year, term])
   @@index([year])
@@ -416,14 +418,14 @@ model Course {
 }
 
 model Classroom {
-  id               Int            @id @default(autoincrement())
-  classroomNumber  String         @map("classroom_number") @db.VarChar(50)
-  building         String         @db.VarChar(100)
+  id               Int           @id @default(autoincrement())
+  classroomNumber  String        @map("classroom_number") @db.VarChar(50)
+  building         String        @db.VarChar(100)
   capacity         Int
   type             ClassroomType
-  underMaintenance Boolean        @default(false)
-  
-  scheduleSlot     ScheduleSlot[]
+  underMaintenance Boolean       @default(false)
+
+  scheduleSlot ScheduleSlot[]
 
   @@unique([classroomNumber, building])
   @@index([building])
@@ -459,11 +461,11 @@ model ScheduleSlot {
   learningGroupId Int? @map("learning_group_id") // Virtual group (Teams-like)
   academicLevel   Int  @map("academic_level")
 
-  dayOfWeek DayOfWeek @map("day_of_week")
-  startTime DateTime  @map("start_time") @db.Time(6)
-  endTime   DateTime  @map("end_time") @db.Time(6)
-  type      SlotType  @default(Lecture) // Distinguishes Lab/Lecture
-  enrolledSeats Int   @default(0) @map("enrolled_seats") @db.SmallInt
+  dayOfWeek     DayOfWeek @map("day_of_week")
+  startTime     DateTime  @map("start_time") @db.Time(6)
+  endTime       DateTime  @map("end_time") @db.Time(6)
+  type          SlotType  @default(Lecture) // Distinguishes Lab/Lecture
+  enrolledSeats Int       @default(0) @map("enrolled_seats") @db.SmallInt
 
   // Relations
   course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -814,6 +816,32 @@ model LearningGroupPostComment {
   @@index([authorId])
   @@index([createdAt])
   @@map("LearningGroupPostComment")
+  @@schema("template")
+}
+
+model EnrollmentJob {
+  id         String              @id @default(uuid()) @db.Uuid
+  studentId  Int                 @map("student_id")
+  semesterId Int                 @map("semester_id")
+  status     EnrollmentJobStatus @default(Pending)
+  result     Json? // per-slot outcomes written by worker
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
+
+  student  Student  @relation(fields: [studentId], references: [userId])
+  semester Semester @relation(fields: [semesterId], references: [id])
+
+  @@index([studentId, semesterId])
+  @@index([status])
+  @@map("EnrollmentJob")
+  @@schema("template")
+}
+
+enum EnrollmentJobStatus {
+  Pending
+  Processing
+  Done
+
   @@schema("template")
 }
 

@@ -73,7 +73,7 @@ export class ScheduleService {
     const { programId, academicLevel, scheduleSlots } = payload;
     // 1. MUST VALIDATE HERE: Ensure the new state isn't self-conflicting
     this.validateInternalConsistency(scheduleSlots);
-
+    console.log("GFLGJFLKGJFGFGJK");
     // 2. Fetch current DB state
     const existingSessions = await tx.scheduleSlot.findMany({
       where: { programId, academicLevel, semesterId },
@@ -146,7 +146,7 @@ export class ScheduleService {
       semesterId 
     },
     include: {
-      course: {select:{id:true, code:true, name:true}},
+      course: {select:{id:true, code:true, name:true, credits:true}},
       teacher: {select:{user:{select:{firstName:true, lastName:true}}}},
       classroom: {select:{id:true, building:true, classroomNumber:true}},
       learningGroup: {select:{id:true, GroupName:true}},
@@ -235,7 +235,8 @@ export class ScheduleService {
     course: {
       id: slot.courseId,
       code: slot.course.code,
-      name: slot.course.name
+      name: slot.course.name,
+      credits: slot.course.credits
     },
     teacher: {
       id: slot.teacherId,

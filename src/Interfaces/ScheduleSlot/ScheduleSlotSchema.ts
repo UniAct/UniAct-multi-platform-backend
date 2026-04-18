@@ -8,6 +8,7 @@ const BaseCourseSchema = z.object({
   id: z.number().int().positive(),
   code: z.string().min(1),
   name: z.string().min(1),
+  credits: z.number()
 });
 
 const BaseStaffSchema = z.object({
