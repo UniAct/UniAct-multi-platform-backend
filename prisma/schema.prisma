@@ -167,13 +167,13 @@ model Program {
 
   academicLoadGPAs      AcademicLoadGPA[]
   academicLoadSemesters AcademicLoadSemester[]
-  scheduleSlots         ScheduleSlot[]
   programCourses        ProgramCourse[]
   programLevels         ProgramLevel[]
   programTranscriptDefs ProgramTranscriptDefinition[]
   students              Student[]
   programStaffs         ProgramStaff[]
   staffUserId           Int?
+  scheduleSlotContexts  ScheduleSlotContext[]
 
   @@index([facultyId])
   @@index([programType])
@@ -197,8 +197,7 @@ model ProgramStaff {
   faculty   Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
 
   @@unique([staffId, programId])
-  @@index([facultyId])
-  @@index([staffId, facultyId]) // Added for "Teacher-in-Faculty" lookups
+  @@index([facultyId, staffId]) // Added for "Teacher-in-Faculty" lookups
   @@map("ProgramStaff")
   @@schema("template")
 }
@@ -394,23 +393,23 @@ model AcademicLoadGPA {
 }
 
 model Course {
-  id                        Int                  @id @default(autoincrement())
-  name                      String               @db.VarChar(255)
-  code                      String               @unique @db.VarChar(20)
+  id                        Int                   @id @default(autoincrement())
+  name                      String                @db.VarChar(255)
+  code                      String                @unique @db.VarChar(20)
   description               String?
   credits                   Int
   syllabus                  String?
-  successPercentage         Decimal?             @map("success_percentage") @db.Decimal(5, 2)
-  totalFail                 Boolean              @default(false) @map("total_fail")
-  minFinalSuccessPercentage Decimal?             @map("min_final_success_percentage") @db.Decimal(5, 2)
-  createdAt                 DateTime             @default(now()) @map("created_at")
-  updatedAt                 DateTime             @updatedAt @map("updated_at")
+  successPercentage         Decimal?              @map("success_percentage") @db.Decimal(5, 2)
+  totalFail                 Boolean               @default(false) @map("total_fail")
+  minFinalSuccessPercentage Decimal?              @map("min_final_success_percentage") @db.Decimal(5, 2)
+  createdAt                 DateTime              @default(now()) @map("created_at")
+  updatedAt                 DateTime              @updatedAt @map("updated_at")
   attendanceReports         AttendanceReport[]
-  scheduleSlots             ScheduleSlot[]
-  coursePrerequisitesFor    CoursePrerequisite[] @relation("course")
-  coursePrerequisites       CoursePrerequisite[] @relation("prerequisite")
+  coursePrerequisitesFor    CoursePrerequisite[]  @relation("course")
+  coursePrerequisites       CoursePrerequisite[]  @relation("prerequisite")
   programCourses            ProgramCourse[]
   courseAssessments         CourseAssessment[]
+  scheduleSlots             ScheduleSlot[]
 
   @@index([code])
   @@map("Course")
@@ -441,51 +440,67 @@ model LearningGroup {
   allowStudentPosts Boolean  @default(false) @map("allow_student_posts")
   createdAt         DateTime @default(now()) @map("created_at")
 
-  ScheduleSlot ScheduleSlot[]
-  posts        LearningGroupPost[]
-  members      LearningGroupMember[]
-  user         User?                 @relation(fields: [userId], references: [id])
-  userId       Int?
+  posts                LearningGroupPost[]
+  members              LearningGroupMember[]
+  user                 User?                 @relation(fields: [userId], references: [id])
+  userId               Int?
+  scheduleSlotContexts ScheduleSlotContext[]
 
   @@map("LearningGroup")
   @@schema("template")
 }
 
 model ScheduleSlot {
-  id              Int  @id @default(autoincrement())
-  courseId        Int  @map("course_id")
-  teacherId       Int  @map("teacher_id")
-  programId       Int  @map("program_id")
-  classroomId     Int  @map("classroom_id") // Physical Location
-  semesterId      Int  @map("semester_id")
-  learningGroupId Int? @map("learning_group_id") // Virtual group (Teams-like)
-  academicLevel   Int  @map("academic_level")
+  id          Int @id @default(autoincrement())
+  teacherId   Int @map("teacher_id")
+  courseId    Int @map("course_id")
+  classroomId Int @map("classroom_id")
+  semesterId  Int @map("semester_id")
 
-  dayOfWeek     DayOfWeek @map("day_of_week")
-  startTime     DateTime  @map("start_time") @db.Time(6)
-  endTime       DateTime  @map("end_time") @db.Time(6)
-  type          SlotType  @default(Lecture) // Distinguishes Lab/Lecture
-  enrolledSeats Int       @default(0) @map("enrolled_seats") @db.SmallInt
+  dayOfWeek DayOfWeek @map("day_of_week")
+  startTime DateTime  @map("start_time") @db.Time(6)
+  endTime   DateTime  @map("end_time") @db.Time(6)
+  type      SlotType  @default(Lecture)
+
+  // This tracks the total physical people in the room across ALL programs
+  enrolledSeats Int @default(0) @map("enrolled_seats") @db.SmallInt
 
   // Relations
-  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher       Staff          @relation(fields: [teacherId], references: [userId])
+  teacher   Staff     @relation(fields: [teacherId], references: [userId])
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  semester  Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+
+  slotContext        ScheduleSlotContext[]
+  attendanceSessions AttendanceSession[]
+
+  @@unique([semesterId, teacherId, classroomId, dayOfWeek, startTime, endTime])
+  @@index([semesterId, dayOfWeek]) // Fast loading of a full semester timetable
+  @@index([classroomId, dayOfWeek])
+  @@index([teacherId, semesterId])
+  @@map("ScheduleSlot")
+  @@schema("template")
+}
+
+model ScheduleSlotContext {
+  id              Int  @id @default(autoincrement())
+  slotId          Int  @map("slot_id")
+  programId       Int  @map("program_id")
+  academicLevel   Int  @map("academic_level")
+  semesterId      Int  @map("semester_id")
+  learningGroupId Int? @map("learning_group_id")
+
+  // Relations
+  slot          ScheduleSlot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
   program       Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
-  semester      Semester       @relation(fields: [semesterId], references: [id], onDelete: Cascade)
-  classroom     Classroom      @relation(fields: [classroomId], references: [id])
   learningGroup LearningGroup? @relation(fields: [learningGroupId], references: [id])
 
-  attendanceSessions AttendanceSession[]
-  registrations      CourseRegistration[]
+  registrations CourseRegistration[]
 
-  // 4. For Physical Room availability lookups
-  @@index([classroomId, dayOfWeek])
-  // For the Program's main timetable
-  @@index([programId, semesterId, academicLevel])
-  // For course Schedule in a specific semster
-  @@index([semesterId, courseId])
-  @@index([teacherId, semesterId, dayOfWeek])
-  @@map("ScheduleSlot")
+  @@unique([semesterId, slotId, programId])
+  @@index([slotId])
+  @@index([semesterId, programId, academicLevel])
+  @@map("ScheduleSlotContext")
   @@schema("template")
 }
 
@@ -619,22 +634,22 @@ model RolePermission {
 }
 
 model CourseRegistration {
-  id             Int                @id @default(autoincrement())
-  studentId      Int                @map("student_id")
-  scheduleSlotId Int                @map("schedule_slot_id")
-  semesterId     Int                @map("semester_id")
-  enrollmentDate DateTime           @default(now()) @map("enrollment_date") @db.Date
-  status         RegistrationStatus @default(Enrolled)
-  grade          GradeEnum?
-  gradePoints    Int?               @map("grade_points")
-  semester       Semester           @relation(fields: [semesterId], references: [id])
-  ScheduleSlot   ScheduleSlot       @relation(fields: [scheduleSlotId], references: [id])
-  student        Student            @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  grades         Grade[]
+  id                  Int                  @id @default(autoincrement())
+  studentId           Int                  @map("student_id")
+  semesterId          Int                  @map("semester_id")
+  enrollmentDate      DateTime             @default(now()) @map("enrollment_date") @db.Date
+  status              RegistrationStatus   @default(Enrolled)
+  grade               GradeEnum?
+  gradePoints         Int?                 @map("grade_points")
+  semester            Semester             @relation(fields: [semesterId], references: [id])
+  student             Student              @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  grades              Grade[]
+  slotContextId       Int?                 @map("slot_context_Id")
+  scheduleSlotContext ScheduleSlotContext? @relation(fields: [slotContextId], references: [id])
 
-  @@unique([studentId, scheduleSlotId, semesterId])
+  @@unique([studentId, slotContextId, semesterId])
   @@index([studentId])
-  @@index([scheduleSlotId])
+  @@index([slotContextId])
   @@index([semesterId])
   @@index([status])
   @@map("CourseRegistration")
