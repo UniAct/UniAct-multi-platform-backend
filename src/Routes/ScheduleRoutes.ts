@@ -48,7 +48,7 @@ router.post(
   "/enroll",
   IsAuthenticated,
   AttachAndValidateTenant,
-  // RequirePermission(permissions.schedule.enroll.name),
+  RequirePermission(permissions.schedule.enroll.name),
   ZodValidator({ body: EnrollInScheduleSchema}),
   asyncHandler(ScheduleController.Enroll)
 );

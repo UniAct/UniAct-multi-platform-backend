@@ -1,7 +1,7 @@
 import { DayOfWeek, Prisma } from "@prisma/client";
 import {ScheduleRepository } from "../Repositories/ScheduleRepository";
 import { ConflictError, NotFoundError } from "../Types/Errors";
-import {GetScheduleResponse, SaveScheduleInput, ScheduleSlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
+import {SlotResponse, SaveScheduleInput, SlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { JobRepository } from "../Repositories/JobRepository";
 import { QueueRepository } from "../Repositories/QueueRepository";
@@ -17,24 +17,13 @@ export class ScheduleService {
   params: { programId: number; academicLevel: number },
   semesterId: number,
   schemaName: string,
-): Promise<GetScheduleResponse> {
+){
   const { programId, academicLevel } = params;
   const prisma = GetTenantClient(schemaName);
 
   // 1. First, get the Program & Faculty ID (needed to scope the staff)
   // We combine this with the Level check to save one round-trip
-  //NOTE: accessing prisma not in service layer 
-  const program = await prisma.program.findUnique({
-    where: { id: programId },
-    select: {
-      name: true,
-      facultyId: true,
-      programLevels: {
-        where: { level: academicLevel },
-        select: { id: true }
-      }
-    }
-  });
+  const program = await ScheduleRepository.GetProgram(programId,academicLevel, prisma);
 
   if (!program) throw new NotFoundError(`Program ${programId} not found`);
   const levelId = program.programLevels[0]?.id;
@@ -42,11 +31,11 @@ export class ScheduleService {
 
   // 2. Parallel Fetch with Scoping
   // We only fetch staff from the same faculty and courses for this specific level
-  const [courses, classrooms, staff, scheduleSlots] = await Promise.all([
+  const [courses, classrooms, staff, slotsContexts] = await Promise.all([
     ScheduleRepository.GetCoursesByLevel(levelId, prisma),
     ScheduleRepository.GetAllAvailableClassrooms(prisma),
     ScheduleRepository.GetStaffByFaculty(program.facultyId, prisma),
-    ScheduleRepository.GetScheduleSlots(programId, academicLevel, semesterId, prisma)
+    ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma)
   ]);
 
   return {
@@ -67,123 +56,176 @@ export class ScheduleService {
         name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
       })),
     },
-    scheduleSlots: scheduleSlots.map(slot => this.mapSlotToResponse(slot))
+    scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
   };
 }
 
 
   public static async SaveSchedule(
-    payload: SaveScheduleInput,
-    semesterId: number,
-    tx: Prisma.TransactionClient
-  ) {
-    const { programId, academicLevel, scheduleSlots } = payload;
-    // 1. MUST VALIDATE HERE: Ensure the new state isn't self-conflicting
-    this.validateInternalConsistency(scheduleSlots);
+  payload: SaveScheduleInput,
+  semesterId: number,
+  tx: Prisma.TransactionClient
+) {
+  const { programId, academicLevel, scheduleSlots: incomingSlots } = payload;
 
-    // 2. Fetch current DB state
-    const existingSessions = await tx.scheduleSlot.findMany({
-      where: { programId, academicLevel, semesterId },
-    });
-    
+  // 1. PRE-FLIGHT VALIDATION (In-memory)
+  this.validateInternalConsistency(incomingSlots);
 
-    const existingMap = new Map(existingSessions.map((s) => [s.id, s]));
-    const incomingNew: ScheduleSlotInput[] = [];
-    const incomingExisting: ScheduleSlotInput[] = [];
-
-    scheduleSlots.forEach(s => {
-      // If it's a number and exists in DB, it's an update/unchanged
-      if (s.id && existingMap.has(s.id)) incomingExisting.push(s);
-      else incomingNew.push(s);
-    });
-
-    const incomingIds = new Set(incomingExisting.map((s) => s.id));
-    const idsToDelete = existingSessions
-      .filter((s) => !incomingIds.has(s.id))
-      .map((s) => s.id);
-
-    const sessionsToUpdate = incomingExisting.filter((incoming) => {
-      const dbRecord = existingMap.get(incoming.id!);
-      return this.getFingerprint(incoming) !== this.getFingerprint(dbRecord as any);
-    });
-
-    // 3. Execution Phase
-    await Promise.all([
-      // A. CREATE
-      incomingNew.length > 0 && tx.scheduleSlot.createMany({
-        data: incomingNew.map((session) => {
-          // Extract helper names so they aren't sent to the DB
-          // We also extract 'id' to ensure it's not passed as null
-          const { id, teacherName, classroomName, ...dbdata } = session;
-          
-          return {
-            ...dbdata,
-            programId,
-            semesterId,
-            academicLevel,
-          };
-        }),
-      }),
-
-      // B. DELETE
-      idsToDelete.length > 0 && tx.scheduleSlot.deleteMany({
-        where: { id: { in: idsToDelete } },
-      }),
-
-      // C. UPDATE
-      ...sessionsToUpdate.map(({ id,teacherName,classroomName, ...s }) => // Destructure to use id in where, rest in data
-        tx.scheduleSlot.update({
-          where: { id },
-          data: { ...s,
-            programId,     
-            academicLevel, 
-            semesterId
-           },
-        })
-      ),
-    ]);
-
-    // --- 4. NEW: Refresh Phase ---
-  // We fetch the entire updated state for this program/level/semester.
-  // This ensures all new records have their IDs and all relations are populated.
-  const refreshedSlots = await tx.scheduleSlot.findMany({
-    where: { 
-      programId, 
-      academicLevel, 
-      semesterId 
-    },
-    include: {
-      course: {select:{id:true, code:true, name:true}},
-      teacher: {select:{user:{select:{firstName:true, lastName:true}}}},
-      classroom: {select:{id:true, building:true, classroomNumber:true}},
-      learningGroup: {select:{id:true, GroupName:true}},
-    }
+  // 2. FETCH STATE
+  const existingContexts = await tx.scheduleSlotContext.findMany({
+    where: { programId, academicLevel, semesterId },
+    include: { slot: true }
   });
 
-  const mappedSlots = refreshedSlots.map(slot=> this.mapSlotToResponse(slot));
+  const existingMap = new Map(existingContexts.map(c => [c.id, c]));
+  const incomingIds = new Set(incomingSlots.map(s => s.id).filter(Boolean));
 
+  // 3. HANDLE DELETIONS
+  const idsToDelete = existingContexts.filter(c => !incomingIds.has(c.id)).map(c => c.id);
+  if (idsToDelete.length > 0) {
+    await tx.scheduleSlotContext.deleteMany({ where: { id: { in: idsToDelete } } });
+  }
+
+  // 4. SYNC INCOMING SLOTS
+  const stats = { created: 0, updated: 0, unchanged: 0 };
+
+  for (const item of incomingSlots) {
+    const existingContext = item.id ? existingMap.get(item.id) : null;
+
+    // A. Skip if absolutely no changes
+    if (existingContext && this.getFingerprint(item) === this.getFingerprintFromDB(existingContext)) {
+      stats.unchanged++;
+      continue;
+    }
+
+    // B. LOGICAL CONFLICT CHECK (The "Youssef" Scenario)
+    // We look for ANY slot occupying this physical footprint
+    const conflictingSlot = await tx.scheduleSlot.findUnique({
+      where: {
+        semesterId_teacherId_classroomId_dayOfWeek_startTime_endTime: {
+          teacherId: item.teacherId,
+          classroomId: item.classroomId,
+          dayOfWeek: item.dayOfWeek,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          semesterId
+        }
+      }
+    });
+
+    let targetSlotId: number;
+
+    if (conflictingSlot) {
+      // Is this a valid "Shared Class"?
+      const isSameCourse = conflictingSlot.courseId === item.courseId;
+      const isSameType = conflictingSlot.type === item.type;
+
+      if (isSameCourse && isSameType) {
+        // VALID: This is a shared class. Use the existing ID.
+        targetSlotId = conflictingSlot.id;
+      } else {
+        // CONFLICT: Same time/place/teacher, but DIFFERENT course/type.
+        throw new ConflictError(
+          `Teacher ${conflictingSlot.teacherId} `+
+          `is already teaching ${conflictingSlot.courseId} (${conflictingSlot.type}) `+
+          `in ${conflictingSlot.classroomId} `+
+          `from ${this.formatTime(conflictingSlot.startTime)} to ${this.formatTime(conflictingSlot.endTime)}.`
+        );
+      }
+    } else {
+      // NEW: No physical footprint exists. Create it.
+      const newPhysicalSlot = await tx.scheduleSlot.create({
+        data: {
+          teacherId: item.teacherId,
+          courseId: item.courseId,
+          classroomId: item.classroomId,
+          dayOfWeek: item.dayOfWeek,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          semesterId,
+          type: item.type,
+          enrolledSeats: item.enrolledSeats || 0
+        }
+      });
+      targetSlotId = newPhysicalSlot.id;
+    }
+
+    // C. LINK CONTEXT
+    if (existingContext) {
+      await tx.scheduleSlotContext.update({
+        where: { id: item.id },
+        data: { slotId: targetSlotId, learningGroupId: item.learningGroupId }
+      });
+      stats.updated++;
+    } else {
+      await tx.scheduleSlotContext.create({
+        data: {
+          slotId: targetSlotId,
+          programId,
+          academicLevel,
+          semesterId,
+          learningGroupId: item.learningGroupId
+        }
+      });
+      stats.created++;
+    }
+  }
+
+  // 5. CLEANUP ORPHANS & REFRESH
+  await tx.scheduleSlot.deleteMany({ where: { semesterId, slotContext: { none: {} } } });
+  
+  const refreshed = await ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, tx);
   return {
-    deleted: idsToDelete.length,
-    created: incomingNew.length,
-    updated: sessionsToUpdate.length,
-    unchanged: incomingExisting.length - sessionsToUpdate.length,
-    scheduleSlots: mappedSlots 
+    metrics: { deleted: idsToDelete.length, ...stats },
+    scheduleSlots: refreshed.map(context => this.mapSlotToResponse(context))
   };
 }
 
-
-
-  
-// Fingerprint ignores the ID and database-specific metadata.
-// It only cares about the "Value" of the session.
-  private static getFingerprint(s: ScheduleSlotInput): string {
-    return `${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.courseId}-${s.teacherId}-${s.classroomId}-${s.learningGroupId}-${s.type}`;
+  // Fingerprint for Incoming Data
+  private static getFingerprint(s: SlotInput): string {
+   return `${s.courseId}-${s.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
   }
 
+  // Fingerprint for DB Data
+  private static getFingerprintFromDB(c: any): string {
+    const s = c.slot;
+    return `${s.courseId}-${c.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
+  }
   
-// Validates that the batch of sessions does not contain internal overlaps.
+  // The Mapper: Flattens the nested (Context + Slot) into the UI Response
+private static mapSlotToResponse(context: any): SlotResponse {
+    const physical = context.slot; // Corrected: context.slot NOT context.scheduleSlot
+    
+    return {
+      id: context.id,
+      slotId: physical.id,
+      dayOfWeek: physical.dayOfWeek,
+      startTime: this.formatTime(physical.startTime),
+      endTime: this.formatTime(physical.endTime),
+      type: physical.type,
+      enrolledSeats: physical.enrolledSeats,
+      
+      course:physical.course,
+
+      teacher: {
+        id: physical.teacherId,
+        name: this.formatFullName(physical.teacher.user.firstName, physical.teacher.user.lastName)
+      },
+      classroom: {
+        id: physical.classroom.id,
+        label: `${physical.classroom.building} / ${physical.classroom.classroomNumber}`,
+        capacity: physical.classroom.capacity
+      },
+      learningGroup: context.learningGroup ? {
+        id: context.learningGroup.id,
+        name: context.learningGroup.groupName // Matching the Prisma model field
+      } : null
+    };
+  }
+
+  // Validates that the batch of sessions does not contain internal overlaps.
 // This is a "pre-flight" check before hitting the database.
-  private static validateInternalConsistency(sessions: ScheduleSlotInput[]): void {
+  private static validateInternalConsistency(sessions: SlotInput[]): void {
     // 1. Define day order for logical sorting (Optional, but helps with error reporting)
     const dayOrder: Record<DayOfWeek, number> = {
       Saturday: 0, Sunday: 1, Monday: 2, Tuesday: 3, Wednesday: 4, Thursday: 5, Friday: 6
@@ -230,40 +272,9 @@ export class ScheduleService {
     }
   }
 
-  private static mapSlotToResponse(slot: any) {
-  return {
-    id: slot.id,
-    dayOfWeek: slot.dayOfWeek,
-    startTime: this.formatTime(slot.startTime),
-    endTime: this.formatTime(slot.endTime),
-    type: slot.type,
-    enrolledSeats:slot.enrolledSeats,
-    
-    course: {
-      id: slot.courseId,
-      code: slot.course.code,
-      name: slot.course.name
-    },
-    teacher: {
-      id: slot.teacherId,
-      name: this.formatFullName(slot.teacher.user.firstName, slot.teacher.user.lastName)
-    },
-    classroom: {
-      id: slot.classroomId,
-      label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`,
-      capacity: slot.classroom.capacity
-    },
-    learningGroup: slot.learningGroup ? {
-      id: slot.learningGroup.id,
-      name: slot.learningGroup.GroupName,
-    } : null,
-  };
-}
   
-   // Utility to format names consistently across the service.
-
-  private static formatFullName(first?: string | null, last?: string | null): string {
-    return [first, last].filter(Boolean).join(" ").trim() || "Unknown";
+  private static formatFullName(first?: string, last?: string): string {
+    return `${first || ''} ${last || ''}`.trim();
   }
 
   

@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { stderr } from "process";
@@ -27,13 +27,14 @@ const cleaned = content
 fs.writeFileSync(prismaSchema, cleaned, "utf-8");
 console.log("✅ schema lines removed safely");
 
-let cmd = "npx prisma generate"
-exec(cmd,(err,stdout,stderr)=>{
-  if(err){
-    console.error(err)
-    process.exit(1);
-  }
-  
-  //retrun the content as it was 
+try {
+  console.log("🚀 Running Prisma Generate...");
+  // Use execSync so the script blocks until generation is 100% done
+  execSync("npx prisma generate", { stdio: 'inherit' }); 
+} catch (err) {
+  console.error("❌ Generation failed", err);
+} finally {
+  // Now it's safe to restore
   fs.writeFileSync(prismaSchema, content);
-})
+  console.log("🔄 Schema restored");
+}
