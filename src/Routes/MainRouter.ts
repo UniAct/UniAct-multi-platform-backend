@@ -10,20 +10,19 @@ import semesterRoutes from "./SemesterRoutes";
 import jobRoutes from "./JobRoutes";
 import classroomRoutes from "./ClassroomRoutes";
 import classSessionRoutes from "./ScheduleRoutes";
+import { StatusCodes } from "http-status-codes";
+import JSendStatus from "../Enums/Jsend";
 
 const router = Router();
 
-// SuperAdmin Routes
 router.use('/superadmin', SuperAdminRoutes);
-// University Routes
+
 router.use('/university', UniversityRoutes);
 
 router.use('/job', jobRoutes);
 
-// User Routes (Staff/Student endpoints)
 router.use('/user', UserRoutes);
 
-// RBAC Routes (Role/Permission management)
 router.use('/rbac', RBACRoutes);
 
 router.use('/program', ProgramRoutes);
@@ -37,5 +36,25 @@ router.use('/classroom', classroomRoutes);
 router.use('/semester', semesterRoutes);
 
 router.use('/schedule', classSessionRoutes);
+
+// global health check
+router.get('/', (req, res) => {
+    res.status(StatusCodes.ACCEPTED).json({
+        status: 'success',
+        message: 'UniAct Backend API Running',
+        environment: process.env.NODE_ENV,
+    });
+});
+
+// fallback for unexpected routes 
+router.all(/.*/, (req, res) => {
+    res.status(StatusCodes.NOT_FOUND).json({
+        status: JSendStatus.FAIL,
+        data: {
+            route: "Not Found",
+        }
+    });
+});
+
 
 export default router;

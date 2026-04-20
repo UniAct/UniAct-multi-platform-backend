@@ -1,6 +1,7 @@
 import { logger } from "../../Utils/Logger";
 import { StartEnrollmentWebSocketServer } from "./EnrollmentWebSocket";
 
+// TODO: push the port into .env file instead of hardcoded values
 const WS_PORT = 4001;
 
 process.title = "Enrollment WS Server";

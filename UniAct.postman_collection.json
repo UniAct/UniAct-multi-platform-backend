@@ -837,7 +837,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"markmagdy148@gmail.com\",\r\n    \"password\": \"aaAA11!!\"\r\n}",
+              "raw": "{\r\n    \"email\": \"layla.fouad@student.anu.edu.eg\",\r\n    \"password\": \"31201121234578\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -856,7 +856,8 @@
                 "user",
                 "login"
               ]
-            }
+            },
+            "description": "{\n\nmarkmagdy148@gmail.com\n\n}"
           },
           "response": []
         }
@@ -1020,7 +1021,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI5MTg4NSwiZXhwIjoxNzc2Mzc4Mjg1fQ.2mT6wDNpgVRcBVlC5b7FYfbTQm7ybka2Akm3HEwNxEY",
                   "type": "string"
                 }
               ]
@@ -1177,7 +1178,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI5MTg4NSwiZXhwIjoxNzc2Mzc4Mjg1fQ.2mT6wDNpgVRcBVlC5b7FYfbTQm7ybka2Akm3HEwNxEY",
                   "type": "string"
                 }
               ]
@@ -1192,7 +1193,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"permissions\": [\r\n    \"role.create\",\r\n    \"role.read\",\r\n    \"role.update\",\r\n    \"role.delete\",\r\n    \"account.create\",\r\n    \"account.read\",\r\n    \"account.update\",\r\n    \"account.delete\",\r\n    \"account.assign_role\",\r\n    \"faculty.create\",\r\n    \"faculty.read\",\r\n    \"faculty.update\",\r\n    \"faculty.delete\",\r\n    \"program.create\",\r\n    \"program.read\",\r\n    \"program.update\",\r\n    \"program.delete\",\r\n    \"course.create\",\r\n    \"course.read\",\r\n    \"course.update\",\r\n    \"course.delete\",\r\n    \"semester.create\",\r\n    \"semester.read\",\r\n    \"semester.update\",\r\n    \"semester.delete\"\r\n  ]\r\n}\r\n",
+              "raw": "{\r\n  \"permissions\": [\r\n    \"program.read\"\r\n  ]\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1200,7 +1201,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/rbac/assign-permissions-to-role/2",
+              "raw": "http://localhost:3000/api/rbac/assign-permissions-to-role/3",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1210,7 +1211,7 @@
                 "api",
                 "rbac",
                 "assign-permissions-to-role",
-                "2"
+                "3"
               ]
             }
           },
@@ -1695,6 +1696,38 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Student Enrollment Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzcsImVtYWlsIjoibGF5bGEuZm91YWRAc3R1ZGVudC5hbnUuZWR1LmVnIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTGF5bGEgRm91YWQiLCJuYXRpb25hbElkIjoiMzEyMDExMjEyMzQ1NzgiLCJjZ3BhIjoiMCIsImdlbmRlciI6IkYiLCJyZWxpZ2lvbiI6Ik0iLCJ1bml2ZXJzaXR5U3R1ZGVudElkIjoyMDI2MDAxMn0sInNlbWVzdGVyIjp7ImlkIjozLCJ5ZWFyIjoyMDAwLCJ0eXBlIjoiU3VtbWVyIiwidGVybSI6M30sImlhdCI6MTc3NjY4NDg3OCwiZXhwIjoxNzc2NzcxMjc4fQ.WUoAiUWqaRA7pyXPWAbUm-59kzJsB1fgPax8uwbfCTU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/job/student-enrollment/ab2e2b6f-0981-4879-8783-14a1d1ae0d3f",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "job",
+                "student-enrollment",
+                "ab2e2b6f-0981-4879-8783-14a1d1ae0d3f"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1704,6 +1737,16 @@
         {
           "name": "Get",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjUyNzMxOCwiZXhwIjoxNzc2NjEzNzE4fQ.2nRJkD94RJO-vTHr85I4FuWiLA1fQpnYLwOOs1IuIys",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [
               {
@@ -1718,7 +1761,7 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3000/api/schedule/?programId=1&academicLevel=1",
+              "raw": "http://localhost:3000/api/schedule/?programId=4&academicLevel=4",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1732,11 +1775,11 @@
               "query": [
                 {
                   "key": "programId",
-                  "value": "1"
+                  "value": "4"
                 },
                 {
                   "key": "academicLevel",
-                  "value": "1"
+                  "value": "4"
                 }
               ]
             }
@@ -1769,7 +1812,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/schedule/",
+              "raw": "http://localhost:3000/api/asdasd",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1777,8 +1820,7 @@
               "port": "3000",
               "path": [
                 "api",
-                "schedule",
-                ""
+                "asdasd"
               ]
             }
           },
@@ -1861,6 +1903,57 @@
                 "api",
                 "classroom",
                 ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Enrollment",
+      "item": [
+        {
+          "name": "Student Enrollment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzcsImVtYWlsIjoibGF5bGEuZm91YWRAc3R1ZGVudC5hbnUuZWR1LmVnIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTGF5bGEgRm91YWQiLCJuYXRpb25hbElkIjoiMzEyMDExMjEyMzQ1NzgiLCJjZ3BhIjoiMCIsImdlbmRlciI6IkYiLCJyZWxpZ2lvbiI6Ik0iLCJ1bml2ZXJzaXR5U3R1ZGVudElkIjoyMDI2MDAxMn0sInNlbWVzdGVyIjp7ImlkIjozLCJ5ZWFyIjoyMDAwLCJ0eXBlIjoiU3VtbWVyIiwidGVybSI6M30sImlhdCI6MTc3NjY4NDg3OCwiZXhwIjoxNzc2NzcxMjc4fQ.WUoAiUWqaRA7pyXPWAbUm-59kzJsB1fgPax8uwbfCTU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "university-name",
+                "value": "Alexandria National University",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"id\": 130,\r\n      \"start_time\": \"2026-04-18T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T10:30:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 48,\r\n        \"code\": \"02-24-06415\",\r\n        \"name\": \"Internet of Things\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 90,\r\n        \"name\": \"arsany osama\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 131,\r\n      \"start_time\": \"2026-04-18T11:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T12:30:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 16,\r\n        \"code\": \"02-24-00205\",\r\n        \"name\": \"Machine Learning\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 90,\r\n        \"name\": \"arsany osama\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 132,\r\n      \"start_time\": \"2026-04-19T07:00:00.000Z\",\r\n      \"end_time\": \"2026-04-19T08:30:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 3,\r\n        \"code\": \"02-24-00102\",\r\n        \"name\": \"Calculus\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 5,\r\n        \"label\": \"C / C0L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 133,\r\n      \"start_time\": \"2026-04-19T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-19T10:30:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 3,\r\n        \"code\": \"02-24-00102\",\r\n        \"name\": \"Calculus\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 134,\r\n      \"start_time\": \"2026-04-21T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-21T10:30:00.000Z\",\r\n      \"type\": \"Tutorial\",\r\n      \"course\": {\r\n        \"id\": 2,\r\n        \"code\": \"02-24-00101\",\r\n        \"name\": \"Linear Algebra\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 90,\r\n        \"name\": \"arsany osama\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/schedule/enroll",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "schedule",
+                "enroll"
               ]
             }
           },

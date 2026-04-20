@@ -16,4 +16,16 @@ export class JobController {
             data: job,
         });
     }
+
+    static async CheckStudentEnrollmentStatus(req: Request, res: Response) {
+        const jobId = String(req.params.id!);
+        const schemaName = req.schema_name!;
+
+        const job = await JobService.CheckStudentEnrollmentStatus(jobId,schemaName);
+        
+        res.status(StatusCodes.CREATED).json({
+            status: JSendStatus.SUCCESS,
+            data: job,
+        });
+    }
 }

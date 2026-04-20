@@ -16,10 +16,17 @@ router.get(
     IsAuthenticated,
     AttachAndValidateTenant,
     RequirePermission(permissions.account.read.name),
-    ZodValidator(
-      {params:JobIdParamSchema}
-      ),
+    ZodValidator({ params:JobIdParamSchema }),
     asyncHandler(JobController.CheckStudentImportStatus)
+);
+
+router.get(
+    "/student-enrollment/:id",
+    IsAuthenticated,
+    AttachAndValidateTenant,
+    RequirePermission(permissions.schedule.enroll.name),
+    ZodValidator({ params:JobIdParamSchema }),
+    asyncHandler(JobController.CheckStudentEnrollmentStatus)
 );
 
 

@@ -56,4 +56,19 @@ export class JobRepository {
 
     return job.id;
   }
+
+  static async CheckStudentEnrollmentStatus(
+    jobId: string,
+    prisma: DbClient
+  ){
+    return await prisma.enrollmentJob.findFirst({
+      where: {id: jobId},
+      select: {
+        id: true,
+        status: true,
+        studentId: true,
+        result: true,
+      }
+    });
+  }
 }

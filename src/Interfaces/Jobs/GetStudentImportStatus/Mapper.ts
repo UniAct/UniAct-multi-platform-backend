@@ -1,7 +1,7 @@
 import { JobStatus } from "@prisma/client";
 import { JobRepository } from "../../../Repositories/JobRepository";
 
-export function FormatJobResponse(job: NonNullable<Awaited<ReturnType<typeof JobRepository.CheckStudentImportStatus>>>) {
+export function FormatStudentImportJobResponse(job: NonNullable<Awaited<ReturnType<typeof JobRepository.CheckStudentImportStatus>>>) {
     const totalRows =
       (job.inserted_rows ?? 0) + (job.failed_rows ?? 0);
 

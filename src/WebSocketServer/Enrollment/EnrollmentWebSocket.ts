@@ -7,7 +7,6 @@ import { Authenticate, CleanupClient, Send } from "./Helpers";
 import { ClientMeta, SeatUpdatePayload } from "./types";
 import { subscribeSchema } from "./validator";
 import z from "zod";
-import { StatusCodes } from "http-status-codes";
 
 // ─────────────────────────────────────────────
 // State
@@ -82,7 +81,6 @@ export async function StartEnrollmentWebSocketServer(port: number) {
   // In short:
   // Redis tells us "something changed",
   // and we efficiently forward that change only to the people who asked for it.
-  await RedisSubscriber.connect();
   await RedisSubscriber.subscribe(Channels.StudentEnrollment);
 
   RedisSubscriber.on("message", (channel, message) => {
