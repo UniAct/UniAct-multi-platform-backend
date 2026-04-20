@@ -1,7 +1,7 @@
 import { DayOfWeek, Prisma } from "@prisma/client";
-import {ScheduleRepository } from "../Repositories/ScheduleRepository";
+import { ScheduleRepository } from "../Repositories/ScheduleRepository";
 import { ConflictError, NotFoundError } from "../Types/Errors";
-import {SlotResponse, SaveScheduleInput, SlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
+import { SlotResponse, SaveScheduleInput, SlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { JobRepository } from "../Repositories/JobRepository";
 import { QueueRepository } from "../Repositories/QueueRepository";
@@ -11,179 +11,203 @@ import { logger } from "../Utils/Logger";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
 
 export class ScheduleService {
-  
+
 
   public static async GetSchedule(
-  params: { programId: number; academicLevel: number },
-  semesterId: number,
-  schemaName: string,
-){
-  const { programId, academicLevel } = params;
-  const prisma = GetTenantClient(schemaName);
+    params: { programId: number; academicLevel: number },
+    semesterId: number,
+    schemaName: string,
+  ) {
+    const { programId, academicLevel } = params;
+    const prisma = GetTenantClient(schemaName);
 
-  // 1. First, get the Program & Faculty ID (needed to scope the staff)
-  // We combine this with the Level check to save one round-trip
-  const program = await ScheduleRepository.GetProgram(programId,academicLevel, prisma);
+    // 1. First, get the Program & Faculty ID (needed to scope the staff)
+    // We combine this with the Level check to save one round-trip
+    const program = await ScheduleRepository.GetProgram(programId, academicLevel, prisma);
 
-  if (!program) throw new NotFoundError(`Program ${programId} not found`);
-  const levelId = program.programLevels[0]?.id;
-  if (!levelId) throw new NotFoundError(`Level ${academicLevel} is not defined for this program`);
+    if (!program) throw new NotFoundError(`Program ${programId} not found`);
+    const levelId = program.programLevels[0]?.id;
+    if (!levelId) throw new NotFoundError(`Level ${academicLevel} is not defined for this program`);
 
-  // 2. Parallel Fetch with Scoping
-  // We only fetch staff from the same faculty and courses for this specific level
-  const [courses, classrooms, staff, slotsContexts] = await Promise.all([
-    ScheduleRepository.GetCoursesByLevel(levelId, prisma),
-    ScheduleRepository.GetAllAvailableClassrooms(prisma),
-    ScheduleRepository.GetStaffByFaculty(program.facultyId, prisma),
-    ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma)
-  ]);
+    // 2. Parallel Fetch with Scoping
+    // We only fetch staff from the same faculty and courses for this specific level
+    const [courses, classrooms, staff, slotsContexts] = await Promise.all([
+      ScheduleRepository.GetCoursesByLevel(levelId, prisma),
+      ScheduleRepository.GetAllAvailableClassrooms(prisma),
+      ScheduleRepository.GetStaffByFaculty(program.facultyId, prisma),
+      ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma)
+    ]);
 
-  return {
-    meta: {
-      programId,
-      programName: program.name,
-      academicLevel,
-      semesterId,
-    },
-    lookups: {
-      courses: courses.map(c => c.course),
-      classrooms: classrooms.map(c => ({
-        ...c,
-        label: `${c.building} / ${c.classroomNumber}`
-      })),
-      staff: staff.map(s => ({
-        id: s.staffId,
-        name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
-      })),
-    },
-    scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
-  };
-}
+    return {
+      meta: {
+        programId,
+        programName: program.name,
+        academicLevel,
+        semesterId,
+      },
+      lookups: {
+        courses: courses.map(c => c.course),
+        classrooms: classrooms.map(c => ({
+          ...c,
+          label: `${c.building} / ${c.classroomNumber}`
+        })),
+        staff: staff.map(s => ({
+          id: s.staffId,
+          name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
+        })),
+      },
+      scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
+    };
+  }
 
 
   public static async SaveSchedule(
-  payload: SaveScheduleInput,
-  semesterId: number,
-  tx: Prisma.TransactionClient
-) {
-  const { programId, academicLevel, scheduleSlots: incomingSlots } = payload;
+    payload: SaveScheduleInput,
+    semesterId: number,
+    tx: Prisma.TransactionClient
+  ) {
+    const { programId, academicLevel, scheduleSlots: incomingSlots } = payload;
 
-  // 1. PRE-FLIGHT VALIDATION (In-memory)
-  this.validateInternalConsistency(incomingSlots);
+    // 1. PRE-FLIGHT VALIDATION (In-memory)
+    this.validateInternalConsistency(incomingSlots);
 
-  // 2. FETCH STATE
-  const existingContexts = await tx.scheduleSlotContext.findMany({
-    where: { programId, academicLevel, semesterId },
-    include: { slot: true }
-  });
-
-  const existingMap = new Map(existingContexts.map(c => [c.id, c]));
-  const incomingIds = new Set(incomingSlots.map(s => s.id).filter(Boolean));
-
-  // 3. HANDLE DELETIONS
-  const idsToDelete = existingContexts.filter(c => !incomingIds.has(c.id)).map(c => c.id);
-  if (idsToDelete.length > 0) {
-    await tx.scheduleSlotContext.deleteMany({ where: { id: { in: idsToDelete } } });
-  }
-
-  // 4. SYNC INCOMING SLOTS
-  const stats = { created: 0, updated: 0, unchanged: 0 };
-
-  for (const item of incomingSlots) {
-    const existingContext = item.id ? existingMap.get(item.id) : null;
-
-    // A. Skip if absolutely no changes
-    if (existingContext && this.getFingerprint(item) === this.getFingerprintFromDB(existingContext)) {
-      stats.unchanged++;
-      continue;
-    }
-
-    // B. LOGICAL CONFLICT CHECK (The "Youssef" Scenario)
-    // We look for ANY slot occupying this physical footprint
-    const conflictingSlot = await tx.scheduleSlot.findUnique({
-      where: {
-        semesterId_teacherId_classroomId_dayOfWeek_startTime_endTime: {
-          teacherId: item.teacherId,
-          classroomId: item.classroomId,
-          dayOfWeek: item.dayOfWeek,
-          startTime: item.startTime,
-          endTime: item.endTime,
-          semesterId
-        }
-      }
+    // 2. FETCH STATE
+    const existingContexts = await tx.scheduleSlotContext.findMany({
+      where: { programId, academicLevel, semesterId },
+      include: { slot: true }
     });
 
-    let targetSlotId: number;
+    const existingMap = new Map(existingContexts.map(c => [c.id, c]));
+    const incomingIds = new Set(incomingSlots.map(s => s.id).filter(Boolean));
 
-    if (conflictingSlot) {
-      // Is this a valid "Shared Class"?
-      const isSameCourse = conflictingSlot.courseId === item.courseId;
-      const isSameType = conflictingSlot.type === item.type;
+    // 3. HANDLE DELETIONS
+    // i want to delete bthe physical Slot id NOT THE context since there could be shared clase (so in this case i will only delete one context and the other will still be left as stale context )
+    const idsToDelete = existingContexts.filter(c => !incomingIds.has(c.id)).map(c => c.slotId);
+    if (idsToDelete.length > 0) {
+      
+      await tx.scheduleSlot.deleteMany({ where: { id: { in: idsToDelete } }  });
+    }
 
-      if (isSameCourse && isSameType) {
-        // VALID: This is a shared class. Use the existing ID.
-        targetSlotId = conflictingSlot.id;
+    // 4. SYNC INCOMING SLOTS
+    const stats = { created: 0, updated: 0, unchanged: 0 };
+
+    for (const incoming of incomingSlots) {
+      const existingContext = incoming.id ? existingMap.get(incoming.id) : null;
+
+      // if it was existing then weather it's unchanged or needs to be updated
+      if (existingContext) {
+
+        const isUnchanged = this.getFingerprint(incoming) === this.getFingerprintFromDB(existingContext)
+        //unchanged case
+        if (isUnchanged) {
+          stats.unchanged++;
+          continue;
+        }
+        //needs to be updated
+        else {
+          await tx.scheduleSlot.update({
+            where: { id: existingContext.slotId },
+            data: {
+              type: incoming.type,
+              courseId: incoming.courseId,
+              teacherId: incoming.teacherId,
+              classroomId: incoming.classroomId,
+              startTime: incoming.startTime,
+              endTime: incoming.endTime,
+              dayOfWeek: incoming.dayOfWeek,
+            }
+          })
+          stats.updated++;
+          continue;
+        }
       } else {
-        // CONFLICT: Same time/place/teacher, but DIFFERENT course/type.
-        throw new ConflictError(
-          `Teacher ${conflictingSlot.teacherId} `+
-          `is already teaching ${conflictingSlot.courseId} (${conflictingSlot.type}) `+
-          `in ${conflictingSlot.classroomId} `+
-          `from ${this.formatTime(conflictingSlot.startTime)} to ${this.formatTime(conflictingSlot.endTime)}.`
-        );
+
+        // B. LOGICAL CONFLICT CHECK 
+        // We look for ANY slot occupying this physical footprint
+        const existingSlot = await tx.scheduleSlot.findUnique({
+          where: {
+            semesterId_teacherId_classroomId_dayOfWeek_startTime_endTime: {
+              semesterId,
+              teacherId: incoming.teacherId,
+              classroomId: incoming.classroomId,
+              dayOfWeek: incoming.dayOfWeek,
+              startTime: incoming.startTime,
+              endTime: incoming.endTime
+            }
+          }
+        });
+
+
+        if (existingSlot) {
+          // Is this a valid "Shared Class"?
+          const isSameCourse = existingSlot.courseId === incoming.courseId;
+          const isSameType = existingSlot.type === incoming.type;
+
+          if (isSameCourse && isSameType) {
+            // VALID: This is a shared class. Use the existing ID.
+
+            await tx.scheduleSlotContext.create({
+              data: {
+                slotId: existingSlot.id,
+                programId,
+                academicLevel,
+                semesterId,
+                learningGroupId: incoming.learningGroupId
+              }
+            });
+            stats.created++;
+          } else {
+
+            // CONFLICT: Same time/place/teacher, but DIFFERENT course/type.
+            throw new ConflictError(
+              `Teacher ${incoming.teacherName} ` +
+              `is already teaching ${incoming.courseId} (${existingSlot.type}) ` +
+              `in ${incoming.classroomName} ` +
+              `from ${this.formatTime(existingSlot.startTime)} to ${this.formatTime(existingSlot.endTime)}.` +
+              `in another program`
+            );
+          }
+        } else {
+          // NEW: No physical footprint exists. Create it.
+          const newPhysicalSlot = await tx.scheduleSlot.create({
+            data: {
+              teacherId: incoming.teacherId,
+              courseId: incoming.courseId,
+              classroomId: incoming.classroomId,
+              dayOfWeek: incoming.dayOfWeek,
+              startTime: incoming.startTime,
+              endTime: incoming.endTime,
+              semesterId,
+              type: incoming.type,
+              enrolledSeats: incoming.enrolledSeats || 0
+            }
+          });
+
+
+          await tx.scheduleSlotContext.create({
+            data: {
+              slotId: newPhysicalSlot.id,
+              programId,
+              academicLevel,
+              semesterId,
+              learningGroupId: incoming.learningGroupId
+            }
+          });
+          stats.created++;
+        }
       }
-    } else {
-      // NEW: No physical footprint exists. Create it.
-      const newPhysicalSlot = await tx.scheduleSlot.create({
-        data: {
-          teacherId: item.teacherId,
-          courseId: item.courseId,
-          classroomId: item.classroomId,
-          dayOfWeek: item.dayOfWeek,
-          startTime: item.startTime,
-          endTime: item.endTime,
-          semesterId,
-          type: item.type,
-          enrolledSeats: item.enrolledSeats || 0
-        }
-      });
-      targetSlotId = newPhysicalSlot.id;
     }
 
-    // C. LINK CONTEXT
-    if (existingContext) {
-      await tx.scheduleSlotContext.update({
-        where: { id: item.id },
-        data: { slotId: targetSlotId, learningGroupId: item.learningGroupId }
-      });
-      stats.updated++;
-    } else {
-      await tx.scheduleSlotContext.create({
-        data: {
-          slotId: targetSlotId,
-          programId,
-          academicLevel,
-          semesterId,
-          learningGroupId: item.learningGroupId
-        }
-      });
-      stats.created++;
-    }
+    const refreshed = await ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, tx);
+    return {
+      metrics: { deleted: idsToDelete.length, ...stats },
+      scheduleSlots: refreshed.map(context => this.mapSlotToResponse(context))
+    };
   }
-
-  // 5. CLEANUP ORPHANS & REFRESH
-  await tx.scheduleSlot.deleteMany({ where: { semesterId, slotContext: { none: {} } } });
-  
-  const refreshed = await ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, tx);
-  return {
-    metrics: { deleted: idsToDelete.length, ...stats },
-    scheduleSlots: refreshed.map(context => this.mapSlotToResponse(context))
-  };
-}
 
   // Fingerprint for Incoming Data
   private static getFingerprint(s: SlotInput): string {
-   return `${s.courseId}-${s.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
+    return `${s.courseId}-${s.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
   }
 
   // Fingerprint for DB Data
@@ -191,11 +215,11 @@ export class ScheduleService {
     const s = c.slot;
     return `${s.courseId}-${c.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
   }
-  
+
   // The Mapper: Flattens the nested (Context + Slot) into the UI Response
-private static mapSlotToResponse(context: any): SlotResponse {
+  private static mapSlotToResponse(context: any): SlotResponse {
     const physical = context.slot; // Corrected: context.slot NOT context.scheduleSlot
-    
+
     return {
       id: context.id,
       slotId: physical.id,
@@ -204,8 +228,8 @@ private static mapSlotToResponse(context: any): SlotResponse {
       endTime: this.formatTime(physical.endTime),
       type: physical.type,
       enrolledSeats: physical.enrolledSeats,
-      
-      course:physical.course,
+
+      course: physical.course,
 
       teacher: {
         id: physical.teacherId,
@@ -224,7 +248,7 @@ private static mapSlotToResponse(context: any): SlotResponse {
   }
 
   // Validates that the batch of sessions does not contain internal overlaps.
-// This is a "pre-flight" check before hitting the database.
+  // This is a "pre-flight" check before hitting the database.
   private static validateInternalConsistency(sessions: SlotInput[]): void {
     // 1. Define day order for logical sorting (Optional, but helps with error reporting)
     const dayOrder: Record<DayOfWeek, number> = {
@@ -249,36 +273,36 @@ private static mapSlotToResponse(context: any): SlotResponse {
       if (current.dayOfWeek === next.dayOfWeek && current.endTime > next.startTime) {
         // Overlap occurs if the current session ends after the next one starts
 
-          
-          const timeRange = `${this.formatTime(current.startTime)}–${this.formatTime(current.endTime)}`;
-          const nextTimeRange = `${this.formatTime(next.startTime)}–${this.formatTime(next.endTime)}`;
-          
-          if (current.teacherId === next.teacherId) {
 
-            throw new ConflictError(
-              `Teacher ${current.teacherName} has overlapping sessions on ${current.dayOfWeek} (${timeRange} and ${nextTimeRange}).`
-            );
-          }
+        const timeRange = `${this.formatTime(current.startTime)}–${this.formatTime(current.endTime)}`;
+        const nextTimeRange = `${this.formatTime(next.startTime)}–${this.formatTime(next.endTime)}`;
 
-          if (current.classroomId === next.classroomId) {
+        if (current.teacherId === next.teacherId) {
 
-            const classroomName = current.classroomName;
+          throw new ConflictError(
+            `Teacher ${current.teacherName} has overlapping sessions on ${current.dayOfWeek} (${timeRange} and ${nextTimeRange}).`
+          );
+        }
 
-            throw new ConflictError(
-              `Classroom ${classroomName} is double-booked on ${current.dayOfWeek} (${timeRange} and ${nextTimeRange}).`
-            );
-          }
+        if (current.classroomId === next.classroomId) {
+
+          const classroomName = current.classroomName;
+
+          throw new ConflictError(
+            `Classroom ${classroomName} is double-booked on ${current.dayOfWeek} (${timeRange} and ${nextTimeRange}).`
+          );
+        }
       }
     }
   }
 
-  
+
   private static formatFullName(first?: string, last?: string): string {
     return `${first || ''} ${last || ''}`.trim();
   }
 
-  
-   // Formats DB Time objects to HH:mm string format.
+
+  // Formats DB Time objects to HH:mm string format.
   private static formatTime(date: Date): string {
     const h = date.getUTCHours().toString().padStart(2, '0');
     const m = date.getUTCMinutes().toString().padStart(2, '0');

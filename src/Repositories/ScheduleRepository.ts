@@ -1,5 +1,4 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { ar } from "zod/v4/locales";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -65,6 +64,7 @@ export class ScheduleRepository {
          // Join the physical data
         slot: {
           include: {
+            
             teacher: {
               select: { user: { select: { firstName: true, lastName: true } } }
             },
