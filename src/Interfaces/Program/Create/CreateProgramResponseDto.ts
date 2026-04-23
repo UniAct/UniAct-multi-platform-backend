@@ -1,25 +1,17 @@
 export type CreateProgramResponseDto = {
   id: number;
-  name: string;
-  description: string;
-
-  faculty: {
-    name: string;
-  };
-
-  head?: {
-    fullName: string;
-  };
-
-  contact: {
-    phone?: string;
-  };
-
+  description?: string;
+  facultyName: string; 
+  program: {
+    name: string,
+    description: string
+  }
+  headName: string,
+  contact: string;
   creditHours: {
     university: number;
     faculty: number;
     program: number;
   };
-
   programType: string;
 };

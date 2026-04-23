@@ -5,16 +5,15 @@ type CreateProgramRow = Awaited<ReturnType<typeof ProgramRepository.CreateProgra
 export function MapToProgramResponseDto(raw: CreateProgramRow) : CreateProgramResponseDto {
   return {
     id: raw.programId,
-    name: raw.facultyName,
-    description: raw.description!,
-    faculty: {name: raw.facultyName},
-    contact: {phone: raw.contact!},
+    headName: raw.headName,
+    program: {name: raw.programName , description: raw.description!},
+    programType: raw.programType,
+    facultyName: raw.facultyName,
+    contact: raw.contact!,
     creditHours: {
       faculty: raw.facultyCreditHours,
       program: raw.programCreditHours,
       university: raw.universityCreditHours
     },
-    programType: raw.programType,
-    head: {fullName: raw.headName}
   }
 }
