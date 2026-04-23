@@ -58,10 +58,11 @@ export const CreateStudentSchema = z.object({
     .int()
     .min(1, 'Valid program level ID is required'),
 
-  semesterId: z
-    .number({ error: "semester ID is required" })
+  semesterNumber: z
+    .number({ error: "semester number is required" })
     .int()
-    .min(1, 'Semester ID is required'),
+    .min(1, 'Semester Number Should Be One Of: 1(Fall) , 2(Spring)')
+    .max(3, 'Semester Number Should Be One Of: 1(Fall) , 2(Spring)'),
 
   email: z
     .string({ error: "email is required" })

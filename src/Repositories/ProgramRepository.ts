@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, ProgramLevel } from "@prisma/client";
-import { logger } from "../Utils/Logger";
+import { CreateProgramRequestDto } from "../Interfaces/Program/Create/CreateProgramSchema";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -17,19 +17,131 @@ export class ProgramRepository {
     programCourses: { include: { course: true } },
   } as const;
 
-  static async CreateProgram(programData: Prisma.ProgramCreateInput, prisma: DbClient) {
-    logger.info({
-      info: programData
-    });
-    return await prisma.program.create({
-        data: programData,
-        include: this.programDetailsInclude,
-    });
+  static async CreateProgram(
+    input: CreateProgramRequestDto,
+    connection: PrismaClient
+  ): Promise<{ programId: number }> {
+    return await connection.$transaction(
+      async (prisma : Prisma.TransactionClient) => {
+      
+        const program = await prisma.program.create({
+          data: {
+            name: input.name,
+            description: input.description,
+            facultyId: input.facultyId,
+            headId: input.headId,
+            phone: input.phone,
+            universityCreditHours: input.universityCreditHours,
+            facultyCreditHours: input.facultyCreditHours,
+            programCreditHours: input.programCreditHours,
+            programType: input.programType,
+            resultDisplay: input.resultDisplay,
+          },
+          select: {id: true}
+        });
+
+        const programId = program.id;
+
+        const createdLevels = await Promise.all(
+          input.levels.map((levelInput) =>
+            prisma.programLevel.create({
+              data: {
+                programId,
+                level: levelInput.level,
+                minCredits: levelInput.minCredits,
+                maxCredits: levelInput.maxCredits,
+              },
+              select: {id: true , level: true}
+            })
+          )
+        );
+
+        const levelIdByNumber = new Map<number, number>(
+          createdLevels.map((pl) => [pl.level, pl.id])
+        );
+
+        await prisma.programTranscriptDefinition.createMany({
+          data: input.transcriptDefinition.map((td) => ({
+            programId,
+            gradeLetter: td.gradeLetter,
+            minScore: td.minScore,
+            maxScore: td.maxScore,
+            minGpa: td.minGPA,
+            maxGpa: td.maxGPA,
+            equivalentEstimate: td.equivalentEstimate,
+          })),
+        });
+
+        await prisma.academicLoadGPA.createMany({
+          data: input.academicLoadGPA.map((gpa) => ({
+            programId,
+            minGpa: gpa.minGPA,
+            maxGpa: gpa.maxGPA,
+            minCredits: gpa.minCredits,
+            maxCredits: gpa.maxCredits,
+          })),
+        });
+
+        const academicLoadRows: Prisma.AcademicLoadSemesterCreateManyInput[] = [];
+
+        for (const entry of input.academicLoadSemester) {
+          const programLevelId = levelIdByNumber.get(entry.level);
+
+          if (!programLevelId) {
+            throw new Error(
+              `Level ${entry.level} was not found under program ${programId}.`
+            );
+          }
+
+          academicLoadRows.push({
+            programId,
+            programLevelId,
+            semesterNumber: entry.semester,
+            minCredits: entry.minCredits,
+            maxCredits: entry.maxCredits,
+          });
+        }
+
+        await prisma.academicLoadSemester.createMany({ data: academicLoadRows });
+
+        const feeRows: Prisma.FeeCreateManyInput[] = [];
+
+        for (const levelInput of input.levels) {
+          const programLevelId = levelIdByNumber.get(levelInput.level);
+
+          if (!programLevelId) {
+            throw new Error(
+              `Level ${levelInput.level} was not found under program ${programId}.`
+            );
+          }
+
+          const FALL_SEMESTER = 1 , SPRING_SEMESTER = 2 , SUMMER_SEMESTER = 3;
+
+          for (const fee of levelInput.semesterFees.semester1) {
+            feeRows.push({ programLevelId, semesterNumber: FALL_SEMESTER, feeType: fee.feeType, amount: fee.amount, description: fee.description });
+          }
+
+          for (const fee of levelInput.semesterFees.semester2) {
+            feeRows.push({ programLevelId, semesterNumber: SPRING_SEMESTER, feeType: fee.feeType, amount: fee.amount, description: fee.description });
+          }
+
+          for (const fee of levelInput.summerFees) {
+            feeRows.push({ programLevelId, semesterNumber: SUMMER_SEMESTER, feeType: fee.feeType, amount: fee.amount, description: fee.description });
+          }
+        }
+
+        if (feeRows.length) {
+          await prisma.fee.createMany({ data: feeRows });
+        }
+
+        return { programId };
+      }
+    );
   }
 
   static async GetAllPrograms(prisma: DbClient) {
     return await prisma.program.findMany({
-        include: this.programDetailsInclude,
+        // include: this.programDetailsInclude,
         orderBy: [{ name: "asc" }],
     });
   }
@@ -37,7 +149,7 @@ export class ProgramRepository {
   static async GetProgramById(id: number, prisma: DbClient)  {
     return prisma.program.findUnique({
         where: { id },
-        include: this.programDetailsInclude,
+        // include: this.programDetailsInclude,
     });
   }
 
@@ -45,7 +157,7 @@ export class ProgramRepository {
     return prisma.program.update({
         where: { id },
         data: programData,
-        include: this.programDetailsInclude,
+        // include: this.programDetailsInclude,
     });
   }
 

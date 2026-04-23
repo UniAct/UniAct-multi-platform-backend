@@ -1,5 +1,7 @@
 import { Prisma, PrismaClient, Semester } from "@prisma/client";
 
+type DbClient = PrismaClient | Prisma.TransactionClient;
+
 export class SemesterRepository {
 
   public static async CreateSemester(
@@ -52,7 +54,7 @@ export class SemesterRepository {
   }
 
   public static async GetCurrentSemester<T extends Prisma.SemesterSelect>(
-    prisma: PrismaClient,
+    prisma: DbClient,
     select?: T
   ): Promise<Prisma.SemesterGetPayload<{ select: T }> | null> {
     const now = new Date();

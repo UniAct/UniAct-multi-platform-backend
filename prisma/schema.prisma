@@ -297,10 +297,8 @@ model Semester {
   startDate             DateTime               @map("start_date") @db.Date
   endDate               DateTime               @map("end_date") @db.Date
   type                  SemesterType
-  academicLoadSemesters AcademicLoadSemester[]
   scheduleSlots         ScheduleSlot[]
   courseRegistrations   CourseRegistration[]
-  fees                  Fee[]
   studentFeeReports     StudentFeeReport[]
   transcripts           Transcript[]
   courseAssessments     CourseAssessment[]
@@ -337,19 +335,18 @@ model ProgramLevel {
 model Fee {
   id                Int                @id @default(autoincrement())
   programLevelId    Int                @map("program_level_id")
-  semesterId        Int                @map("semester_id")
+  semesterNumber    Int                @map("semester_number") @db.SmallInt
   feeType           FeeType            @map("fee_type")
   amount            Decimal            @db.Decimal(12, 2)
   description       String?
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   programLevel      ProgramLevel       @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
-  semester          Semester           @relation(fields: [semesterId], references: [id])
   studentFeeReports StudentFeeReport[]
 
-  @@unique([programLevelId, semesterId, feeType])
+  @@unique([programLevelId, semesterNumber, feeType])
   @@index([programLevelId])
-  @@index([semesterId])
+  @@index([semesterNumber])
   @@index([feeType])
   @@map("Fee")
   @@schema("template")
@@ -358,7 +355,7 @@ model Fee {
 model ProgramTranscriptDefinition {
   id                 Int      @id @default(autoincrement())
   programId          Int      @map("program_id")
-  gradeLetter        String   @map("grade_letter") @db.VarChar(10)
+  gradeLetter        GradeEnum@map("grade_letter")
   minScore           Decimal  @map("min_score") @db.Decimal(5, 2)
   maxScore           Decimal  @map("max_score") @db.Decimal(5, 2)
   equivalentEstimate String?  @map("equivalent_estimate") @db.VarChar(20)
@@ -377,7 +374,7 @@ model ProgramTranscriptDefinition {
 model AcademicLoadSemester {
   id             Int          @id @default(autoincrement())
   programId      Int          @map("program_id")
-  semesterId     Int          @map("semester_id")
+  semesterNumber Int          @map("semester_number") @db.SmallInt
   programLevelId Int          @map("program_level_id")
   minCredits     Int          @map("min_credits")
   maxCredits     Int          @map("max_credits")
@@ -385,11 +382,10 @@ model AcademicLoadSemester {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   program        Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
   programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
-  semester       Semester     @relation(fields: [semesterId], references: [id], onDelete: Cascade)
 
-  @@unique([programId, semesterId, programLevelId])
+  @@unique([programId, semesterNumber, programLevelId])
   @@index([programId])
-  @@index([semesterId])
+  @@index([semesterNumber])
   @@map("AcademicLoadSemester")
   @@schema("template")
 }

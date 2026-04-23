@@ -7,19 +7,21 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import permissions from "../Utils/Permissions.json";
+import { ZodValidator } from "../Middlewares/ZodValidation";
+import { CreateProgramSchema } from "../Interfaces/Program/Create/CreateProgramSchema";
 
 const router = Router();
 
 
 router.post(
-    "/create",
-    IsAuthenticated,
-    AttachAndValidateTenant,
-    RequirePermission(permissions.program.create.name),
-    ...ProgramValidator.Create(),
-    ValidateRequest,
-    asyncHandler(ProgramController.CreateProgram)
+  "/",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.create.name),
+  ZodValidator({body: CreateProgramSchema}),
+  asyncHandler(ProgramController.Create)
 )
+
 //currently it's public route
 router.get(
     "/",
@@ -27,6 +29,7 @@ router.get(
     AttachAndValidateTenant,
     asyncHandler(ProgramController.GetAllPrograms)
 )
+
 //currently it's public route
 router.get(
     "/:facultyId",

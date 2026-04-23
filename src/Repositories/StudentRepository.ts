@@ -11,6 +11,7 @@ import { StudentQueryDto } from "../Interfaces/Student/GetStudentPage/QuerySchem
 import { IPage } from "../Interfaces/Common/PaginatedList";
 import { StudentListItem } from "../Types/StudentList";
 import { GetStudentItemResponseDto } from "../Interfaces/Student/GetStudentPage/GetMapper";
+import { SemesterRepository } from "./SemesterRepository";
 
 export class StudentRepository {
 
@@ -20,11 +21,12 @@ export class StudentRepository {
     prisma: PrismaClient
   ){
     return await prisma.$transaction(async (tx : Prisma.TransactionClient) => {
+      const currentSemester = await SemesterRepository.GetCurrentSemester(prisma , {id: true});
       const [fee, role] = await Promise.all([
         tx.fee.findFirst({
           where: {
-            programLevelId: data.programLevelId,
-            semesterId:     data.semesterId,
+            programLevelId:     data.programLevelId,
+            semesterNumber:     data.semesterNumber,
           },
         }),
         tx.role.findFirst({
@@ -116,7 +118,7 @@ export class StudentRepository {
           data: {
             studentId:      student.user.id,
             programLevelId: data.programLevelId,
-            semesterId:     data.semesterId,
+            semesterId:     currentSemester!.id,
             feeId:          fee.id,
             amount:         fee.amount,
             status:         "Pending",
