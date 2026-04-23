@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient, ProgramLevel } from "@prisma/client";
 import { CreateProgramRequestDto } from "../Interfaces/Program/Create/CreateProgramSchema";
+import { CreateProgramResponseDto } from "../Interfaces/Program/Create/CreateProgramResponseDto";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -20,7 +21,7 @@ export class ProgramRepository {
   static async CreateProgram(
     input: CreateProgramRequestDto,
     connection: PrismaClient
-  ): Promise<{ programId: number }> {
+  ){
     return await connection.$transaction(
       async (prisma : Prisma.TransactionClient) => {
       
@@ -37,7 +38,19 @@ export class ProgramRepository {
             programType: input.programType,
             resultDisplay: input.resultDisplay,
           },
-          select: {id: true}
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            facultyName: {select: {name: true}},
+            head: {select: {user: {select: {firstName: true , lastName: true}}}},
+            phone: true,
+            universityCreditHours: true,
+            facultyCreditHours: true,
+            programCreditHours: true,
+            programType: true,
+            resultDisplay: true
+          }
         });
 
         const programId = program.id;
@@ -134,7 +147,18 @@ export class ProgramRepository {
           await prisma.fee.createMany({ data: feeRows });
         }
 
-        return { programId };
+        return { 
+          programId: program.id,
+          programName: program.name,
+          facultyName: program.facultyName,
+          description: program.description,
+          headName: `${program.head?.user.firstName} ${program.head?.user.lastName}`,
+          contact: program.phone,
+          universityCreditHours: program.universityCreditHours,
+          facultyCreditHours: program.facultyCreditHours,
+          programCreditHours: program.programCreditHours,
+          programType: program.programType,
+        };
       }
     );
   }

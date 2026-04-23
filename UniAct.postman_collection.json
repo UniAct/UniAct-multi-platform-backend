@@ -837,7 +837,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"layla.fouad@student.anu.edu.eg\",\r\n    \"password\": \"31201121234578\"\r\n}",
+              "raw": "{\r\n    \"email\": \"markmagdy148@gmail.com\",\r\n    \"password\": \"aaAA11!!\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1021,7 +1021,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI5MTg4NSwiZXhwIjoxNzc2Mzc4Mjg1fQ.2mT6wDNpgVRcBVlC5b7FYfbTQm7ybka2Akm3HEwNxEY",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3Njc5NjEzOCwiZXhwIjoxNzc2ODgyNTM4fQ.ee9SH1whE2kq_NclswI1rAyeD4GOD9_fbTtxcMhYGhM",
                   "type": "string"
                 }
               ]
@@ -1105,7 +1105,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiZGVsdGFfaW50ZXJuYXRpb25hbF90ZWNobm9sb2d5X3VuaXZlcnNpdHkiLCJyb2xlcyI6WyJSb290Il0sInBlcm1pc3Npb25zIjpbInJiYWMuY3JlYXRlIiwicmJhYy5yZWFkIiwicmJhYy51cGRhdGUiLCJyYmFjLmRlbGV0ZSIsImFjY291bnQuY3JlYXRlIiwiYWNjb3VudC5yZWFkIiwiYWNjb3VudC51cGRhdGUiLCJhY2NvdW50LmRlbGV0ZSIsImFjY291bnQuYXNzaWduX3JvbGUiXSwiaWF0IjoxNzY1MDAyNTMxLCJleHAiOjE3NjUwODg5MzF9.Mhl6MCSX50EVdVasr_V7biG9if-yGw7j3lZgtN1pVbU",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3Njc5NjEzOCwiZXhwIjoxNzc2ODgyNTM4fQ.ee9SH1whE2kq_NclswI1rAyeD4GOD9_fbTtxcMhYGhM",
                   "type": "string"
                 }
               ]
@@ -1119,13 +1119,14 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3000/rbac/permission",
+              "raw": "http://localhost:3000/api/rbac/permission",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
+                "api",
                 "rbac",
                 "permission"
               ]
@@ -1178,7 +1179,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI5MTg4NSwiZXhwIjoxNzc2Mzc4Mjg1fQ.2mT6wDNpgVRcBVlC5b7FYfbTQm7ybka2Akm3HEwNxEY",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3Njc5NjEzOCwiZXhwIjoxNzc2ODgyNTM4fQ.ee9SH1whE2kq_NclswI1rAyeD4GOD9_fbTtxcMhYGhM",
                   "type": "string"
                 }
               ]
@@ -1193,7 +1194,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"permissions\": [\r\n    \"program.read\"\r\n  ]\r\n}\r\n",
+              "raw": "{\r\n  \"permissions\": [\r\n    \"program.read\",\r\n    \"schedule.enroll\"\r\n  ]\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1564,14 +1565,14 @@
       "name": "Program",
       "item": [
         {
-          "name": "New Request",
+          "name": "Create Program",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4MTIxODMsImV4cCI6MTc3NDg5ODU4M30.t9HWeq4EiwPwfDQH-B3tEhMnOS-vG1vfXtliWJ6pwTw",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3Njk2NjgxMiwiZXhwIjoxNzc3MDUzMjEyfQ.xtG3tm8QnrV1A39XHILKkvNpGO2pf4lJUHCbR8DXzRA",
                   "type": "string"
                 }
               ]
@@ -1586,7 +1587,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Computer Science\",\r\n  \"facultyId\": 2,\r\n  \"description\": \"Focuses on computing, software engineering, and AI\",\r\n  \"headId\": 2,\r\n  \"phone\": \"+201234567890\",\r\n  \"universityCreditHours\": 144,\r\n  \"facultyCreditHours\": 30,\r\n  \"programCreditHours\": 114,\r\n  \"programType\": \"Bachelor\",\r\n  \"resultDisplay\": \"CourseGrade\",\r\n  \"blockReason\": \"NonPaymentCurrent\",\r\n  \"levelsNumber\": 4,\r\n\r\n  \"levels\": [\r\n    {\r\n      \"level\": 1,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5000,\r\n            \"description\": \"Level 1 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5000,\r\n            \"description\": \"Level 1 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 800\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 2,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5500,\r\n            \"description\": \"Level 2 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 5500,\r\n            \"description\": \"Level 2 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 900\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 3,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6000,\r\n            \"description\": \"Level 3 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6000,\r\n            \"description\": \"Level 3 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 1000\r\n        }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 4,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6500,\r\n            \"description\": \"Level 4 - Semester 1 tuition\"\r\n          }\r\n        ],\r\n        \"semester2\": [\r\n          {\r\n            \"feeType\": \"ConstantSemester\",\r\n            \"amount\": 6500,\r\n            \"description\": \"Level 4 - Semester 2 tuition\"\r\n          }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        {\r\n          \"feeType\": \"PerCourse\",\r\n          \"amount\": 1200\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n\r\n  \"transcriptDefinition\": [\r\n    {\r\n      \"minScore\": 90,\r\n      \"maxScore\": 100,\r\n      \"minGPA\": 3.7,\r\n      \"maxGPA\": 4.0,\r\n      \"gradeLetter\": \"A\",\r\n      \"equivalentEstimate\": \"Excellent\"\r\n    },\r\n    {\r\n      \"minScore\": 80,\r\n      \"maxScore\": 89,\r\n      \"minGPA\": 3.0,\r\n      \"maxGPA\": 3.69,\r\n      \"gradeLetter\": \"B\",\r\n      \"equivalentEstimate\": \"Very Good\"\r\n    }\r\n  ],\r\n\r\n    \"academicLoadSemester\": [\r\n    { \"level\": 1, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 15 },\r\n    { \"level\": 1, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 15 },\r\n\r\n    { \"level\": 2, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 18 },\r\n    { \"level\": 2, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 18 },\r\n\r\n    { \"level\": 3, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 18 },\r\n    { \"level\": 3, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 18 },\r\n\r\n    { \"level\": 4, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 16 },\r\n    { \"level\": 4, \"semester\": 2, \"minCredits\": 9, \"maxCredits\": 15 }\r\n    ],\r\n\r\n    \"academicLoadGPA\": [\r\n    {\r\n        \"minGPA\": 0.0,\r\n        \"maxGPA\": 1.99,\r\n        \"minCredits\": 9,\r\n        \"maxCredits\": 12\r\n    },\r\n    {\r\n        \"minGPA\": 2.0,\r\n        \"maxGPA\": 2.49,\r\n        \"minCredits\": 12,\r\n        \"maxCredits\": 15\r\n    },\r\n    {\r\n        \"minGPA\": 2.5,\r\n        \"maxGPA\": 3.19,\r\n        \"minCredits\": 12,\r\n        \"maxCredits\": 18\r\n    },\r\n    {\r\n        \"minGPA\": 3.2,\r\n        \"maxGPA\": 4.0,\r\n        \"minCredits\": 15,\r\n        \"maxCredits\": 21\r\n    }\r\n    ]\r\n}",
+              "raw": "{\r\n  \"name\": \"Cyber Security\",\r\n  \"description\": \"Bachelor program covering network security, ethical hacking, digital forensics, secure systems, and risk management aligned with modern industry standards.\",\r\n  \"facultyId\": 4,\r\n  \"headId\": 2,\r\n  \"phone\": \"+201001234567\",\r\n\r\n  \"universityCreditHours\": 10,\r\n  \"facultyCreditHours\": 60,\r\n  \"programCreditHours\": 66,\r\n\r\n  \"programType\": \"Bachelor\",\r\n  \"resultDisplay\": \"CourseGrade\",\r\n\r\n  \"levelsNumber\": 4,\r\n\r\n  \"levels\": [\r\n    {\r\n      \"level\": 1,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 15,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 30000 }\r\n        ],\r\n        \"semester2\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 30000 }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        { \"feeType\": \"PerCourse\", \"amount\": 7000 }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 2,\r\n      \"minCredits\": 12,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 32000 }\r\n        ],\r\n        \"semester2\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 32000 }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        { \"feeType\": \"PerCourse\", \"amount\": 7500 }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 3,\r\n      \"minCredits\": 13,\r\n      \"maxCredits\": 18,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 34000 }\r\n        ],\r\n        \"semester2\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 34000 }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        { \"feeType\": \"PerCourse\", \"amount\": 8000 }\r\n      ]\r\n    },\r\n    {\r\n      \"level\": 4,\r\n      \"minCredits\": 9,\r\n      \"maxCredits\": 15,\r\n      \"semesterFees\": {\r\n        \"semester1\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 36000 }\r\n        ],\r\n        \"semester2\": [\r\n          { \"feeType\": \"ConstantSemester\", \"amount\": 36000 }\r\n        ]\r\n      },\r\n      \"summerFees\": [\r\n        { \"feeType\": \"PerCourse\", \"amount\": 8500 }\r\n      ]\r\n    }\r\n  ],\r\n\r\n  \"transcriptDefinition\": [\r\n    { \"gradeLetter\": \"A+\", \"minScore\": 95, \"maxScore\": 100, \"minGPA\": 4.0, \"maxGPA\": 4.0 },\r\n    { \"gradeLetter\": \"A\",  \"minScore\": 90, \"maxScore\": 94,  \"minGPA\": 3.7, \"maxGPA\": 3.99 },\r\n    { \"gradeLetter\": \"B+\", \"minScore\": 85, \"maxScore\": 89,  \"minGPA\": 3.3, \"maxGPA\": 3.69 },\r\n    { \"gradeLetter\": \"B\",  \"minScore\": 80, \"maxScore\": 84,  \"minGPA\": 3.0, \"maxGPA\": 3.29 },\r\n    { \"gradeLetter\": \"C+\", \"minScore\": 75, \"maxScore\": 79,  \"minGPA\": 2.5, \"maxGPA\": 2.99 },\r\n    { \"gradeLetter\": \"C\",  \"minScore\": 70, \"maxScore\": 74,  \"minGPA\": 2.0, \"maxGPA\": 2.49 },\r\n    { \"gradeLetter\": \"D\",  \"minScore\": 60, \"maxScore\": 69,  \"minGPA\": 1.0, \"maxGPA\": 1.99 },\r\n    { \"gradeLetter\": \"F\",  \"minScore\": 0,  \"maxScore\": 59,  \"minGPA\": 0.0, \"maxGPA\": 0.99 }\r\n  ],\r\n\r\n  \"academicLoadSemester\": [\r\n    { \"level\": 1, \"semester\": 1, \"minCredits\": 12, \"maxCredits\": 14 },\r\n    { \"level\": 1, \"semester\": 2, \"minCredits\": 12, \"maxCredits\": 15 },\r\n    { \"level\": 1, \"semester\": 3, \"minCredits\": 2, \"maxCredits\": 9 },\r\n\r\n    { \"level\": 2, \"semester\": 1, \"minCredits\": 13, \"maxCredits\": 18 },\r\n    { \"level\": 2, \"semester\": 2, \"minCredits\": 13, \"maxCredits\": 18 },\r\n    { \"level\": 2, \"semester\": 3, \"minCredits\": 2, \"maxCredits\": 9 },\r\n\r\n    { \"level\": 3, \"semester\": 1, \"minCredits\": 14, \"maxCredits\": 18 },\r\n    { \"level\": 3, \"semester\": 2, \"minCredits\": 13, \"maxCredits\": 18 },\r\n    { \"level\": 3, \"semester\": 3, \"minCredits\": 2, \"maxCredits\": 9 },\r\n\r\n    { \"level\": 4, \"semester\": 1, \"minCredits\": 10, \"maxCredits\": 15 },\r\n    { \"level\": 4, \"semester\": 2, \"minCredits\": 6, \"maxCredits\": 12 },\r\n    { \"level\": 4, \"semester\": 3, \"minCredits\": 2, \"maxCredits\": 9 }\r\n  ],\r\n\r\n  \"academicLoadGPA\": [\r\n    { \"minGPA\": 0.0, \"maxGPA\": 1.99, \"minCredits\": 9,  \"maxCredits\": 12 },\r\n    { \"minGPA\": 2.0, \"maxGPA\": 2.49, \"minCredits\": 12, \"maxCredits\": 15 },\r\n    { \"minGPA\": 2.5, \"maxGPA\": 3.19, \"minCredits\": 13, \"maxCredits\": 18 },\r\n    { \"minGPA\": 3.2, \"maxGPA\": 4.0,  \"minCredits\": 15, \"maxCredits\": 21 }\r\n  ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1594,7 +1595,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/program/create",
+              "raw": "http://localhost:3000/api/program",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1602,8 +1603,7 @@
               "port": "3000",
               "path": [
                 "api",
-                "program",
-                "create"
+                "program"
               ]
             }
           },
@@ -1622,7 +1622,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzQ4NzU0MzgsImV4cCI6MTc3NDk2MTgzOH0.blsWhk4csFjf8U7khhOWJ4C6we20Vy9Y3f6kRZ-Bkuw",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3Njg3ODUxNSwiZXhwIjoxNzc2OTY0OTE1fQ.wdvCn3pvZ5HpDJQRSk0Hkl6BYA8vv9rvuDWPrx56F38",
                   "type": "string"
                 }
               ]
@@ -1638,7 +1638,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"universityId\": 2,\r\n  \"name\": \"Faculty of Engineering\",\r\n  \"description\": \"Focuses on engineering disciplines and applied sciences\",\r\n  \"deanId\": 2,\r\n  \"establishedDate\": \"2005-09-01\"\r\n}",
+              "raw": "{\r\n  \"universityId\": 2,\r\n  \"name\": \"Faculty of Computer and Data Science\",\r\n  \"description\": \"Specializes in computer science, data science, artificial intelligence, and information systems. Focuses on software development, data analytics, machine learning, and modern computing technologies aligned with industry and research standards.\",\r\n  \"deanId\": 2,\r\n  \"establishedDate\": \"2018-09-01\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
