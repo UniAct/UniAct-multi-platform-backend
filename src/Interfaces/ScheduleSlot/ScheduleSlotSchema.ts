@@ -63,9 +63,10 @@ export const ScheduleSlotResponseSchema = z.object({
     name: z.string(),
   }).nullable(),
 });
-export const GetScheduleQuerySchema = SaveScheduleSchema.pick({
-  programId: true,
-  academicLevel: true,
+export const GetScheduleQuerySchema = z.object({
+  programId: z.coerce.number().int(),
+  academicLevel: z.coerce.number().int(),
+  facultyId: z.coerce.number().int()
 });
 
 export type GetScheduleQuery = z.infer<typeof GetScheduleQuerySchema>;

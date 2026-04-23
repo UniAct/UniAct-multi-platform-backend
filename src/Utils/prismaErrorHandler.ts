@@ -42,7 +42,7 @@ export function handlePrismaError(err: any, res: Response) {
      console.dir(err, { depth: null, colors: true });
     // Many P2025 errors don’t include specific field names,
     // so show model name or generic resource name
-    const model = err.meta?.modelName ?? "Resource";
+    const model = err.meta?.model || err.meta?.modelName || "Resource";
 
     const message = `${model} not found.`;
 

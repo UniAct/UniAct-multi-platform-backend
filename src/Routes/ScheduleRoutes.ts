@@ -18,7 +18,7 @@ router.get(
   AttachAndValidateTenant,
   RequirePermission(permissions.program.read.name),
   RequireSemesterHeader, 
-  ZodValidator({ query: GetScheduleQuerySchema }),
+  ZodValidator({ query: GetScheduleQuerySchema}),
   asyncHandler(ScheduleController.GetSchedule)
 );
 

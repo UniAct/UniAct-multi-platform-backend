@@ -10,12 +10,17 @@ import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInSch
 export class ScheduleController {
   static async GetSchedule(req: Request, res: Response) {
 
-    const {programId, academicLevel}= req.query as unknown as GetScheduleQuery;
-  
+    const {programId, academicLevel, facultyId}= req.query as unknown as GetScheduleQuery;
+
+    // will be needed to determine filtering and shape of the response 
+  const isStudent = !!req.user?.isStudent;
+  const studentId = isStudent ? req.user?.id : undefined;
+
     const Timetable = await ScheduleService.GetSchedule(
-      {programId, academicLevel},
+      {programId, academicLevel, facultyId},
       req.semester_id!,
       req.schema_name!,
+      studentId
     );
 
     res.status(StatusCodes.OK).json({

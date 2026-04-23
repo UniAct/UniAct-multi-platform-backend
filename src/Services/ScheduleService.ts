@@ -10,55 +10,74 @@ import { Queues } from "../Enums/Queues";
 import { logger } from "../Utils/Logger";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
 
+
+
+type SlotsResult = Awaited<ReturnType<typeof ScheduleRepository.GetScheduleSlotsWithContext>>;
+type CoursesResult = Awaited<ReturnType<typeof ScheduleRepository.GetCoursesByLevel>>;
+type ClassroomsResult = Awaited<ReturnType<typeof ScheduleRepository.GetAllAvailableClassrooms>>;
+type StaffResult = Awaited<ReturnType<typeof ScheduleRepository.GetStaffByFaculty>>;
+
+
 export class ScheduleService {
 
 
   public static async GetSchedule(
-    params: { programId: number; academicLevel: number },
-    semesterId: number,
-    schemaName: string,
-  ) {
-    const { programId, academicLevel } = params;
-    const prisma = GetTenantClient(schemaName);
+  params: { programId: number; academicLevel: number; facultyId: number },
+  semesterId: number,
+  schemaName: string,
+  studentId?: number
+) {
+  const { programId, academicLevel, facultyId } = params;
+  const prisma = GetTenantClient(schemaName);
+  
+  
 
-    // 1. First, get the Program & Faculty ID (needed to scope the staff)
-    // We combine this with the Level check to save one round-trip
-    const program = await ScheduleRepository.GetProgram(programId, academicLevel, prisma);
+  // 3. Dynamic Parallel Fetching
+  // We always fetch the slots, but lookups are conditional.
+  const tasks: Promise<any>[] = [
+    ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma, studentId)
+  ];
 
-    if (!program) throw new NotFoundError(`Program ${programId} not found`);
-    const levelId = program.programLevels[0]?.id;
-    if (!levelId) throw new NotFoundError(`Level ${academicLevel} is not defined for this program`);
-
-    // 2. Parallel Fetch with Scoping
-    // We only fetch staff from the same faculty and courses for this specific level
-    const [courses, classrooms, staff, slotsContexts] = await Promise.all([
-      ScheduleRepository.GetCoursesByLevel(levelId, prisma),
+  if (typeof(studentId) != "number") {
+    console.log("adminnnnnnnnnnnnn");
+    tasks.push(
+      ScheduleRepository.GetCoursesByLevel(academicLevel, prisma),
       ScheduleRepository.GetAllAvailableClassrooms(prisma),
-      ScheduleRepository.GetStaffByFaculty(program.facultyId, prisma),
-      ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma)
-    ]);
-
-    return {
-      meta: {
-        programId,
-        programName: program.name,
-        academicLevel,
-        semesterId,
-      },
-      lookups: {
-        courses: courses.map(c => c.course),
-        classrooms: classrooms.map(c => ({
-          ...c,
-          label: `${c.building} / ${c.classroomNumber}`
-        })),
-        staff: staff.map(s => ({
-          id: s.staffId,
-          name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
-        })),
-      },
-      scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
-    };
+      ScheduleRepository.GetStaffByFaculty(facultyId, prisma)
+    );
   }
+
+  // Execute only the necessary queries
+  const [slotsContexts, courses = [], classrooms = [], staff = []] = (await Promise.all(tasks)) as [
+    SlotsResult,
+    CoursesResult,
+    ClassroomsResult,
+    StaffResult
+  ];
+
+  // 4. Conditional Response Construction
+  return {
+    meta: {
+      programId,
+      // programName: program.name,
+      academicLevel,
+      semesterId,
+    },
+    // Only populate lookups if the user isn't a student
+    lookups: typeof(studentId) === 'number' ? null : {
+      courses: courses.map(c => c.course),
+      classrooms: classrooms.map(c => ({
+        ...c,
+        label: `${c.building} / ${c.classroomNumber}`
+      })),
+      staff: staff.map(s => ({
+        id: s.staffId,
+        name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
+      })),
+    },
+    scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
+  };
+}
 
 
   public static async SaveSchedule(
@@ -161,7 +180,7 @@ export class ScheduleService {
             // CONFLICT: Same time/place/teacher, but DIFFERENT course/type.
             throw new ConflictError(
               `Teacher ${incoming.teacherName} ` +
-              `is already teaching ${incoming.courseId} (${existingSlot.type}) ` +
+              `is already teaching another Course (${existingSlot.type}) ` +
               `in ${incoming.classroomName} ` +
               `from ${this.formatTime(existingSlot.startTime)} to ${this.formatTime(existingSlot.endTime)}.` +
               `in another program`
