@@ -22,11 +22,11 @@ export default class ProgramController {
 
     static async GetAllPrograms(req: Request, res: Response) {
         
-        // const programs: Program[] = await ProgramService.GetAllPrograms(req.schema_name!);
+        const programs: {name:string,id:number}[] = await ProgramService.GetAllPrograms(req.schema_name!);
 
         res.status(StatusCodes.OK).json({
             status: JSendStatus.SUCCESS,
-            // data: programs,
+            data: programs,
         });
     }
 

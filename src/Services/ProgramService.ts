@@ -10,6 +10,10 @@ export class ProgramService {
     const dto = MapToProgramResponseDto(result);
     return dto;
   }
+  static async GetAllPrograms(schema_name:string){
+    const prisma = GetTenantClient(schema_name);
+    return prisma.program.findMany({select:{name:true, id:true,facultyId:true, programLevels:true}})
+  }
 }
 
 
