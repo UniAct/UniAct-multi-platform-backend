@@ -28,7 +28,7 @@ export class CourseService {
           }
         },
       },
-      coursePrerequisitesFor: prerequisiteIds.length
+      prerequisites: prerequisiteIds.length
         ? {
           create: prerequisiteIds.map((prerequisiteId) => ({
             prerequisite: {
@@ -94,7 +94,7 @@ export class CourseService {
               program:{connect:{id:payload.programId}}
             },
           },
-          coursePrerequisitesFor:
+          prerequisites:
             payload.prerequisiteIds && payload.prerequisiteIds.length > 0
               ? {
                 create: Array.from(new Set(payload.prerequisiteIds)).map((prerequisiteId) => ({

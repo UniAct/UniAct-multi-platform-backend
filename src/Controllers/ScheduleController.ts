@@ -45,7 +45,8 @@ export class ScheduleController {
   }
 
   static async Enroll(req: Request, res: Response) {
-    const currentSemester = Number(req.user?.semester?.id);
+    const currentSemesterId = Number(req.user?.semester?.id);
+    const currentTerm = Number(req.user?.semester?.term);
     const studentId = Number(req.user?.id);
     const currentStudentProgramLevelId = Number(req.user?.programLevel?.id);
     const studentProgramId = Number(req.user?.program?.id);
@@ -56,7 +57,7 @@ export class ScheduleController {
       studentId , 
       currentStudentProgramLevelId , 
       studentProgramId , 
-      currentSemester , 
+      {id:currentSemesterId , term: currentTerm},
       schedule
     );
 

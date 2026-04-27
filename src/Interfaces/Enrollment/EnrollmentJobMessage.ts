@@ -5,7 +5,10 @@ export type EnrollmentJobMessage = {
   schemaName: string;
   studentId: number;
   currentStudentProgramLevelId : number;
-  currentSemesterId: number;
+  semester: {
+    id: number,
+    term: number
+  }
   studentProgramId: number;
   schedule: EnrollInScheduleRequestDto;
 };

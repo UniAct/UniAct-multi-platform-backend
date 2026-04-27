@@ -9,6 +9,7 @@ import { EnrollmentJobMessage } from "../Interfaces/Enrollment/EnrollmentJobMess
 import { Queues } from "../Enums/Queues";
 import { logger } from "../Utils/Logger";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
+import { SemesterRepository } from "../Repositories/SemesterRepository";
 
 
 
@@ -39,7 +40,6 @@ export class ScheduleService {
   ];
 
   if (typeof(studentId) != "number") {
-    console.log("adminnnnnnnnnnnnn");
     tasks.push(
       ScheduleRepository.GetCoursesByLevel(academicLevel, prisma),
       ScheduleRepository.GetAllAvailableClassrooms(prisma),
@@ -333,19 +333,22 @@ export class ScheduleService {
     studentId : number,
     currentStudentProgramLevelId : number,
     studentProgramId: number,
-    currentSemesterId : number,
+    currentSemester: {id : number , term: number},
     schedule : EnrollInScheduleRequestDto
   ){
     const prisma = GetTenantClient(schemaName);
 
-    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId , currentSemesterId , prisma);
+    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId , currentSemester.id , prisma);
 
     const message : EnrollmentJobMessage = {
       jobId,
       schemaName,
       studentId,
       currentStudentProgramLevelId,
-      currentSemesterId,
+      semester: {
+        id: currentSemester.id,
+        term: currentSemester.term
+      },
       studentProgramId,
       schedule
     };
@@ -361,7 +364,7 @@ export class ScheduleService {
       schema: schemaName,
       jobId,
       studentId,
-      currentSemesterId,
+      semesterId: currentSemester.id,
       scheduleSlotCount: schedule.scheduleSlots.length,
     });
 

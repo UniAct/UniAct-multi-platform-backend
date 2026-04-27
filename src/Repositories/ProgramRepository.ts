@@ -239,7 +239,24 @@ export class ProgramRepository {
     return programLevel !== null;
   }
   static async GetProgramsByFacultyId(facultyId:number, prisma: PrismaClient){
-   return await prisma.program.findMany({where:{facultyId:facultyId}});
-  
+    return await prisma.program.findMany({where:{facultyId:facultyId}});
+  }
+
+  public static async GetAcademicLoadCredits(
+    prisma: PrismaClient,
+    programId: number,
+    semesterNumber: number,
+    programLevelId: number
+  ) {
+    return await prisma.academicLoadSemester.findUnique({
+      where: {
+        programId_semesterNumber_programLevelId: {
+          programId,
+          semesterNumber,
+          programLevelId,
+        },
+      },
+      select: { minCredits: true, maxCredits: true },
+    });
   }
 }

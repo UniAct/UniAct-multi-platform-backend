@@ -1,5 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { GradeEnum, Prisma, PrismaClient, RegistrationStatus } from "@prisma/client";
 import { request, Request } from "express";
+import { CourseRepository } from "./CourseRepository";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -66,7 +67,7 @@ export class ScheduleRepository {
     if (studentId) {
       console.log("He is a studenttt");
       // 1. Get IDs of courses the student has passed (Status = Completed, Grade != F)
-      const passedCourseIds = await this.getPassedCourseIds(studentId, prisma);
+      const passedCourseIds = await CourseRepository.GetStudentPassedCourseIds(studentId, prisma);
       // 2. Define the Eligibility Filter
       // Translation: Show me slots where the course has NO prerequisite that the student didn't pass yet .
       studentFilter = {
@@ -102,29 +103,30 @@ export class ScheduleRepository {
     });
   }
 
-  /**
-   * Helper to get unique IDs of passed courses.
-   */
-  private static async getPassedCourseIds(studentId: number, prisma: DbClient): Promise<number[]> {
-    const registrations = await prisma.courseRegistration.findMany({
+  public static async GetRequestedScheduleSlotContexts(
+    prisma: PrismaClient,
+    submittedContextIds: number[],
+    studentProgramId: number,
+    semesterId: number
+  ) {
+    return prisma.scheduleSlotContext.findMany({
       where: {
-        studentId,
-        status: 'Completed',
-        grade: { not: 'F' }
+        id: { in: submittedContextIds },
+        programId: studentProgramId,
+        semesterId,
       },
-      select: {
-        scheduleSlotContext: {
-          select: {
-            slot: { select: { courseId: true } }
-          }
-        }
-      }
+      include: {
+        slot: {
+          include: {
+            classroom: true,    
+            course: {
+              include: {
+                prerequisites: true,
+              },
+            },
+          },
+        },
+      },
     });
-
-    // Extract unique course IDs
-    return [...new Set(registrations
-      .map(r => r.scheduleSlotContext?.slot?.courseId)
-      .filter((id): id is number => id !== undefined)
-    )];
   }
 }

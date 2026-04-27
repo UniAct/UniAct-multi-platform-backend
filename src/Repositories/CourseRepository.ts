@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { GradeEnum, Prisma, PrismaClient, RegistrationStatus } from "@prisma/client";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -47,5 +47,56 @@ export class CourseRepository {
     return prisma.course.delete({
       where: { id },
     });
+  }
+
+  public static async GetStudentAlreadyEnrolledCourses(
+    prisma: PrismaClient,
+    studentId: number,
+    semesterId: number
+  ) {
+    return prisma.courseRegistration.findMany({
+      where: { studentId, semesterId },
+      select: {
+        id: true,
+        slotContextId: true,
+        scheduleSlotContext: {
+          select: {
+            slot: {
+              select: {
+                id: true,
+                classroom: { select: { capacity: true } },
+                course: { select: { credits: true, id: true , code: true , name: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+    /**
+   * Helper to get unique IDs of passed courses.
+   */
+  public static async GetStudentPassedCourseIds(studentId: number, prisma: DbClient): Promise<number[]> {
+    const registrations = await prisma.courseRegistration.findMany({
+      where: {
+        studentId,
+        status: RegistrationStatus.Completed,
+        grade: { not: GradeEnum.F }
+      },
+      select: {
+        scheduleSlotContext: {
+          select: {
+            slot: { select: { courseId: true } }
+          }
+        }
+      }
+    });
+
+    // Extract unique course IDs
+    return [...new Set(registrations
+      .map(r => r.scheduleSlotContext?.slot?.courseId)
+      .filter((id): id is number => id !== undefined)
+    )];
   }
 }
