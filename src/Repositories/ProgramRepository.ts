@@ -242,7 +242,7 @@ export class ProgramRepository {
     return await prisma.program.findMany({where:{facultyId:facultyId}});
   }
 
-  public static async GetAcademicLoadCredits(
+  public static async GetAcademicLoadCreditsBySemester(
     prisma: PrismaClient,
     programId: number,
     semesterNumber: number,
@@ -255,6 +255,21 @@ export class ProgramRepository {
           semesterNumber,
           programLevelId,
         },
+      },
+      select: { minCredits: true, maxCredits: true },
+    });
+  }
+
+  public static async GetAcademicLoadCreditsByGPA(
+    prisma: PrismaClient,
+    programId: number,
+    cgpa: number
+  ) {
+    return await prisma.academicLoadGPA.findFirst({
+      where: {
+        programId,
+        minGpa: { lte: cgpa },
+        maxGpa: { gte: cgpa },
       },
       select: { minCredits: true, maxCredits: true },
     });

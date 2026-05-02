@@ -331,6 +331,7 @@ export class ScheduleService {
   public static async Enroll(
     schemaName : string,
     studentId : number,
+    cgpa : number,
     currentStudentProgramLevelId : number,
     studentProgramId: number,
     currentSemester: {id : number , term: number},
@@ -344,6 +345,7 @@ export class ScheduleService {
       jobId,
       schemaName,
       studentId,
+      cgpa,
       currentStudentProgramLevelId,
       semester: {
         id: currentSemester.id,

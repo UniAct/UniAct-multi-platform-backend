@@ -30,6 +30,7 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
     schemaName,
     studentProgramId,
     studentId,
+    cgpa,
     currentStudentProgramLevelId,
     semester,
     schedule,
@@ -51,7 +52,7 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
 
   try {
     // ─── 1. Parallel fetch ────────────────────────────────────────────────────
-    const [dbSlotContexts, academicLoad, alreadyEnrolled, passedCourseIds] =
+    const [dbSlotContexts, academicLoadSemester , academicLoadGpa , alreadyEnrolled, passedCourseIds] =
       await Promise.all([
         ScheduleRepository.GetRequestedScheduleSlotContexts(
           prisma,
@@ -59,11 +60,16 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
           studentProgramId,
           semester.id
         ),
-        ProgramRepository.GetAcademicLoadCredits(
+        ProgramRepository.GetAcademicLoadCreditsBySemester(
           prisma,
           studentProgramId,
           semester.term,
           currentStudentProgramLevelId
+        ),
+        ProgramRepository.GetAcademicLoadCreditsByGPA(
+          prisma,
+          studentProgramId,
+          cgpa
         ),
         CourseRepository.GetStudentAlreadyEnrolledCourses(
           prisma, 
@@ -131,10 +137,8 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
     });
 
     // ─── 5. Credit calculation ────────────────────────────────────────────────
-    // Deduplicate by courseId — one course may span Lecture + Lab slots.
     const creditsMap = new Map<number, number>();
 
-    // Courses the student is keeping from a prior enrollment this semester
     alreadyEnrolled.forEach((reg) => {
       if (submittedIdSet.has(reg.slotContextId!)) {
         const course = reg.scheduleSlotContext!.slot.course;
@@ -142,7 +146,6 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
       }
     });
 
-    // Courses the student is adding now
     validToAdd.forEach((ctx) => {
       creditsMap.set(ctx.slot.course.id, ctx.slot.course.credits);
     });
@@ -152,19 +155,35 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
       0
     );
 
+    // Determine the effective allowed range — both rules must pass
+    const effectiveMin = Math.max(
+      academicLoadSemester?.minCredits ?? 0,
+      academicLoadGpa?.minCredits ?? 0
+    );
+    const effectiveMax = Math.min(
+      academicLoadSemester?.maxCredits ?? Infinity,
+      academicLoadGpa?.maxCredits ?? Infinity
+    );
+
+    const semesterMissing = !academicLoadSemester ;
+    const gpaMissing      = !academicLoadGpa;
+
     if (
-      !academicLoad ||
-      totalCredits < academicLoad.minCredits ||
-      totalCredits > academicLoad.maxCredits
+      semesterMissing ||
+      gpaMissing ||
+      totalCredits < effectiveMin ||
+      totalCredits > effectiveMax
     ) {
       await prisma.enrollmentJob.update({
         where: { id: jobId },
         data: {
           status: EnrollmentJobStatus.Done,
           result: ToJSON({
-            error: !academicLoad
-              ? "Academic Load Configuration Missing"
-              : `Credit Limit Violation: ${totalCredits} Credits Requested (Allowed ${academicLoad.minCredits}–${academicLoad.maxCredits})`,
+            error: semesterMissing
+              ? "Academic Load (Semester) Configuration Missing"
+              : gpaMissing
+              ? "Academic Load (GPA) Configuration Missing"
+              : `Credit Limit Violation: ${totalCredits} credits requested (allowed ${effectiveMin}–${effectiveMax})`,
             slots: eligibilityOutcomes,
           }),
         },
