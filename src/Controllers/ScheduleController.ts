@@ -48,6 +48,7 @@ export class ScheduleController {
     const currentSemesterId = Number(req.user?.semester?.id);
     const currentTerm = Number(req.user?.semester?.term);
     const studentId = Number(req.user?.id);
+    const cgpa = Number(req.user?.student?.cgpa)
     const currentStudentProgramLevelId = Number(req.user?.programLevel?.id);
     const studentProgramId = Number(req.user?.program?.id);
     const schedule = req.body as EnrollInScheduleRequestDto;
@@ -55,6 +56,7 @@ export class ScheduleController {
     const result = await ScheduleService.Enroll(
       req.schema_name! , 
       studentId , 
+      cgpa,
       currentStudentProgramLevelId , 
       studentProgramId , 
       {id:currentSemesterId , term: currentTerm},
