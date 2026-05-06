@@ -4,6 +4,7 @@ export type EnrollmentJobMessage = {
   jobId: string;
   schemaName: string;
   studentId: number;
+  cgpa : number;
   currentStudentProgramLevelId : number;
   semester: {
     id: number,
