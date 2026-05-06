@@ -1,75 +1,49 @@
-import { body, param } from "express-validator";
+import { z } from 'zod';
 
-export default class CourseValidator {
-  public static Create() {
-    return [
-      body("name")
-        .notEmpty()
-        .withMessage("Course name is required")
-        .isString()
-        .isLength({ max: 255 }),
 
-      body("code")
-        .notEmpty()
-        .withMessage("Course code is required")
-        .isString()
-        .isLength({ max: 20 }),
+export const CreateCourseSchema = z.object({
+  name: z.string().min(1, "Course name is required").max(255),
+  code: z.string().min(1, "Course code is required").max(20),
+  credits: z.number().int().positive("Credits must be a positive integer"),
+  
+  programLevelId: z.number().int().positive("Program Level ID is required"),
+  programId: z.number().int().positive("Program ID is required"),
+  
+  description: z.string().optional(),
+  syllabus: z.string().optional(),
+  
+  successPercentage: z.number().min(0).max(100).optional(),
+  minFinalSuccessPercentage: z.number().min(0).max(100).optional(),
+  
+  totalFail: z.boolean().default(false),
 
-      body("credits")
-        .isInt({ gt: 0 })
-        .withMessage("Credits must be a positive integer")
-        .toInt(),
+  courseType: z.enum(["Mandatory", "Elective", "Project"],
+     { error: "Course Type must be one of the following (Mandatory, Elective, Project" }),
 
-      body("programLevelId")
-        .isInt({ gt: 0 })
-        .withMessage("Program Level ID must be a positive integer")
-        .toInt(),
 
-      body("programId")
-        .isInt({ gt: 0 })
-        .withMessage("Program ID must be a positive integer")
-        .toInt(),
+  prerequisiteIds: z.array(z.number().int()).optional().default([]),
+});
 
-      body("description")
-        .optional()
-        .isString(),
+export const CourseParamSchema = z.object({
+  id: z.coerce.number({error:"Course parameter is required "}).int().positive(),
+});
 
-      body("syllabus")
-        .optional()
-        .isString(),
 
-      body("successPercentage")
-        .optional()
-        .isFloat({ min: 0, max: 100 })
-        .toFloat(),
-
-      body("minFinalSuccessPercentage")
-        .optional()
-        .isFloat({ min: 0, max: 100 })
-        .toFloat(),
-
-      body("courseType")
-        .isIn(["Mandatory", "Elective", "Project"])
-        .withMessage("Course Type must be one of the following (Mandatory, Elective, Project"),
-
-      body("prerequisiteIds")
-        .optional()
-        .isArray(),
-    ];
+export const UpdateCourseSchema = CreateCourseSchema.partial().refine(
+  (data) => {
+    // Logic: If you are trying to update program-specific details (type or programId),
+    // you MUST provide the programLevelId so we know which relation to upsert.
+    if ((data.courseType || data.programId) && !data.programLevelId) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "programLevelId is required when updating program-specific details",
+    path: ["programLevelId"],
   }
-
-  public static Update() {
-    return [...this.IdParam(), ...this.Create()];
-  }
-
-  public static IdParam() {
-    return [
-      param("id")
-        .exists()
-        .withMessage("Course ID is required")
-        .isInt({ gt: 0 })
-        .withMessage("Course ID must be a positive integer")
-        .toInt(),
-    ];
-  }
-}
+);
+// 4. TYPES
+export type CreateCourse = z.infer<typeof CreateCourseSchema>;
+export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;
+export type CourseParam = z.infer<typeof CourseParamSchema>;

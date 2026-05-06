@@ -193,6 +193,7 @@ export class ScheduleService {
               teacherId: incoming.teacherId,
               courseId: incoming.courseId,
               classroomId: incoming.classroomId,
+              allowedCapacity:incoming.allowedCpacity,
               dayOfWeek: incoming.dayOfWeek,
               startTime: incoming.startTime,
               endTime: incoming.endTime,
@@ -247,6 +248,7 @@ export class ScheduleService {
       endTime: this.formatTime(physical.endTime),
       type: physical.type,
       enrolledSeats: physical.enrolledSeats,
+      allowedCapacity: physical.allowedCapacity,
 
       course: physical.course,
 

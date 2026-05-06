@@ -12,7 +12,7 @@ export default class ProgramController {
     static async Create(req: Request, res: Response) {
         const programData = req.body as CreateProgramRequestDto;
 
-        const newProgram = await ProgramService.Create(req.schema_name! , programData);
+        const newProgram = await ProgramService.Create(programData, req.schema_name!);
         res.status(StatusCodes.CREATED).json({
             status: JSendStatus.SUCCESS,
             data: newProgram,
@@ -22,21 +22,21 @@ export default class ProgramController {
 
     static async GetAllPrograms(req: Request, res: Response) {
         
-        // const programs: Program[] = await ProgramService.GetAllPrograms(req.schema_name!);
+        const programs: Partial<Program> [] = await ProgramService.GetAllPrograms(req.schema_name!);
 
         res.status(StatusCodes.OK).json({
             status: JSendStatus.SUCCESS,
-            // data: programs,
+            data: programs,
         });
     }
 
     static async GetProgramById(req:Request, res: Response){
         const id = parseInt(req.params.id as string);
     
-        // const program = await ProgramService.GetProgramById(id, req.schema_name!);
+        const program = await ProgramService.GetProgramById(id, req.schema_name!);
         res.status(StatusCodes.OK).json({
             status:JSendStatus.SUCCESS,
-            // data: program
+            data: program
         });
     }
 
@@ -44,10 +44,10 @@ export default class ProgramController {
         const facultyId = parseInt(req.params.facultyId as string);
         if(!facultyId)
             throw new BadRequestError("Faculty Id param is missing");
-        // const programs:any [] = await ProgramService.GetProgramsByFacultyId(facultyId,req.schema_name!);
+        const programs: Partial<Program> [] = await ProgramService.GetProgramsByFacultyId(facultyId,req.schema_name!);
 
         return res.status(200).json({
-            // data:programs,
+            data:programs,
             message: "programs fetched successfully"
         })
     }
@@ -56,7 +56,7 @@ export default class ProgramController {
         const id = parseInt(req.params.id as string);
         const programData = req.body as ProgramUpsertInput;
 
-        // const updatedProgram = await ProgramService.UpdateProgram(id, programData, req.schema_name!);
+        const updatedProgram = await ProgramService.UpdateProgram(id, programData, req.schema_name!);
         res.status(StatusCodes.OK).json({
             status: JSendStatus.SUCCESS,
             // data: updatedProgram,

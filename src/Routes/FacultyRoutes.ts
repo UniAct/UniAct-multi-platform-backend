@@ -34,6 +34,14 @@ router.get("/:id",
     asyncHandler(FacultyController.GetFacultyById)
 );
 
+//get all programs for this faculty
+router.get("/:id/programs",
+    AttachAndValidateTenant,
+    ...FacultyValidator.IdParam(),
+    ValidateRequest,
+    asyncHandler(FacultyController.GetProgramsByFacultyID)
+)
+
 // Update Faculty by Id
 router.put(
     "/:id",

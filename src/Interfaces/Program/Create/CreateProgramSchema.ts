@@ -1,5 +1,6 @@
 import { FeeType, GradeEnum, ProgramType, ResultDisplayType } from "@prisma/client";
 import { z } from "zod/v4";
+import { applyProgramRefinements } from "../utils";
 
 const ProgramTypeSchema = z.enum(ProgramType, {
   error: `Program type must be one of: ${Object.values(ProgramType).join(", ")}`,
@@ -35,6 +36,7 @@ const FeeTypeSchema = z.enum(FeeType,
 
 
 const FeeEntrySchema = z.object({
+  id: z.number().int().optional(), // Added for non-destructive updates
   feeType: FeeTypeSchema,
 
   amount: z
@@ -61,6 +63,8 @@ const SemesterFeesSchema = z.object({
 
 const ProgramLevelSchema = z
   .object({
+    id: z.number().int().optional(), 
+
     level: z
       .number({ error: "Level number must be a numeric value." })
       .int("Level number must be a whole number.")
@@ -77,6 +81,9 @@ const ProgramLevelSchema = z
       .int("Maximum credits must be a whole number.")
       .min(1, "Maximum credits cannot be negative."),
 
+    // Added fees array for those not assigned to a specific semester
+    fees: z.array(FeeEntrySchema).optional(),
+    
     semesterFees: SemesterFeesSchema,
 
     summerFees: z.array(FeeEntrySchema),
@@ -90,6 +97,8 @@ const ProgramLevelSchema = z
 
 const TranscriptDefinitionEntrySchema = z
   .object({
+    id: z.number().int().optional(), // Added
+
     gradeLetter: z.enum(GradeDisplayValues, {
       error: `Grade letter must be one of: A+, A, A-, B+, B, B-, C+, C, C-, D+, D, F`
     })
@@ -134,6 +143,7 @@ const TranscriptDefinitionEntrySchema = z
 
 const AcademicLoadSemesterEntrySchema = z
   .object({
+    id: z.number().int().optional(), // Added
     level: z
       .number({ error: "Academic load level must be a number." })
       .int("Academic load level must be a whole number.")
@@ -164,6 +174,7 @@ const AcademicLoadSemesterEntrySchema = z
 
 const AcademicLoadGPAEntrySchema = z
   .object({
+    id: z.number().int().optional(), // Added
     minGPA: z
       .number({ error: "Minimum GPA must be a number." })
       .min(0, "Minimum GPA cannot be negative.")
@@ -195,9 +206,10 @@ const AcademicLoadGPAEntrySchema = z
     path: ["maxCredits"],
   });
 
+// Refined Egyptian Phone Regex: Handles 01x... and +201x...
+const egyptianPhoneRegex = /^(?:\+20|0)?1[0125]\d{8}$/;
 
-export const CreateProgramSchema = z
-  .object({
+export const ProgramBaseSchema = z.object({
     name: z
       .string({ error: "Program name is required." })
       .min(2, "Program name must be at least 2 characters long.")
@@ -219,14 +231,8 @@ export const CreateProgramSchema = z
       .positive("Head ID must reference a valid staff member.")
       .optional(),
 
-    phone: z
-      .string()
-      .regex(
-        /^\+20(10|11|12|15)\d{8}$/,
-        "Phone number is not valid. it mus be valid Egyptian phone number"
-      )
-      .optional(),
-
+    phone: z.string().regex(egyptianPhoneRegex, "Invalid Egyptian phone number").optional(),
+    
     universityCreditHours: z
       .number({ error: "University credit hours must be a number." })
       .int("University credit hours must be a whole number.")
@@ -268,98 +274,8 @@ export const CreateProgramSchema = z
 
     academicLoadGPA: z
       .array(AcademicLoadGPAEntrySchema),
-  })
+  });
 
-  .refine((data) => data.levels.length === data.levelsNumber, {
-    message:
-      "The number of level definitions must match the declared 'levelsNumber' field.",
-    path: ["levels"],
-  })
-
-  .refine(
-    (data) => {
-      const sorted = [...data.levels].sort((a, b) => a.level - b.level);
-      return sorted.every((l, i) => l.level === i + 1);
-    },
-    {
-      message:
-        "Level numbers must be sequential starting from 1 (e.g. 1, 2, 3, ...) with no gaps or duplicates.",
-      path: ["levels"],
-    }
-  )
-
-  // academicLoadSemester levels must exist in levels
-  .refine(
-    (data) => {
-      if (!data.academicLoadSemester) return true;
-      const validLevels = new Set(data.levels.map((l) => l.level));
-      return data.academicLoadSemester.every((entry) =>
-        validLevels.has(entry.level)
-      );
-    },
-    {
-      message:
-        "All semester load rules must reference a level that is defined in the program's levels list.",
-      path: ["academicLoadSemester"],
-    }
-  )
-
-  // no duplicate (level, semester) pairs in academicLoadSemester
-  .refine(
-    (data) => {
-      const seen = new Set<string>();
-      for (const entry of data.academicLoadSemester) {
-        const key = `${entry.level}-${entry.semester}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-      }
-      return true;
-    },
-    {
-      message:
-        "Duplicate semester load rules found. Each combination of level and semester must be unique.",
-      path: ["academicLoadSemester"],
-    }
-  )
-
-  // no overlapping GPA ranges in academicLoadGPA 
-  .refine(
-    (data) => {
-      if (!data.academicLoadGPA || data.academicLoadGPA.length < 2) return true;
-      const sorted = [...data.academicLoadGPA].sort(
-        (a, b) => a.minGPA - b.minGPA
-      );
-      for (let i = 0; i < sorted.length - 1; i++) {
-        if (sorted[i].maxGPA >= sorted[i + 1].minGPA) return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "GPA load rules must not overlap. Each GPA range should be distinct with no shared boundaries.",
-      path: ["academicLoadGPA"],
-    }
-  )
-
-  // no overlapping score ranges in transcriptDefinition 
-  .refine(
-    (data) => {
-      if (!data.transcriptDefinition || data.transcriptDefinition.length < 2)
-        return true;
-      const sorted = [...data.transcriptDefinition].sort(
-        (a, b) => a.minScore - b.minScore
-      );
-      for (let i = 0; i < sorted.length - 1; i++) {
-        if (sorted[i].maxScore >= sorted[i + 1].minScore) return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "Transcript score ranges must not overlap. Each grade band must have a distinct, non-overlapping score range.",
-      path: ["transcriptDefinition"],
-    }
-  );
-
+  export const CreateProgramSchema = applyProgramRefinements(ProgramBaseSchema);
 
 export type CreateProgramRequestDto = z.infer<typeof CreateProgramSchema>;

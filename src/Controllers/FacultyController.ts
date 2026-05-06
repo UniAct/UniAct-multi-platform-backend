@@ -19,7 +19,7 @@ export class FacultyController {
     }
 
     static async GetAllFaculties(req: Request, res: Response) {
-        const faculties: Faculty[] = await FacultyService.GetAllFaculties(req.schema_name!);
+        const faculties: Partial<Faculty>[] = await FacultyService.GetAllFaculties(req.schema_name!);
         res.status(StatusCodes.OK).json({
             status: JSendStatus.SUCCESS,
             data: faculties,
@@ -35,6 +35,17 @@ export class FacultyController {
             status: JSendStatus.SUCCESS,
             data: faculty,
         });
+    }
+
+    public static async GetProgramsByFacultyID(req: Request, res: Response){
+        const facultyId = parseInt(req.params.id as string);
+
+        const programs = await FacultyService.GetProgramsByFacultyId(facultyId, req.schema_name!);
+
+        res.status(StatusCodes.OK).json({
+            status: JSendStatus.SUCCESS,
+            data: programs
+        })
     }
 
     static async UpdateFaculty(req: Request, res: Response) {

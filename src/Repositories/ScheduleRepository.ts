@@ -48,10 +48,10 @@ export class ScheduleRepository {
 
   public static async GetCoursesByLevel(levelId: number, prisma: DbClient) {
     return prisma.programCourse.findMany({
-      where: { programLevelId: levelId },
       select: {
-        course: { select: { id: true, code: true, name: true, credits: true } }
-      }
+        course: { select: { id: true, code: true, name: true, credits: true } },
+      },
+      orderBy:{programLevelId:'desc'}
     });
   }
 

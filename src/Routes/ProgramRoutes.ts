@@ -30,13 +30,6 @@ router.get(
     asyncHandler(ProgramController.GetAllPrograms)
 )
 
-//currently it's public route
-router.get(
-    "/:facultyId",
-    IsAuthenticated,
-    AttachAndValidateTenant,
-    asyncHandler(ProgramController.GetProgramsByFacultyId)
-)
 
 router.get(
     "/:id",
