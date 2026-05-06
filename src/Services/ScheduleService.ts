@@ -134,6 +134,7 @@ export class ScheduleService {
               startTime: incoming.startTime,
               endTime: incoming.endTime,
               dayOfWeek: incoming.dayOfWeek,
+              allowedCapacity: incoming.allowedCpacity,
             }
           })
           stats.updated++;
