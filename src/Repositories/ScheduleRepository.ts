@@ -95,7 +95,18 @@ export class ScheduleRepository {
             classroom: true
           }
         },
-        learningGroup: { select: { id: true, GroupName: true } }
+        learningGroup: { select: { id: true, GroupName: true } },
+        registrations: studentId
+          ? {
+              where: {
+                studentId,
+                semesterId,
+              },
+              select: {
+                status: true,
+              },
+            }
+          : false,
       }
     });
   }

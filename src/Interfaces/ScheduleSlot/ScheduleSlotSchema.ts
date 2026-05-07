@@ -1,4 +1,4 @@
-import { DayOfWeek, SlotType } from "@prisma/client";
+import { DayOfWeek, RegistrationStatus, SlotType } from "@prisma/client";
 import { z } from "zod";
 
 
@@ -64,6 +64,8 @@ export const ScheduleSlotResponseSchema = z.object({
     id: z.number(),
     name: z.string(),
   }).nullable(),
+  registrationStatus: z.enum(RegistrationStatus).nullable().optional(),
+  isCurrentStudentEnrolled: z.boolean().optional(),
 });
 export const GetScheduleQuerySchema = z.object({
   programId: z.coerce.number().int(),

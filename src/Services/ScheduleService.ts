@@ -265,7 +265,9 @@ export class ScheduleService {
       learningGroup: context.learningGroup ? {
         id: context.learningGroup.id,
         name: context.learningGroup.groupName // Matching the Prisma model field
-      } : null
+      } : null,
+      registrationStatus: context.registrations?.[0]?.status ?? null,
+      isCurrentStudentEnrolled: ["Enrolled", "InProgress", "Completed"].includes(context.registrations?.[0]?.status ?? ""),
     };
   }
 
