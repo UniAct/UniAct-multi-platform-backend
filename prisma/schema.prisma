@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["public", "template"]
 }
 
 model SuperAdmin {
@@ -19,7 +18,6 @@ model SuperAdmin {
 
   @@index([username], map: "idx_superadmin_username")
   @@index([email], map: "idx_superadmin_email")
-  @@schema("public")
 }
 
 model University {
@@ -36,7 +34,6 @@ model University {
   created_at       DateTime  @default(now())
   updated_at       DateTime  @default(now())
 
-  @@schema("public")
 }
 
 model RefreshToken {
@@ -51,7 +48,6 @@ model RefreshToken {
 
   @@index([expires_at])
   @@index([super_admin_id])
-  @@schema("public")
 }
 
 model Job {
@@ -68,7 +64,6 @@ model Job {
 
   @@index([status])
   @@index([created_at])
-  @@schema("template")
 }
 
 model EnrollmentJob {
@@ -86,7 +81,6 @@ model EnrollmentJob {
   @@index([studentId, semesterId])
   @@index([status])
   @@map("EnrollmentJob")
-  @@schema("template")
 }
 
 model User {
@@ -119,7 +113,6 @@ model User {
   @@index([username])
   @@index([nationalId])
   @@map("User")
-  @@schema("template")
 }
 
 model Staff {
@@ -140,7 +133,6 @@ model Staff {
 
   @@index([position])
   @@map("Staff")
-  @@schema("template")
 }
 
 model Faculty {
@@ -161,7 +153,6 @@ model Faculty {
   @@index([name])
   @@index([deanId])
   @@map("Faculty")
-  @@schema("template")
 }
 
 model Program {
@@ -199,7 +190,6 @@ model Program {
   @@index([programType])
   @@index([headId])
   @@map("Program")
-  @@schema("template")
 }
 
 model ProgramStaff {
@@ -219,7 +209,6 @@ model ProgramStaff {
   @@unique([staffId, programId])
   @@index([facultyId, staffId]) // Added for "Teacher-in-Faculty" lookups
   @@map("ProgramStaff")
-  @@schema("template")
 }
 
 model Student {
@@ -252,7 +241,6 @@ model Student {
   @@index([status])
   @@index([universityStudentId])
   @@map("Student")
-  @@schema("template")
 }
 
 model Regulation {
@@ -275,7 +263,6 @@ model Regulation {
 
   @@index([facultyId])
   @@map("Regulation")
-  @@schema("template")
 }
 
 model MercyRule {
@@ -289,7 +276,6 @@ model MercyRule {
 
   @@index([regulationId])
   @@map("MercyRule")
-  @@schema("template")
 }
 
 model Semester {
@@ -309,7 +295,6 @@ model Semester {
   @@unique([year, term])
   @@index([year])
   @@map("Semester")
-  @@schema("template")
 }
 
 model ProgramLevel {
@@ -331,7 +316,6 @@ model ProgramLevel {
   @@unique([id, programId])
   @@index([programId])
   @@map("ProgramLevel")
-  @@schema("template")
 }
 
 model Fee {
@@ -350,7 +334,6 @@ model Fee {
   @@index([semesterNumber])
   @@index([feeType])
   @@map("Fee")
-  @@schema("template")
 }
 
 model ProgramTranscriptDefinition {
@@ -369,7 +352,6 @@ model ProgramTranscriptDefinition {
   @@unique([programId, gradeLetter])
   @@index([programId])
   @@map("ProgramTranscriptDefinition")
-  @@schema("template")
 }
 
 model AcademicLoadSemester {
@@ -386,7 +368,6 @@ model AcademicLoadSemester {
   @@unique([programId, semesterNumber, programLevelId])
   @@index([semesterNumber])
   @@map("AcademicLoadSemester")
-  @@schema("template")
 }
 
 model AcademicLoadGPA {
@@ -402,7 +383,6 @@ model AcademicLoadGPA {
 
   @@index([programId])
   @@map("AcademicLoadGPA")
-  @@schema("template")
 }
 
 model Course {
@@ -427,7 +407,6 @@ model Course {
   @@index([name])
   @@index([code,name])
   @@map("Course")
-  @@schema("template")
 }
 
 model Classroom {
@@ -444,7 +423,6 @@ model Classroom {
   @@index([building])
   @@index([underMaintenance])
   @@map("Classroom")
-  @@schema("template")
 }
 
 model LearningGroup {
@@ -461,7 +439,6 @@ model LearningGroup {
   scheduleSlotContexts ScheduleSlotContext[]
 
   @@map("LearningGroup")
-  @@schema("template")
 }
 
 model ScheduleSlot {
@@ -494,7 +471,6 @@ model ScheduleSlot {
   @@index([classroomId, dayOfWeek])
   @@index([teacherId, semesterId])
   @@map("ScheduleSlot")
-  @@schema("template")
 }
 
 model ScheduleSlotContext {
@@ -516,7 +492,6 @@ model ScheduleSlotContext {
   @@index([slotId])
   @@index([semesterId, programId, academicLevel])
   @@map("ScheduleSlotContext")
-  @@schema("template")
 }
 
 model CourseAssessment {
@@ -536,7 +511,6 @@ model CourseAssessment {
   @@index([courseId, semesterId])
   @@index([assessmentType])
   @@map("CourseAssessment")
-  @@schema("template")
 }
 
 model ProgramCourse {
@@ -558,7 +532,6 @@ model ProgramCourse {
   @@index([courseId])
   @@index([type])
   @@map("ProgramCourse")
-  @@schema("template")
 }
 
 model CoursePrerequisite {
@@ -573,7 +546,6 @@ model CoursePrerequisite {
   // This allows the DB to find 'requiredBy' courses without a table lookup.
   @@index([prerequisiteId, courseId]) 
   @@map("CoursePrerequisite")
-  @@schema("template")
 }
 
 model StudentFeeReport {
@@ -596,7 +568,6 @@ model StudentFeeReport {
   @@index([semesterId])
   @@index([status])
   @@map("StudentFeeReport")
-  @@schema("template")
 }
 
 model Role {
@@ -610,7 +581,6 @@ model Role {
 
   @@index([name])
   @@map("Role")
-  @@schema("template")
 }
 
 model Permission {
@@ -623,7 +593,6 @@ model Permission {
 
   @@index([name])
   @@map("Permission")
-  @@schema("template")
 }
 
 model UserRole {
@@ -636,7 +605,6 @@ model UserRole {
   @@id([userId, roleId])
   @@index([roleId])
   @@map("UserRole")
-  @@schema("template")
 }
 
 model RolePermission {
@@ -648,7 +616,6 @@ model RolePermission {
   @@id([roleId, permissionId])
   @@index([permissionId])
   @@map("RolePermission")
-  @@schema("template")
 }
 
 model CourseRegistration {
@@ -671,7 +638,6 @@ model CourseRegistration {
   @@index([semesterId])
   @@index([status])
   @@map("CourseRegistration")
-  @@schema("template")
 }
 
 model Grade {
@@ -688,7 +654,6 @@ model Grade {
   @@index([courseRegistrationId])
   @@index([courseAssessmentId])
   @@map("Grade")
-  @@schema("template")
 }
 
 model Transcript {
@@ -708,7 +673,6 @@ model Transcript {
   @@index([semesterId])
   @@index([year])
   @@map("Transcript")
-  @@schema("template")
 }
 
 model AttendanceSession {
@@ -731,7 +695,6 @@ model AttendanceSession {
   @@index([scheduleSlotId, sessionDate])
   @@index([sessionDate])
   @@map("AttendanceSession")
-  @@schema("template")
 }
 
 model StudentAttendance {
@@ -754,7 +717,6 @@ model StudentAttendance {
   @@index([status])
   @@index([recordedAt])
   @@map("StudentAttendance")
-  @@schema("template")
 }
 
 model AttendanceReport {
@@ -775,7 +737,6 @@ model AttendanceReport {
   @@index([studentId])
   @@index([reportPeriodStart, reportPeriodEnd])
   @@map("AttendanceReport")
-  @@schema("template")
 }
 
 model LearningGroupMember {
@@ -792,7 +753,6 @@ model LearningGroupMember {
   @@index([learningGroupId])
   @@index([userId])
   @@map("LearningGroupMember")
-  @@schema("template")
 }
 
 model LearningGroupPost {
@@ -816,7 +776,6 @@ model LearningGroupPost {
   @@index([learningGroupId])
   @@index([authorId])
   @@map("LearningGroupPost")
-  @@schema("template")
 }
 
 model LearningGroupPostAttachment {
@@ -832,7 +791,6 @@ model LearningGroupPostAttachment {
 
   @@index([postId])
   @@map("LearningGroupPostAttachment")
-  @@schema("template")
 }
 
 model LearningGroupPostComment {
@@ -849,7 +807,6 @@ model LearningGroupPostComment {
   @@index([authorId])
   @@index([createdAt])
   @@map("LearningGroupPostComment")
-  @@schema("template")
 }
 
 enum EnrollmentJobStatus {
@@ -857,7 +814,6 @@ enum EnrollmentJobStatus {
   Processing
   Done
 
-  @@schema("template")
 }
 
 enum ProgramType {
@@ -866,21 +822,18 @@ enum ProgramType {
   Diploma
   PhD
 
-  @@schema("template")
 }
 
 enum ResultDisplayType {
   CourseGrade
   DetailedEstimate
 
-  @@schema("template")
 }
 
 enum BlockReasonType {
   NonPaymentCurrent
   NonPaymentOld
 
-  @@schema("template")
 }
 
 enum StudentStatus {
@@ -890,7 +843,6 @@ enum StudentStatus {
   ExternalReenrollment
   Deactivate
 
-  @@schema("template")
 }
 
 enum SemesterType {
@@ -899,7 +851,6 @@ enum SemesterType {
   Summer
   Winter
 
-  @@schema("template")
 }
 
 enum FeeType {
@@ -910,7 +861,6 @@ enum FeeType {
   Administrative
   Other
 
-  @@schema("template")
 }
 
 enum CourseAssessmentType {
@@ -920,7 +870,6 @@ enum CourseAssessmentType {
   Final
   Project
 
-  @@schema("template")
 }
 
 enum CourseType {
@@ -928,14 +877,12 @@ enum CourseType {
   Elective
   Project
 
-  @@schema("template")
 }
 
 enum FeeStatus {
   Pending
   Paid
 
-  @@schema("template")
 }
 
 enum ClassroomType {
@@ -944,7 +891,6 @@ enum ClassroomType {
   Auditorium
   Other
 
-  @@schema("template")
 }
 
 enum DayOfWeek {
@@ -956,7 +902,6 @@ enum DayOfWeek {
   Saturday
   Sunday
 
-  @@schema("template")
 }
 
 enum SlotType {
@@ -964,7 +909,6 @@ enum SlotType {
   Lab
   Tutorial
 
-  @@schema("template")
 }
 
 enum RegistrationStatus {
@@ -974,7 +918,6 @@ enum RegistrationStatus {
   Failed
   InProgress
 
-  @@schema("template")
 }
 
 enum GradeEnum {
@@ -991,7 +934,6 @@ enum GradeEnum {
   D
   F
 
-  @@schema("template")
 }
 
 enum AttendanceMode {
@@ -1002,7 +944,6 @@ enum AttendanceMode {
   Hotspot
   Online
 
-  @@schema("template")
 }
 
 enum AttendanceStatus {
@@ -1012,14 +953,12 @@ enum AttendanceStatus {
   Excused
   Medical
 
-  @@schema("template")
 }
 
 enum LearningGroupRole {
   Owner
   Member
 
-  @@schema("template")
 }
 
 enum PostType {
@@ -1027,7 +966,6 @@ enum PostType {
   ASSIGNMENT
   MATERIAL
 
-  @@schema("template")
 }
 
 enum StorageProvider {
@@ -1036,7 +974,6 @@ enum StorageProvider {
   Azure_Blob_Storage   @map("Azure Blob Storage")
   Google_Cloud_Storage @map("Google Cloud Storage")
 
-  @@schema("template")
 }
 
 enum JobStatus {
@@ -1046,7 +983,6 @@ enum JobStatus {
   Failed
   CompletedWithErrors
 
-  @@schema("template")
 }
 
 model Migrations {
@@ -1054,5 +990,4 @@ model Migrations {
   applied_at DateTime @default(now())
 
   @@map("migrations")
-  @@schema("template")
 }

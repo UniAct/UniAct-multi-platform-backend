@@ -62,18 +62,15 @@ export class ScheduleRepository {
     prisma: DbClient,
     studentId?: number
   ) {
-    let studentFilter = {};
+    let studentFilter: Prisma.ScheduleSlotContextWhereInput = {};
 
     if (studentId) {
-      console.log("He is a studenttt");
-      // 1. Get IDs of courses the student has passed (Status = Completed, Grade != F)
       const passedCourseIds = await CourseRepository.GetStudentPassedCourseIds(studentId, prisma);
-      // 2. Define the Eligibility Filter
-      // Translation: Show me slots where the course has NO prerequisite that the student didn't pass yet .
+
       studentFilter = {
         slot: {
           course: {
-            coursePrerequisitesFor: {
+            prerequisites: {
               none: {
                 prerequisiteId: { notIn: passedCourseIds }
               }
@@ -88,7 +85,7 @@ export class ScheduleRepository {
         programId,
         academicLevel: level,
         semesterId,
-        ...studentFilter //there won't be any filters for admins
+        ...studentFilter
       },
       include: {
         slot: {
