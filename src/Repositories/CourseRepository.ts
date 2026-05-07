@@ -91,6 +91,7 @@ export class CourseRepository {
             slot: {
               select: {
                 id: true,
+                allowedCapacity: true,
                 classroom: { select: { capacity: true } },
                 course: { select: { credits: true, id: true , code: true , name: true } },
               },

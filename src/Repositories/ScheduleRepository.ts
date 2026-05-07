@@ -118,7 +118,6 @@ export class ScheduleRepository {
       include: {
         slot: {
           include: {
-            classroom: true,    
             course: {
               include: {
                 prerequisites: true,

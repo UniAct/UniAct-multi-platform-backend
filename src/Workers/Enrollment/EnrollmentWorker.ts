@@ -201,9 +201,22 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
             where: { id: reg.scheduleSlotContext!.slot.id },
             data: { enrolledSeats: { decrement: 1 } },
           });
+          
+          /**
+           * safer solution (in case of admin adjust the capacity every time)
+           * const updated = await tx.scheduleSlot.update({
+           *   where: { id: reg.scheduleSlotContext!.slot.id },
+           *   data: { enrolledSeats: { decrement: 1 } },
+           *   select: { id: true, enrolledSeats: true, allowedCapacity: true }, 
+           * });
+           * const remaining = updated.allowedCapacity - updated.enrolledSeats; 
+           */
 
+          // allowedCapacity is admin-configured and changes only when an admin
+          // explicitly adjusts slot capacity — never during active enrollment.
+          // Reading it from the pre-fetched snapshot is safe here.
           const remaining =
-            reg.scheduleSlotContext!.slot.classroom.capacity -
+            reg.scheduleSlotContext!.slot.allowedCapacity -
             updated.enrolledSeats;
 
           await RedisPublisher.publish(
@@ -233,7 +246,7 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
     // ─── 6b. Process adds ────────────────────────────────────────────────────
     for (const ctx of validToAdd) {
       // Stale pre-check (optimistic early exit — real guard is inside the tx)
-      if (ctx.slot.enrolledSeats >= ctx.slot.classroom.capacity) {
+      if (ctx.slot.enrolledSeats >= ctx.slot.allowedCapacity) {
         outcomes.push({
           slotId: ctx.slot.id,
           courseCode: ctx.slot.course.code,
@@ -247,17 +260,15 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
       try {
         const remaining = await prisma.$transaction(async (tx) => {
           const [slot] = await tx.$queryRaw<
-            { enrolled_seats: number; capacity: number }[]
+            { enrolled_seats: number; allowed_capacity: number }[]
           >`
-            SELECT s."enrolled_seats", c."capacity"
+            SELECT s."enrolled_seats", s."allowed_capacity"
             FROM ${Prisma.raw(`"${schemaName}"."ScheduleSlot"`)} AS s
-            JOIN ${Prisma.raw(`"${schemaName}"."Classroom"`)} AS c
-              ON s."classroom_id" = c."id"
             WHERE s."id" = ${ctx.slotId}
             FOR UPDATE OF s
           `;
 
-          if (slot.enrolled_seats >= slot.capacity) {
+          if (slot.enrolled_seats >= slot.allowed_capacity) {
             throw new Error("No available seats");
           }
 
@@ -274,7 +285,7 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
             data: { enrolledSeats: { increment: 1 } },
           });
 
-          return slot.capacity - updated.enrolledSeats;
+          return slot.allowed_capacity - updated.enrolledSeats;
         });
 
         outcomes.push({
