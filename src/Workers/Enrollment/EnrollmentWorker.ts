@@ -7,59 +7,22 @@ import { GetTenantClient } from "../../Utils/prismaClient";
 import { EnrollmentJobStatus, Prisma } from "@prisma/client";
 import { RedisPublisher } from "../../Utils/RedisPubSub";
 import { Channels } from "../../Enums/Channels";
+import { ScheduleRepository } from "../../Repositories/ScheduleRepository";
+import { ProgramRepository } from "../../Repositories/ProgramRepository";
+import { CourseRepository } from "../../Repositories/CourseRepository";
 
-/**
- * Enrollment Worker
- * ----------------------------------------------------------------------------
- * Processes student enrollment requests asynchronously using BullMQ.
- *
- * Responsibilities:
- * - Validates submitted schedule slots against the database (never trust client input)
- * - Enforces academic rules (credit limits per semester & program level)
- * - Prevents duplicate registrations for the same slot
- * - Ensures seat availability and prevents overbooking
- * - Performs enrollment operations atomically to handle concurrency safely
- * - Publishes real-time seat updates via Redis pub/sub for downstream consumers (e.g., WebSocket layer)
- * - Tracks per-slot outcomes and persists final job results
- *
- * Workflow:
- * 1. Mark job as "Processing"
- * 2. Fetch slot contexts + academic load + already-enrolled in parallel
- * 3. Ensure all requested slots exist and belong to the student's program
- * 4. Calculate total credits (deduplicated per course)
- * 5. Validate against academic load constraints (min/max credits)
- * 6. Process each slot:
- *    - Skip if already enrolled
- *    - Fast stale seat check (early exit)
- *    - Execute enrollment + seat increment in a transaction (real guard)
- *    - Publish seat updates for real-time systems
- * 7. Mark job as "Done" with detailed results
- *
- * Concurrency & Consistency:
- * - Uses database transactions to prevent race conditions during seat allocation
- * - Re-checks seat availability inside the transaction for correctness under concurrent requests
- * - enrolledSeats lives on the physical ScheduleSlot — shared across all programs in the same room
- *
- * Failure Handling:
- * - Gracefully handles partial failures (per-slot outcomes)
- * - Captures unexpected errors and marks job as completed with error details
- *
- * Input:
- * - EnrollmentJobMessage (student, semester, schedule slots, etc.)
- *
- * Output:
- * - Updates enrollmentJob record with final status and per-slot results
- */
 
 interface SlotOutcome {
   slotId: number;
   courseCode: string;
   courseName: string;
-  status: "enrolled" | "failed";
+  status: "enrolled" | "dropped" | "failed";
   reason?: string;
 }
 
-const ToJSON = (val: unknown): Prisma.InputJsonValue => val as unknown as Prisma.InputJsonValue;
+const ToJSON = (val: unknown): Prisma.InputJsonValue =>
+  val as unknown as Prisma.InputJsonValue;
+
 
 async function Handler(job: Job<EnrollmentJobMessage>) {
   const {
@@ -67,13 +30,19 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
     schemaName,
     studentProgramId,
     studentId,
-    currentSemesterId,
+    cgpa,
     currentStudentProgramLevelId,
+    semester,
     schedule,
   } = job.data;
 
+  if (!semester?.id || !semester?.term) {
+    logger.error({ jobId, message: "Missing semester in job payload" });
+    return;
+  }
+
   const prisma = GetTenantClient(schemaName);
-  const submittedSlotIds = schedule.scheduleSlots.map((s) => s.id);
+  const submittedContextIds = schedule.scheduleSlots.map((s) => s.id);
   const outcomes: SlotOutcome[] = [];
 
   await prisma.enrollmentJob.update({
@@ -82,58 +51,41 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
   });
 
   try {
-    // ─── 2. Parallel fetch — slot contexts + academic load + already enrolled ──
-    // All three are independent queries, no reason to run them sequentially.
-    // Fetching via ScheduleSlotContext scoped to the student's programId and
-    // semesterId also acts as a security check — a student cannot enroll in a
-    // slot that does not belong to their program even if they know the slot ID.
-    const [dbSlots, academicLoad, alreadyEnrolled] = await Promise.all([
+    // ─── 1. Parallel fetch ────────────────────────────────────────────────────
+    const [dbSlotContexts, academicLoadSemester , academicLoadGpa , alreadyEnrolled, passedCourseIds] =
+      await Promise.all([
+        ScheduleRepository.GetRequestedScheduleSlotContexts(
+          prisma,
+          submittedContextIds,
+          studentProgramId,
+          semester.id
+        ),
+        ProgramRepository.GetAcademicLoadCreditsBySemester(
+          prisma,
+          studentProgramId,
+          semester.term,
+          currentStudentProgramLevelId
+        ),
+        ProgramRepository.GetAcademicLoadCreditsByGPA(
+          prisma,
+          studentProgramId,
+          cgpa
+        ),
+        CourseRepository.GetStudentAlreadyEnrolledCourses(
+          prisma, 
+          studentId, 
+          semester.id
+        ),
+        CourseRepository.GetStudentPassedCourseIds(
+          studentId, 
+          prisma
+        ),
+      ]);
 
-      prisma.scheduleSlotContext.findMany({
-        where: {
-          slotId: { in: submittedSlotIds },
-          programId: studentProgramId,
-          semesterId: currentSemesterId,
-        },
-        select: {
-          id: true,
-          slot: {
-            select: {
-              id: true,
-              enrolledSeats: true,
-              classroom: { select: { capacity: true } },
-              course: { select: { id: true, code: true, name: true, credits: true } },
-            }
-          }
-        }
-      }),
-
-      prisma.academicLoadSemester.findUnique({
-        where: {
-          programId_semesterId_programLevelId: {
-            programId: studentProgramId,
-            semesterId: currentSemesterId,
-            programLevelId: currentStudentProgramLevelId,
-          }
-        },
-        select: { minCredits: true, maxCredits: true },
-      }),
-
-      prisma.courseRegistration.findMany({
-        where: {
-          studentId,
-          scheduleSlotContext: { semesterId: currentSemesterId },
-        },
-        select: { slotContextId: true },
-      }),
-
-    ]);
-
-    // ─── 3. Validate all submitted slot IDs actually exist ────────────────────
-    if (dbSlots.length !== submittedSlotIds.length) {
-      const foundSlotIds = new Set(dbSlots.map((ctx) => ctx.slot.id));
-      const missingIds = submittedSlotIds.filter((id) => !foundSlotIds.has(id));
-
+    // ─── 2. Security check — all submitted slot contexts must exist in this program ──
+    if (dbSlotContexts.length !== submittedContextIds.length) {
+      const foundIds = new Set(dbSlotContexts.map((c) => c.id));
+      const missingIds = submittedContextIds.filter((id) => !foundIds.has(id));
       await prisma.enrollmentJob.update({
         where: { id: jobId },
         data: {
@@ -142,7 +94,7 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
             slots: missingIds.map((id) => ({
               slotId: id,
               status: "failed",
-              reason: "Schedule slot not found or does not belong to your program",
+              reason: "Not Found",
             })),
           }),
         },
@@ -150,66 +102,151 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
       return;
     }
 
-    // ─── 4. Sum credits by unique course ──────────────────────────────────────
-    // A course may have multiple slot types (Lecture, Lab, Tutorial) — counted once
-    const uniqueCourseCredits = new Map<number, number>();
-    for (const ctx of dbSlots) {
-      if (!uniqueCourseCredits.has(ctx.slot.course.id)) {
-        uniqueCourseCredits.set(ctx.slot.course.id, ctx.slot.course.credits);
-      }
-    }
-    const totalCredits = Array.from(uniqueCourseCredits.values()).reduce(
-      (prev, curr) => prev + curr,
-      0
+    // ─── 3. Identify drops vs adds ───────────────────────────────────────────
+    const submittedIdSet = new Set(submittedContextIds);
+    const existingIdSet = new Set(alreadyEnrolled.map((r) => r.slotContextId));
+
+    const toDrop = alreadyEnrolled.filter(
+      (r) => !submittedIdSet.has(r.slotContextId!)
+    );
+    const toAddCandidates = dbSlotContexts.filter(
+      (ctx) => !existingIdSet.has(ctx.id)
     );
 
-    // ─── 5. Validate academic load ────────────────────────────────────────────
-    if (!academicLoad) {
-      await prisma.enrollmentJob.update({
-        where: { id: jobId },
-        data: {
-          status: EnrollmentJobStatus.Done,
-          result: ToJSON({
-            error: "Academic Load Configuration Not Found For This Semester And Level",
-            slots: [],
-          }),
-        },
-      });
-      return;
-    }
+    // ─── 4. Eligibility check — prerequisites & already-passed courses ────────
+    const eligibilityOutcomes: SlotOutcome[] = [];
 
-    if (totalCredits > academicLoad.maxCredits || totalCredits < academicLoad.minCredits) {
-      await prisma.enrollmentJob.update({
-        where: { id: jobId },
-        data: {
-          status: EnrollmentJobStatus.Done,
-          result: ToJSON({
-            error: `Total Credits (${totalCredits}) Must Be Between ${academicLoad.minCredits} And ${academicLoad.maxCredits}`,
-            slots: [],
-          }),
-        },
-      });
-      return;
-    }
+    const validToAdd = toAddCandidates.filter((ctx) => {
+      const alreadyPassed = passedCourseIds.includes(ctx.slot.course.id);
 
-    // ─── 6. Per-slot enrollment ────────────────────────────────────────────────
-    const enrolledContextIds = new Set(alreadyEnrolled.map((r) => r.slotContextId));
+      const hasUnmetPrereq = ctx.slot.course.prerequisites.some(
+        (p) => !passedCourseIds.includes(p.prerequisiteId)
+      );
 
-    for (const ctx of dbSlots) {
-      // 6a. Already registered in this exact slot context
-      if (enrolledContextIds.has(ctx.id)) {
-        outcomes.push({
+      if (alreadyPassed || hasUnmetPrereq) {
+        eligibilityOutcomes.push({
           slotId: ctx.slot.id,
           courseCode: ctx.slot.course.code,
           courseName: ctx.slot.course.name,
           status: "failed",
-          reason: "Already registered in this slot",
+          reason: alreadyPassed ? "Course Already Passed" : "Prerequisites Not Met",
         });
-        continue;
+        return false;
       }
+      return true;
+    });
 
-      // 6b. Fast stale seat check — avoids hitting a transaction for a obviously full slot
-      if (ctx.slot.enrolledSeats >= ctx.slot.classroom.capacity) {
+    // ─── 5. Credit calculation ────────────────────────────────────────────────
+    const creditsMap = new Map<number, number>();
+
+    alreadyEnrolled.forEach((reg) => {
+      if (submittedIdSet.has(reg.slotContextId!)) {
+        const course = reg.scheduleSlotContext!.slot.course;
+        creditsMap.set(course.id, course.credits);
+      }
+    });
+
+    validToAdd.forEach((ctx) => {
+      creditsMap.set(ctx.slot.course.id, ctx.slot.course.credits);
+    });
+
+    const totalCredits = Array.from(creditsMap.values()).reduce(
+      (sum, c) => sum + c,
+      0
+    );
+
+    // Determine the effective allowed range — both rules must pass
+    const effectiveMin = Math.max(
+      academicLoadSemester?.minCredits ?? 0,
+      academicLoadGpa?.minCredits ?? 0
+    );
+    const effectiveMax = Math.min(
+      academicLoadSemester?.maxCredits ?? Infinity,
+      academicLoadGpa?.maxCredits ?? Infinity
+    );
+
+    const semesterMissing = !academicLoadSemester ;
+    const gpaMissing      = !academicLoadGpa;
+
+    if (
+      semesterMissing ||
+      gpaMissing ||
+      totalCredits < effectiveMin ||
+      totalCredits > effectiveMax
+    ) {
+      await prisma.enrollmentJob.update({
+        where: { id: jobId },
+        data: {
+          status: EnrollmentJobStatus.Done,
+          result: ToJSON({
+            error: semesterMissing
+              ? "Academic Load (Semester) Configuration Missing"
+              : gpaMissing
+              ? "Academic Load (GPA) Configuration Missing"
+              : `Credit Limit Violation: ${totalCredits} credits requested (allowed ${effectiveMin}–${effectiveMax})`,
+            slots: eligibilityOutcomes,
+          }),
+        },
+      });
+      return;
+    }
+
+    // ─── 6a. Process drops ────────────────────────────────────────────────────
+    for (const reg of toDrop) {
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.courseRegistration.delete({ where: { id: reg.id } });
+
+          const updated = await tx.scheduleSlot.update({
+            where: { id: reg.scheduleSlotContext!.slot.id },
+            data: { enrolledSeats: { decrement: 1 } },
+          });
+          
+          /**
+           * safer solution (in case of admin adjust the capacity every time)
+           * const updated = await tx.scheduleSlot.update({
+           *   where: { id: reg.scheduleSlotContext!.slot.id },
+           *   data: { enrolledSeats: { decrement: 1 } },
+           *   select: { id: true, enrolledSeats: true, allowedCapacity: true }, 
+           * });
+           * const remaining = updated.allowedCapacity - updated.enrolledSeats; 
+           */
+
+          // allowedCapacity is admin-configured and changes only when an admin
+          // explicitly adjusts slot capacity — never during active enrollment.
+          // Reading it from the pre-fetched snapshot is safe here.
+          const remaining =
+            reg.scheduleSlotContext!.slot.allowedCapacity -
+            updated.enrolledSeats;
+
+          await RedisPublisher.publish(
+            Channels.StudentEnrollment,
+            JSON.stringify({ slotId: updated.id, remainingSeats: remaining })
+          );
+        });
+
+        outcomes.push({
+          slotId:     reg.scheduleSlotContext!.slot.id,
+          courseCode: reg.scheduleSlotContext?.slot.course.code!,
+          courseName: reg.scheduleSlotContext?.slot.course.name!,
+          status: "dropped",
+        });
+      } catch (err) {
+        logger.error({ studentId, regId: reg.id, err, message: "Drop failed" });
+        outcomes.push({
+          slotId: reg.scheduleSlotContext!.slot.id,
+          courseCode: reg.scheduleSlotContext?.slot.course.code!,
+          courseName: reg.scheduleSlotContext?.slot.course.name!,
+          status: "failed",
+          reason: "Failed to drop course",
+        });
+      }
+    }
+
+    // ─── 6b. Process adds ────────────────────────────────────────────────────
+    for (const ctx of validToAdd) {
+      // Stale pre-check (optimistic early exit — real guard is inside the tx)
+      if (ctx.slot.enrolledSeats >= ctx.slot.allowedCapacity) {
         outcomes.push({
           slotId: ctx.slot.id,
           courseCode: ctx.slot.course.code,
@@ -220,21 +257,18 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
         continue;
       }
 
-      // 6c. Enroll + increment seats atomically
-      // The re-check inside the transaction is the real guard against race conditions.
-      // enrolledSeats lives on the physical ScheduleSlot so it correctly reflects
-      // occupancy across all programs sharing the same room.
       try {
-        const remainingSeats = await prisma.$transaction(async (tx : Prisma.TransactionClient) => {
-          const freshSlot = await tx.scheduleSlot.findUnique({
-            where: { id: ctx.slot.id },
-            select: {
-              enrolledSeats: true,
-              classroom: { select: { capacity: true } },
-            },
-          });
+        const remaining = await prisma.$transaction(async (tx) => {
+          const [slot] = await tx.$queryRaw<
+            { enrolled_seats: number; allowed_capacity: number }[]
+          >`
+            SELECT s."enrolled_seats", s."allowed_capacity"
+            FROM ${Prisma.raw(`"${schemaName}"."ScheduleSlot"`)} AS s
+            WHERE s."id" = ${ctx.slotId}
+            FOR UPDATE OF s
+          `;
 
-          if (!freshSlot || freshSlot.enrolledSeats >= freshSlot.classroom.capacity) {
+          if (slot.enrolled_seats >= slot.allowed_capacity) {
             throw new Error("No available seats");
           }
 
@@ -242,25 +276,16 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
             data: {
               studentId,
               slotContextId: ctx.id,
-              semesterId: currentSemesterId,
+              semesterId: semester.id,
             },
           });
 
-          await tx.scheduleSlot.update({
-            where: { id: ctx.slot.id },
+          const updated = await tx.scheduleSlot.update({
+            where: { id: ctx.slotId },
             data: { enrolledSeats: { increment: 1 } },
           });
 
-          // freshSlot.enrolledSeats is the value before increment
-          return freshSlot.classroom.capacity - freshSlot.enrolledSeats - 1;
-        });
-
-        // 6d. Publish on physical slotId — all programs sharing this room see the update
-        await RedisPublisher.publish(
-          Channels.StudentEnrollment,
-          JSON.stringify({ slotId: ctx.slot.id, remainingSeats })
-        ).catch((err) => {
-          logger.warn({ slotId: ctx.slot.id, err, message: "Seat Update Publish Failed." });
+          return slot.allowed_capacity - updated.enrolledSeats;
         });
 
         outcomes.push({
@@ -270,48 +295,47 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
           status: "enrolled",
         });
 
-        enrolledContextIds.add(ctx.id);
-
-      } catch (err) {
+        await RedisPublisher.publish(
+          Channels.StudentEnrollment,
+          JSON.stringify({ slotId: ctx.slotId, remainingSeats: remaining })
+        );
+      } catch (err: any) {
         outcomes.push({
           slotId: ctx.slot.id,
           courseCode: ctx.slot.course.code,
           courseName: ctx.slot.course.name,
           status: "failed",
-          reason: err instanceof Error ? err.message : "Enrollment failed",
+          reason: err.message,
         });
       }
     }
 
-    // ─── 7. Mark job Done with full result ────────────────────────────────────
     await prisma.enrollmentJob.update({
       where: { id: jobId },
       data: {
         status: EnrollmentJobStatus.Done,
-        result: ToJSON({ slots: outcomes }),
+        result: ToJSON({ slots: [...outcomes, ...eligibilityOutcomes] }),
       },
     });
-
   } catch (err) {
-    logger.error({ jobId, err, message: "Enrollment Worker Crashed" });
-
+    logger.error({ jobId, err, message: "Enrollment worker crashed" });
     await prisma.enrollmentJob.update({
       where: { id: jobId },
       data: {
         status: EnrollmentJobStatus.Done,
-        result: ToJSON({ error: "Unexpected worker error", slots: outcomes }),
+        result: ToJSON({ error: "Internal system error", slots: outcomes }),
       },
     });
   }
 }
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
+
 GetWorkerSingleton<EnrollmentJobMessage>(Queues.StudentEnrollment, Handler);
 
 process.title = "Enrollment Worker";
 
 logger.info({
-  action: "Enrollment Worker",
   message: "Enrollment Worker Started....",
   processId: process.pid,
   processName: process.title,

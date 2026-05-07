@@ -177,6 +177,8 @@ model Program {
   durationYears         Int?     @map("duration_years")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
+
+
   head                  Staff?   @relation(fields: [headId], references: [userId], name: "ProgramHead")
   faculty               Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
 
@@ -190,9 +192,9 @@ model Program {
   programTranscriptDefs ProgramTranscriptDefinition[]
   students              Student[]
   programStaffs         ProgramStaff[]
-  staffUserId           Int?
   scheduleSlotContexts  ScheduleSlotContext[]
 
+  @@unique([name])
   @@index([facultyId])
   @@index([programType])
   @@index([headId])
@@ -345,7 +347,6 @@ model Fee {
   studentFeeReports StudentFeeReport[]
 
   @@unique([programLevelId, semesterNumber, feeType])
-  @@index([programLevelId])
   @@index([semesterNumber])
   @@index([feeType])
   @@map("Fee")
@@ -355,7 +356,7 @@ model Fee {
 model ProgramTranscriptDefinition {
   id                 Int      @id @default(autoincrement())
   programId          Int      @map("program_id")
-  gradeLetter        GradeEnum@map("grade_letter")
+  gradeLetter        GradeEnum @map("grade_letter")
   minScore           Decimal  @map("min_score") @db.Decimal(5, 2)
   maxScore           Decimal  @map("max_score") @db.Decimal(5, 2)
   equivalentEstimate String?  @map("equivalent_estimate") @db.VarChar(20)
@@ -374,7 +375,7 @@ model ProgramTranscriptDefinition {
 model AcademicLoadSemester {
   id             Int          @id @default(autoincrement())
   programId      Int          @map("program_id")
-  semesterNumber Int          @map("semester_number") @db.SmallInt
+  semesterNumber Int @map("semester_number") @db.SmallInt
   programLevelId Int          @map("program_level_id")
   minCredits     Int          @map("min_credits")
   maxCredits     Int          @map("max_credits")
@@ -382,9 +383,7 @@ model AcademicLoadSemester {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   program        Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
   programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
-
   @@unique([programId, semesterNumber, programLevelId])
-  @@index([programId])
   @@index([semesterNumber])
   @@map("AcademicLoadSemester")
   @@schema("template")
@@ -419,13 +418,14 @@ model Course {
   createdAt                 DateTime              @default(now()) @map("created_at")
   updatedAt                 DateTime              @updatedAt @map("updated_at")
   attendanceReports         AttendanceReport[]
-  coursePrerequisitesFor    CoursePrerequisite[]  @relation("course")
-  coursePrerequisites       CoursePrerequisite[]  @relation("prerequisite")
+  prerequisites    CoursePrerequisite[]  @relation("course")
+  requiredBy       CoursePrerequisite[]  @relation("prerequisite")
   programCourses            ProgramCourse[]
   courseAssessments         CourseAssessment[]
   scheduleSlots             ScheduleSlot[]
 
-  @@index([code])
+  @@index([name])
+  @@index([code,name])
   @@map("Course")
   @@schema("template")
 }
@@ -475,14 +475,15 @@ model ScheduleSlot {
   startTime DateTime  @map("start_time") @db.Time(6)
   endTime   DateTime  @map("end_time") @db.Time(6)
   type      SlotType  @default(Lecture)
+  allowedCapacity Int @db.SmallInt
 
   // This tracks the total physical people in the room across ALL programs
   enrolledSeats Int @default(0) @map("enrolled_seats") @db.SmallInt
 
   // Relations
   teacher   Staff     @relation(fields: [teacherId], references: [userId])
-  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  semester  Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  course    Course    @relation(fields: [courseId], references: [id])
+  semester  Semester  @relation(fields: [semesterId], references: [id])
   classroom Classroom @relation(fields: [classroomId], references: [id])
 
   slotContext        ScheduleSlotContext[]
@@ -566,8 +567,11 @@ model CoursePrerequisite {
   course         Course @relation("course", fields: [courseId], references: [id], onDelete: Cascade)
   prerequisite   Course @relation("prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
 
+ // this optimizes what are the prerequisites for this course 
   @@id([courseId, prerequisiteId])
-  @@index([prerequisiteId])
+
+  // This allows the DB to find 'requiredBy' courses without a table lookup.
+  @@index([prerequisiteId, courseId]) 
   @@map("CoursePrerequisite")
   @@schema("template")
 }

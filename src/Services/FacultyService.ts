@@ -3,6 +3,7 @@ import {NotFoundError } from "../Types/Errors";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { FacultyRepository } from "../Repositories/FacultyRepository";
 import { logger } from "../Utils/Logger";
+import { levels } from "pino";
 
 
 export class FacultyService {
@@ -37,6 +38,12 @@ export class FacultyService {
             throw new NotFoundError("There is no Faculty with this Id");
         }
         return faculty;
+    }
+
+    static async GetProgramsByFacultyId(facultyId: number, schema_name: string){
+        const prisma = GetTenantClient(schema_name);
+        const programs = await FacultyRepository.GetProgramsByFacultyId(facultyId,prisma);
+        return programs.map(p=>({id:p.id, name: p.name, levels: p.programLevels}))
     }
 
     static async UpdateFaculty(id: number, FacultyData: Prisma.FacultyUpdateInput, schema_name:string) {

@@ -4,8 +4,12 @@ export type EnrollmentJobMessage = {
   jobId: string;
   schemaName: string;
   studentId: number;
+  cgpa : number;
   currentStudentProgramLevelId : number;
-  currentSemesterId: number;
+  semester: {
+    id: number,
+    term: number
+  }
   studentProgramId: number;
   schedule: EnrollInScheduleRequestDto;
 };

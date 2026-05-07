@@ -5,8 +5,9 @@ import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import { RequirePermission } from "../Middlewares/Authorization/RequirePermission";
 import { CourseController } from "../Controllers/CourseController";
-import CourseValidator from "../Validators/CourseValidator";
 import permissions from "../Utils/Permissions.json";
+import { ZodValidator } from "../Middlewares/ZodValidation";
+import { CourseParamSchema, CreateCourseSchema, UpdateCourseSchema } from "../Validators/CourseValidator";
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.post(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.course.create.name),
-  ...CourseValidator.Create(),
+  ZodValidator({body:CreateCourseSchema}),
   ValidateRequest,
   asyncHandler(CourseController.CreateCourse),
 );
@@ -33,8 +34,7 @@ router.get(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.course.read.name),
-  ...CourseValidator.IdParam(),
-  ValidateRequest,
+  ZodValidator({params:CourseParamSchema}),
   asyncHandler(CourseController.GetCourseById),
 );
 
@@ -43,8 +43,8 @@ router.put(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.course.update.name),
-  ...CourseValidator.Update(),
-  ValidateRequest,
+  ZodValidator({params: CourseParamSchema}),
+  ZodValidator({body:UpdateCourseSchema}),
   asyncHandler(CourseController.UpdateCourse),
 );
 
@@ -53,8 +53,7 @@ router.delete(
   IsAuthenticated,
   AttachAndValidateTenant,
   RequirePermission(permissions.course.delete.name),
-  ...CourseValidator.IdParam(),
-  ValidateRequest,
+  ZodValidator({params: CourseParamSchema}),
   asyncHandler(CourseController.DeleteCourse),
 );
 

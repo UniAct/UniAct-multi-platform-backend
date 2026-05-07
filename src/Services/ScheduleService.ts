@@ -9,6 +9,7 @@ import { EnrollmentJobMessage } from "../Interfaces/Enrollment/EnrollmentJobMess
 import { Queues } from "../Enums/Queues";
 import { logger } from "../Utils/Logger";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
+import { SemesterRepository } from "../Repositories/SemesterRepository";
 
 
 
@@ -39,7 +40,6 @@ export class ScheduleService {
   ];
 
   if (typeof(studentId) != "number") {
-    console.log("adminnnnnnnnnnnnn");
     tasks.push(
       ScheduleRepository.GetCoursesByLevel(academicLevel, prisma),
       ScheduleRepository.GetAllAvailableClassrooms(prisma),
@@ -134,6 +134,7 @@ export class ScheduleService {
               startTime: incoming.startTime,
               endTime: incoming.endTime,
               dayOfWeek: incoming.dayOfWeek,
+              allowedCapacity: incoming.allowedCpacity,
             }
           })
           stats.updated++;
@@ -193,6 +194,7 @@ export class ScheduleService {
               teacherId: incoming.teacherId,
               courseId: incoming.courseId,
               classroomId: incoming.classroomId,
+              allowedCapacity:incoming.allowedCpacity,
               dayOfWeek: incoming.dayOfWeek,
               startTime: incoming.startTime,
               endTime: incoming.endTime,
@@ -247,6 +249,7 @@ export class ScheduleService {
       endTime: this.formatTime(physical.endTime),
       type: physical.type,
       enrolledSeats: physical.enrolledSeats,
+      allowedCapacity: physical.allowedCapacity,
 
       course: physical.course,
 
@@ -331,21 +334,26 @@ export class ScheduleService {
   public static async Enroll(
     schemaName : string,
     studentId : number,
+    cgpa : number,
     currentStudentProgramLevelId : number,
     studentProgramId: number,
-    currentSemesterId : number,
+    currentSemester: {id : number , term: number},
     schedule : EnrollInScheduleRequestDto
   ){
     const prisma = GetTenantClient(schemaName);
 
-    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId , currentSemesterId , prisma);
+    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId , currentSemester.id , prisma);
 
     const message : EnrollmentJobMessage = {
       jobId,
       schemaName,
       studentId,
+      cgpa,
       currentStudentProgramLevelId,
-      currentSemesterId,
+      semester: {
+        id: currentSemester.id,
+        term: currentSemester.term
+      },
       studentProgramId,
       schedule
     };
@@ -361,7 +369,7 @@ export class ScheduleService {
       schema: schemaName,
       jobId,
       studentId,
-      currentSemesterId,
+      semesterId: currentSemester.id,
       scheduleSlotCount: schedule.scheduleSlots.length,
     });
 

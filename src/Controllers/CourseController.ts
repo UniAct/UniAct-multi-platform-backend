@@ -3,10 +3,11 @@ import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { CourseUpsertInput } from "../Interfaces/AcademicProgram";
 import { CourseService } from "../Services/CourseService";
+import { CreateCourse } from "../Validators/CourseValidator";
 
 export class CourseController {
   static async CreateCourse(req: Request, res: Response) {
-    const payload = req.body as CourseUpsertInput;
+    const payload = req.body as CreateCourse;
     const newCourse = await CourseService.CreateCourse(payload, req.schema_name!);
 
     res.status(StatusCodes.CREATED).json({

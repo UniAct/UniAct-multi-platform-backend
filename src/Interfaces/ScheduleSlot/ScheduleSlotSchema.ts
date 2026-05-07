@@ -22,6 +22,7 @@ export const ScheduleSlotInputSchema = z.object({
   teacherId: z.coerce.number().int().positive(),
   classroomId: z.coerce.number().int().positive(),
   learningGroupId: z.coerce.number().nullable().default(null),
+  allowedCpacity: z.number().int().positive(),
   enrolledSeats: z.number().default(0),
   // Helpers for UI validation/errors
   teacherName: z.string().optional(),
@@ -49,6 +50,7 @@ export const ScheduleSlotResponseSchema = z.object({
   startTime: z.string(), 
   endTime: z.string(),
   type: z.enum(SlotType),
+  allowedCapacity: z.number().int().positive(),
   enrolledSeats: z.number(),
   
   course: CourseInfoSchema,
