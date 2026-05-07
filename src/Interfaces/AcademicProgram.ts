@@ -73,7 +73,7 @@ export interface CourseUpsertInput {
   minFinalSuccessPercentage?: number;
   totalFail?: boolean;
   programLevelId: number;
-  programId:number;
+  programId: number;
   courseType: CourseType;
   prerequisiteIds?: number[];
 }
@@ -83,5 +83,7 @@ export interface ClassroomUpsertInput {
   building: string;
   capacity: number;
   type: ClassroomType;
+  // Legacy field kept for backward compatibility.
   isAvailable?: boolean;
+  underMaintenance?: boolean;
 }

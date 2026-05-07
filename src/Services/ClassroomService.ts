@@ -6,9 +6,19 @@ import { ClassroomRepository } from "../Repositories/ClassroomRepository";
 
 export class ClassroomService {
   private static buildCreateData(payload: ClassroomUpsertInput): Prisma.ClassroomCreateInput {
+    const underMaintenance =
+      typeof payload.underMaintenance === "boolean"
+        ? payload.underMaintenance
+        : typeof payload.isAvailable === "boolean"
+          ? !payload.isAvailable
+          : false;
+
     return {
-      isAvailable: payload.isAvailable ?? true,
-      ...payload
+      classroomNumber: payload.classroomNumber,
+      building: payload.building,
+      capacity: payload.capacity,
+      type: payload.type,
+      underMaintenance,
     };
   }
 

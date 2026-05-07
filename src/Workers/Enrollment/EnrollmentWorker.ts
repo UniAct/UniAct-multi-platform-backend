@@ -262,7 +262,7 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
           const [slot] = await tx.$queryRaw<
             { enrolled_seats: number; allowed_capacity: number }[]
           >`
-            SELECT s."enrolled_seats", s."allowed_capacity"
+            SELECT s."enrolled_seats", s."allowedCapacity" AS "allowed_capacity"
             FROM ${Prisma.raw(`"${schemaName}"."ScheduleSlot"`)} AS s
             WHERE s."id" = ${ctx.slotId}
             FOR UPDATE OF s
