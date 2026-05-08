@@ -1278,7 +1278,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjI4MjczNiwiZXhwIjoxNzc2MzY5MTM2fQ.0GkEygX50e4Q1YHyl-sIo76n6KZ4mzNwVeObMmjMywQ",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NzI5MjAxNywiZXhwIjoxNzc3Mzc4NDE3fQ.1ub7jW2Ft1yTMORS_NlJLcmJmKvvEmBUUouCUhUcqpU",
                   "type": "string"
                 }
               ]
@@ -1659,6 +1659,53 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Create Faculty Copy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3Njg3ODUxNSwiZXhwIjoxNzc2OTY0OTE1fQ.wdvCn3pvZ5HpDJQRSk0Hkl6BYA8vv9rvuDWPrx56F38",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "bla7",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"universityId\": 2,\r\n  \"name\": \"Faculty of Computer and Data Science\",\r\n  \"description\": \"Specializes in computer science, data science, artificial intelligence, and information systems. Focuses on software development, data analytics, machine learning, and modern computing technologies aligned with industry and research standards.\",\r\n  \"deanId\": 2,\r\n  \"establishedDate\": \"2018-09-01\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/faculty/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "faculty",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1673,7 +1720,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3NzUyMTgwOTUsImV4cCI6MTc3NTMwNDQ5NX0.bvlYPhNkNUtWjlAJcdJijrw0E2LUN_IPZVPsvaS1q-M",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsImVtYWlsIjoibW9uYS5hbGlAZXhhbXBsZS5jb20iLCJ1bml2ZXJzaXR5X25hbWUiOiJBbGV4YW5kcmlhIE5hdGlvbmFsIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJTdHVkZW50Il0sInBlcm1pc3Npb25zIjpbInByb2dyYW0ucmVhZCIsInNjaGVkdWxlLmVucm9sbCJdLCJpc1N0YWZmIjpmYWxzZSwiaXNTdHVkZW50Ijp0cnVlLCJwcm9ncmFtIjp7ImlkIjoxLCJwcm9ncmFtTmFtZSI6IkNvbXB1dGVyIFNjaWVuY2UifSwicHJvZ3JhbUxldmVsIjp7ImlkIjoxLCJsZXZlbCI6MX0sInN0dWRlbnQiOnsiZnVsbG5hbWUiOiJNb25hQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAzMTUxMjM0NTY3IiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJGIiwicmVsaWdpb24iOiJDIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MTAwMDAwMn0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3NzczMDI5NjEsImV4cCI6MTc3NzM4OTM2MX0.hWfJoVVl2PeVq0cLuWrmPyT-qBQj0ZG45kYNPAz43ns",
                   "type": "string"
                 }
               ]
@@ -1681,7 +1728,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/job/student-import/41605e38-9c7f-4b84-91f1-e0fcdb891541",
+              "raw": "http://localhost:3000/api/job/student-import/57bf3bd3-2767-49bf-81a0-4381a7c70ba9",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1691,7 +1738,7 @@
                 "api",
                 "job",
                 "student-import",
-                "41605e38-9c7f-4b84-91f1-e0fcdb891541"
+                "57bf3bd3-2767-49bf-81a0-4381a7c70ba9"
               ]
             }
           },
@@ -1705,7 +1752,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzcsImVtYWlsIjoibGF5bGEuZm91YWRAc3R1ZGVudC5hbnUuZWR1LmVnIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTGF5bGEgRm91YWQiLCJuYXRpb25hbElkIjoiMzEyMDExMjEyMzQ1NzgiLCJjZ3BhIjoiMCIsImdlbmRlciI6IkYiLCJyZWxpZ2lvbiI6Ik0iLCJ1bml2ZXJzaXR5U3R1ZGVudElkIjoyMDI2MDAxMn0sInNlbWVzdGVyIjp7ImlkIjozLCJ5ZWFyIjoyMDAwLCJ0eXBlIjoiU3VtbWVyIiwidGVybSI6M30sImlhdCI6MTc3NjY4NDg3OCwiZXhwIjoxNzc2NzcxMjc4fQ.WUoAiUWqaRA7pyXPWAbUm-59kzJsB1fgPax8uwbfCTU",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsImVtYWlsIjoibW9uYS5hbGlAZXhhbXBsZS5jb20iLCJ1bml2ZXJzaXR5X25hbWUiOiJBbGV4YW5kcmlhIE5hdGlvbmFsIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJTdHVkZW50Il0sInBlcm1pc3Npb25zIjpbInByb2dyYW0ucmVhZCIsInNjaGVkdWxlLmVucm9sbCJdLCJpc1N0YWZmIjpmYWxzZSwiaXNTdHVkZW50Ijp0cnVlLCJwcm9ncmFtIjp7ImlkIjoxLCJwcm9ncmFtTmFtZSI6IkNvbXB1dGVyIFNjaWVuY2UifSwicHJvZ3JhbUxldmVsIjp7ImlkIjoxLCJsZXZlbCI6MX0sInN0dWRlbnQiOnsiZnVsbG5hbWUiOiJNb25hQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAzMTUxMjM0NTY3IiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJGIiwicmVsaWdpb24iOiJDIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MTAwMDAwMn0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3NzcyOTk5MTAsImV4cCI6MTc3NzM4NjMxMH0.4ODZwqAnnxzn8WVSVR6nxNfabZ5nkn9OVMFPtGryvBo",
                   "type": "string"
                 }
               ]
@@ -1713,7 +1760,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/job/student-enrollment/ab2e2b6f-0981-4879-8783-14a1d1ae0d3f",
+              "raw": "http://localhost:3000/api/job/student-enrollment/57bf3bd3-2767-49bf-81a0-4381a7c70ba9",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1723,7 +1770,7 @@
                 "api",
                 "job",
                 "student-enrollment",
-                "ab2e2b6f-0981-4879-8783-14a1d1ae0d3f"
+                "57bf3bd3-2767-49bf-81a0-4381a7c70ba9"
               ]
             }
           },
@@ -1742,7 +1789,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3NjUyNzMxOCwiZXhwIjoxNzc2NjEzNzE4fQ.2nRJkD94RJO-vTHr85I4FuWiLA1fQpnYLwOOs1IuIys",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJtb2hhbWVkLmhhc3NhbkBleGFtcGxlLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6IkFsZXhhbmRyaWEgTmF0aW9uYWwgVW5pdmVyc2l0eSIsInJvbGVzIjpbIlN0dWRlbnQiXSwicGVybWlzc2lvbnMiOlsicHJvZ3JhbS5yZWFkIiwic2NoZWR1bGUuZW5yb2xsIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOnRydWUsInByb2dyYW0iOnsiaWQiOjEsInByb2dyYW1OYW1lIjoiQ29tcHV0ZXIgU2NpZW5jZSJ9LCJwcm9ncmFtTGV2ZWwiOnsiaWQiOjEsImxldmVsIjoxfSwic3R1ZGVudCI6eyJmdWxsbmFtZSI6Ik1vaGFtZWQgSGFzc2FuIEFsaSIsIm5hdGlvbmFsSWQiOiIyOTkwMjAyMTU2Nzg5MSIsImNncGEiOiIwIiwiZ2VuZGVyIjoiTSIsInJlbGlnaW9uIjoiTSIsInVuaXZlcnNpdHlTdHVkZW50SWQiOjIyMDUwNzd9LCJzZW1lc3RlciI6eyJpZCI6MTIsInllYXIiOjIwMjYsInR5cGUiOiJTcHJpbmciLCJ0ZXJtIjoyfSwiaWF0IjoxNzc4MTU4Mjk3LCJleHAiOjE3NzgyNDQ2OTd9.CpIjvMiMBNQ3OrrMN_tGRAcw2hIuPMmfQnlM-F4smHc",
                   "type": "string"
                 }
               ]
@@ -1756,12 +1803,12 @@
               },
               {
                 "key": "Semester-id",
-                "value": "3",
+                "value": "12",
                 "type": "text"
               }
             ],
             "url": {
-              "raw": "http://localhost:3000/api/schedule/?programId=4&academicLevel=4",
+              "raw": "http://localhost:3000/api/schedule/?programId=1&academicLevel=1&facultyId=1",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1775,11 +1822,15 @@
               "query": [
                 {
                   "key": "programId",
-                  "value": "4"
+                  "value": "1"
                 },
                 {
                   "key": "academicLevel",
-                  "value": "4"
+                  "value": "1"
+                },
+                {
+                  "key": "facultyId",
+                  "value": "1"
                 }
               ]
             }
@@ -1921,7 +1972,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzcsImVtYWlsIjoibGF5bGEuZm91YWRAc3R1ZGVudC5hbnUuZWR1LmVnIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTGF5bGEgRm91YWQiLCJuYXRpb25hbElkIjoiMzEyMDExMjEyMzQ1NzgiLCJjZ3BhIjoiMCIsImdlbmRlciI6IkYiLCJyZWxpZ2lvbiI6Ik0iLCJ1bml2ZXJzaXR5U3R1ZGVudElkIjoyMDI2MDAxMn0sInNlbWVzdGVyIjp7ImlkIjozLCJ5ZWFyIjoyMDAwLCJ0eXBlIjoiU3VtbWVyIiwidGVybSI6M30sImlhdCI6MTc3NjY4NDg3OCwiZXhwIjoxNzc2NzcxMjc4fQ.WUoAiUWqaRA7pyXPWAbUm-59kzJsB1fgPax8uwbfCTU",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsImVtYWlsIjoibW9uYS5hbGlAZXhhbXBsZS5jb20iLCJ1bml2ZXJzaXR5X25hbWUiOiJBbGV4YW5kcmlhIE5hdGlvbmFsIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJTdHVkZW50Il0sInBlcm1pc3Npb25zIjpbInByb2dyYW0ucmVhZCIsInNjaGVkdWxlLmVucm9sbCJdLCJpc1N0YWZmIjpmYWxzZSwiaXNTdHVkZW50Ijp0cnVlLCJwcm9ncmFtIjp7ImlkIjoxLCJwcm9ncmFtTmFtZSI6IkNvbXB1dGVyIFNjaWVuY2UifSwicHJvZ3JhbUxldmVsIjp7ImlkIjoxLCJsZXZlbCI6MX0sInN0dWRlbnQiOnsiZnVsbG5hbWUiOiJNb25hQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAzMTUxMjM0NTY3IiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJGIiwicmVsaWdpb24iOiJDIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MTAwMDAwMn0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3NzcyOTk5MTAsImV4cCI6MTc3NzM4NjMxMH0.4ODZwqAnnxzn8WVSVR6nxNfabZ5nkn9OVMFPtGryvBo",
                   "type": "string"
                 }
               ]
@@ -1936,7 +1987,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"id\": 130,\r\n      \"start_time\": \"2026-04-18T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T10:30:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 48,\r\n        \"code\": \"02-24-06415\",\r\n        \"name\": \"Internet of Things\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 90,\r\n        \"name\": \"arsany osama\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 131,\r\n      \"start_time\": \"2026-04-18T11:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T12:30:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 16,\r\n        \"code\": \"02-24-00205\",\r\n        \"name\": \"Machine Learning\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 90,\r\n        \"name\": \"arsany osama\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 132,\r\n      \"start_time\": \"2026-04-19T07:00:00.000Z\",\r\n      \"end_time\": \"2026-04-19T08:30:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 3,\r\n        \"code\": \"02-24-00102\",\r\n        \"name\": \"Calculus\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 5,\r\n        \"label\": \"C / C0L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 133,\r\n      \"start_time\": \"2026-04-19T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-19T10:30:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 3,\r\n        \"code\": \"02-24-00102\",\r\n        \"name\": \"Calculus\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 134,\r\n      \"start_time\": \"2026-04-21T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-21T10:30:00.000Z\",\r\n      \"type\": \"Tutorial\",\r\n      \"course\": {\r\n        \"id\": 2,\r\n        \"code\": \"02-24-00101\",\r\n        \"name\": \"Linear Algebra\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 90,\r\n        \"name\": \"arsany osama\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    }\r\n  ]\r\n}",
+              "raw": "{\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"id\": 42,\r\n      \"start_time\": \"2026-04-15T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-15T10:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 43,\r\n        \"code\": \"SEC401\",\r\n        \"name\": \"Proactive Computer Security\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 6,\r\n        \"label\": \"A / A2A1\",\r\n        \"capacity\": 150\r\n      }\r\n    },\r\n    {\r\n      \"id\": 43,\r\n      \"start_time\": \"2026-04-18T11:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T12:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 35,\r\n        \"code\": \"SEC402\",\r\n        \"name\": \"Security of Distributed Systems\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 44,\r\n      \"start_time\": \"2026-04-18T15:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T16:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 31,\r\n        \"code\": \"SEC403\",\r\n        \"name\": \"Computer and Network Security\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 5,\r\n        \"label\": \"C / C0L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 45,\r\n      \"start_time\": \"2026-04-20T11:00:00.000Z\",\r\n      \"end_time\": \"2026-04-20T12:40:00.000Z\",\r\n      \"type\": \"Tutorial\",\r\n      \"course\": {\r\n        \"id\": 35,\r\n        \"code\": \"SEC402\",\r\n        \"name\": \"Security of Distributed Systems\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 6,\r\n        \"label\": \"A / A2A1\",\r\n        \"capacity\": 150\r\n      }\r\n    },\r\n    {\r\n      \"id\": 46,\r\n      \"start_time\": \"2026-04-20T13:00:00.000Z\",\r\n      \"end_time\": \"2026-04-20T14:40:00.000Z\",\r\n      \"type\": \"Tutorial\",\r\n      \"course\": {\r\n        \"id\": 33,\r\n        \"code\": \"SEC404\",\r\n        \"name\": \"Information Security Management\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n        {\r\n      \"id\": 47,\r\n      \"start_time\": \"2026-04-20T15:00:00.000Z\",\r\n      \"end_time\": \"2026-04-20T16:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 43,\r\n        \"code\": \"SEC401\",\r\n        \"name\": \"Proactive Computer Security\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 48,\r\n      \"start_time\": \"2026-04-21T15:00:00.000Z\",\r\n      \"end_time\": \"2026-04-21T16:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 33,\r\n        \"code\": \"SEC404\",\r\n        \"name\": \"Information Security Management\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    }\r\n  ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1954,6 +2005,230 @@
                 "api",
                 "schedule",
                 "enroll"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Get all lecture courses taught by a staff member",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3ODIxODA5NywiZXhwIjoxNzc4MzA0NDk3fQ.Ds_fwR3rLJAiIu_4TRKaygDHmKdRXxNco97FAgKBiEw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/course/staff/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "course",
+                "staff",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Course Assessment For Specific Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3ODIxODA5NywiZXhwIjoxNzc4MzA0NDk3fQ.Ds_fwR3rLJAiIu_4TRKaygDHmKdRXxNco97FAgKBiEw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"assessments\": [\r\n    { \"label\": \"Quiz 1\",  \"assessmentType\": \"Quiz\",       \"marks\": 10 },\r\n    { \"label\": \"Quiz 2\",  \"assessmentType\": \"Quiz\",       \"marks\": 10 },\r\n    { \"label\": \"Midterm\", \"assessmentType\": \"Midterm\",    \"marks\": 30 },\r\n    { \"label\": \"Final\",   \"assessmentType\": \"Final\",      \"marks\": 40 },\r\n    { \"label\": \"Project\", \"assessmentType\": \"Project\",    \"marks\": 10 }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/course/2/assign-course-assessments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "course",
+                "2",
+                "assign-course-assessments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Assessment For Specific Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3ODIxODA5NywiZXhwIjoxNzc4MzA0NDk3fQ.Ds_fwR3rLJAiIu_4TRKaygDHmKdRXxNco97FAgKBiEw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/course/2/course-assessments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "course",
+                "2",
+                "course-assessments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course Assessment For Specific Course Copy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3ODIxODA5NywiZXhwIjoxNzc4MzA0NDk3fQ.Ds_fwR3rLJAiIu_4TRKaygDHmKdRXxNco97FAgKBiEw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"assessments\": [\r\n    { \"assessmentId\": 1, \"label\": \"Quiz 1\",  \"marks\": 15 },\r\n    { \"assessmentId\": 2, \"label\": \"Quiz 2\",  \"marks\": 15 },\r\n    { \"assessmentId\": 3, \"label\": \"Midterm\", \"marks\": 20 },\r\n    { \"assessmentId\": 4, \"label\": \"Final\",   \"marks\": 40 },\r\n    { \"assessmentId\": 5, \"label\": \"Project\", \"marks\": 10 }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/course/2/course-assessments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "course",
+                "2",
+                "course-assessments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all students that register for a specific course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3ODIxODA5NywiZXhwIjoxNzc4MzA0NDk3fQ.Ds_fwR3rLJAiIu_4TRKaygDHmKdRXxNco97FAgKBiEw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/course/2/students",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "course",
+                "2",
+                "students"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update student grade",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc3ODIxODA5NywiZXhwIjoxNzc4MzA0NDk3fQ.Ds_fwR3rLJAiIu_4TRKaygDHmKdRXxNco97FAgKBiEw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"marks\": 12\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/course/grade/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "course",
+                "grade",
+                "1"
               ]
             }
           },

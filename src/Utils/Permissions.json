@@ -30,6 +30,11 @@
     "update": { "name": "course.update", "description": "Update existing course information" },
     "delete": { "name": "course.delete", "description": "Delete a course from the system" }
   },
+  "courseAssessment": {
+    "create": {"name": "courseAssessment.create","description": "Create a new assessment for a specific course"},
+    "read": {"name": "courseAssessment.read","description": "View assessment details and retrieve all assessments associated with a specific course"},
+    "update": {"name": "courseAssessment.update","description": "Modify an existing assessment for a specific course"}
+  },
   "semester": {
     "create": { "name": "semester.create", "description": "Create a new academic semester" },
     "read":   { "name": "semester.read",   "description": "View semester details and list all semesters" },

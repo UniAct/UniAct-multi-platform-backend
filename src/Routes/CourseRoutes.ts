@@ -8,6 +8,13 @@ import { CourseController } from "../Controllers/CourseController";
 import permissions from "../Utils/Permissions.json";
 import { ZodValidator } from "../Middlewares/ZodValidation";
 import { CourseParamSchema, CreateCourseSchema, UpdateCourseSchema } from "../Validators/CourseValidator";
+import UserValidator from "../Validators/UserValidator";
+import { GetAllStaffCoursesParams } from "../Interfaces/Course/GetAllStaffCourses/GetAllStaffCoursesSchema";
+import { AssignCourseAssessmentBody, AssignCourseAssessmentParams } from "../Interfaces/Course/AssignCourseAssessment/AssignCourseAssessmentSchema";
+import { GetCourseStudentsParams } from "../Interfaces/Course/GetCourseStudent/GetCourseStudentSchema";
+import { UpdateStudentGradeBody, UpdateStudentGradeParam } from "../Interfaces/Course/UpdateStudentGrade/UpdateStudentGradeSchema";
+import { GetCourseAssessmentParams } from "../Interfaces/Course/GetCourseAssessment/GetCourseAssessmentSchema";
+import { UpdateCourseAssessmentBody, UpdateCourseAssessmentParams } from "../Interfaces/Course/UpdateCourseAssessment/UpdateCourseAssessmentSchema";
 
 const router = Router();
 
@@ -55,6 +62,78 @@ router.delete(
   RequirePermission(permissions.course.delete.name),
   ZodValidator({params: CourseParamSchema}),
   asyncHandler(CourseController.DeleteCourse),
+);
+
+
+// get all courses of a specific staff (in the current semester)
+router.get(                          
+  "/staff/:staffId",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.course.read.name),
+  ZodValidator({ params: GetAllStaffCoursesParams }),
+  asyncHandler(CourseController.GetAllStaffCourses)
+);
+
+// assign course assessment for a specific course (in the current semester)
+router.post(
+  "/:courseId/assign-course-assessments",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.courseAssessment.create.name),
+  ZodValidator({
+    params: AssignCourseAssessmentParams,
+    body:   AssignCourseAssessmentBody,
+  }),
+  asyncHandler(CourseController.AssignCourseAssessment)
+);
+
+
+// get course assessment for a specific course
+router.get(
+  "/:courseId/course-assessments",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.courseAssessment.read.name),
+  ZodValidator({ params: GetCourseAssessmentParams }),
+  asyncHandler(CourseController.GetCourseAssessment)
+);
+
+// updating course assessment
+router.patch(
+  "/:courseId/course-assessments",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.courseAssessment.update.name),
+  ZodValidator({
+    params: UpdateCourseAssessmentParams,
+    body:   UpdateCourseAssessmentBody,
+  }),
+  asyncHandler(CourseController.UpdateCourseAssessment)
+);
+
+
+// get all students that register for a specific course
+router.get(
+  "/:courseId/students",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.courseAssessment.read.name),
+  ZodValidator({ params: GetCourseStudentsParams }),
+  asyncHandler(CourseController.GetCourseStudents)
+);
+
+// update student grade
+router.patch(
+  "/grade/:gradeId",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.courseAssessment.update.name),
+  ZodValidator({ 
+    params: UpdateStudentGradeParam,
+    body:   UpdateStudentGradeBody,
+  }),
+  asyncHandler(CourseController.UpdateStudentGrade)
 );
 
 export default router;

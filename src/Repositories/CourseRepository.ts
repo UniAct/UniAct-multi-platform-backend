@@ -1,5 +1,7 @@
-import { Prisma, PrismaClient,GradeEnum, RegistrationStatus } from "@prisma/client";
+import { Prisma, PrismaClient,GradeEnum, RegistrationStatus, CourseAssessmentType } from "@prisma/client";
 import { CreateCourse, UpdateCourse } from "../Validators/CourseValidator";
+import { AssignCourseAssessmentBodyType } from "../Interfaces/Course/AssignCourseAssessment/AssignCourseAssessmentSchema";
+import { UpdateCourseAssessmentBodyType } from "../Interfaces/Course/UpdateCourseAssessment/UpdateCourseAssessmentSchema";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -131,56 +133,236 @@ export class CourseRepository {
 
   
   private static prepareUpdatePyaload(id: number, payload: UpdateCourse) {
-  // 1. Build the base update object
-  const data: Prisma.CourseUpdateInput = {
-    name: payload.name,
-    code: payload.code,
-    description: payload.description,
-    credits: payload.credits,
-    syllabus: payload.syllabus,
-    successPercentage: payload.successPercentage,
-    minFinalSuccessPercentage: payload.minFinalSuccessPercentage,
-    totalFail: payload.totalFail,
-  };
+    // 1. Build the base update object
+    const data: Prisma.CourseUpdateInput = {
+      name: payload.name,
+      code: payload.code,
+      description: payload.description,
+      credits: payload.credits,
+      syllabus: payload.syllabus,
+      successPercentage: payload.successPercentage,
+      minFinalSuccessPercentage: payload.minFinalSuccessPercentage,
+      totalFail: payload.totalFail,
+    };
 
-  // 2. Safely handle ProgramCourse Upsert
-  // Only include this block if we actually have a programLevelId to target
-  if (payload.programLevelId && payload.programId && payload.courseType) {
-    data.programCourses = {
-      upsert: {
-        where: {
-          programLevelId_courseId: {
-            courseId: id,
+    // 2. Safely handle ProgramCourse Upsert
+    // Only include this block if we actually have a programLevelId to target
+    if (payload.programLevelId && payload.programId && payload.courseType) {
+      data.programCourses = {
+        upsert: {
+          where: {
+            programLevelId_courseId: {
+              courseId: id,
+              programLevelId: payload.programLevelId,
+            },
+          },
+          update: {
+            type: payload.courseType,
+            programId: payload.programId,
+          },
+          create: {
+            type: payload.courseType,
+            programId: payload.programId,
             programLevelId: payload.programLevelId,
           },
         },
-        update: {
-          type: payload.courseType,
-          programId: payload.programId,
-        },
-        create: {
-          type: payload.courseType,
-          programId: payload.programId,
-          programLevelId: payload.programLevelId,
+      };
+    }
+
+    // 3. Safely handle Prerequisites
+    // Only sync prerequisites if the array is explicitly provided in the payload
+    if (payload.prerequisiteIds?.length) {
+      console.log(payload)
+      data.prerequisites = {
+        deleteMany: {},
+        create: payload.prerequisiteIds.map((pId) => ({
+          prerequisiteId: pId,
+        })),
+      };
+    }
+    return data;
+  }
+
+  public static async GetAllStaffCourses(staffId: number, semesterId: number, prisma: DbClient) {
+    return await prisma.scheduleSlot.findMany({
+      where: {
+        semesterId,
+        teacherId: staffId
+      },
+      distinct: ["courseId"],
+      select: {
+        course: {
+          select: {
+            id:          true,
+            name:        true,
+            code:        true,
+            description: true,
+            credits:     true,
+          },
         },
       },
-    };
+    });
   }
 
-  // 3. Safely handle Prerequisites
-  // Only sync prerequisites if the array is explicitly provided in the payload
-  if (payload.prerequisiteIds?.length) {
-    console.log(payload)
-    data.prerequisites = {
-      deleteMany: {},
-      create: payload.prerequisiteIds.map((pId) => ({
-        prerequisiteId: pId,
+  public static async GetCourseAssessmentByCourseAndSemester<T extends Prisma.CourseAssessmentSelect>(
+    courseId:   number,
+    semesterId: number,
+    prisma:     DbClient,
+    select?:    T
+  ): Promise<Prisma.CourseAssessmentGetPayload<{ select: T }>[]> {
+    const results = await prisma.courseAssessment.findMany({
+      where: { courseId, semesterId },
+      ...(select && { select }),
+    });
+
+    return results as Prisma.CourseAssessmentGetPayload<{ select: T }>[];
+  }
+
+  public static async CourseAssessmentBulkCreate(
+    courseId:    number,
+    semesterId:  number,
+    assessments: AssignCourseAssessmentBodyType["assessments"],
+    prisma:      DbClient
+  ) {
+    return await prisma.courseAssessment.createManyAndReturn({
+      data: assessments.map((a) => ({
+        courseId,
+        semesterId,
+        label:          a.label,
+        assessmentType: a.assessmentType as CourseAssessmentType,
+        marks:          a.marks,
       })),
-    };
+    });
   }
-  return data;
 
-}
+  public static async GetCourseStudents(courseId: number, semesterId: number, prisma: DbClient) {
+    return await prisma.courseRegistration.findMany({
+      where: {
+        status: RegistrationStatus.Enrolled,
+        scheduleSlotContext: {
+          slot: { courseId, semesterId },
+        },
+      },
+      select: {
+        grades: {
+          select: {
+            id:    true,  
+            marks: true,
+            courseAssessment: {
+              select: {
+                label: true,
+                marks: true,
+              },
+            },
+          },
+        },
+        student: {
+          select: {
+            universityStudentId: true,
+            user: {
+              select: {
+                firstName: true,
+                lastName:  true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  public static async GetStudentGradeById(gradeId: number, prisma: DbClient) {
+    return await prisma.grade.findUnique({
+      where:  { id: gradeId },
+      select: { 
+        id:      true,
+        maxMarks: true,
+      },
+    });
+  }
+
+  public static async UpdateById(gradeId: number, marks: number, prisma: DbClient) {
+    return await prisma.grade.update({
+      where: { id: gradeId },
+      data:  { marks },
+      select: {
+        id:    true,
+        marks: true,
+        maxMarks: true,
+        courseAssessment: {
+          select: {
+            label:          true,
+            assessmentType: true,
+          },
+        },
+      },
+    });
+  }
+
+  public static async GetEnrolledRegistrationIds(
+    courseId:   number,
+    semesterId: number,
+    prisma:     DbClient
+  ) {
+    return await prisma.courseRegistration.findMany({
+      where: {
+        status: RegistrationStatus.Enrolled,
+        scheduleSlotContext: {
+          slot: { courseId, semesterId },
+        },
+      },
+      select: { id: true },
+    });
+  }
+
+  public static async StudentGradeBulkCreate(
+    grades: {
+      courseRegistrationId: number;
+      courseAssessmentId:   number;
+      marks:                number;
+      maxMarks:             number;
+    }[],
+    prisma: DbClient
+  ) {
+    return await prisma.grade.createMany({
+      data: grades,
+    });
+  }
+
+  public static async UpdateCourseAssessments(
+    assessments: UpdateCourseAssessmentBodyType["assessments"],
+    prisma:      DbClient
+  ) {
+    return await prisma.$transaction(async (tx) => {
+      // update all assessments and collect results
+      const updatedAssessments = await Promise.all(
+        assessments.map((a) =>
+          tx.courseAssessment.update({
+            where: { id: a.assessmentId },
+            data:  { label: a.label, marks: a.marks },
+            select: {
+              id:             true,
+              label:          true,
+              assessmentType: true,
+              marks:          true,
+            },
+          })
+        )
+      );
+
+      // sync maxMarks on every related grade row
+      await Promise.all(
+        assessments.map((a) =>
+          tx.grade.updateMany({
+            where: { courseAssessmentId: a.assessmentId },
+            data:  { maxMarks: a.marks },
+          })
+        )
+      );
+
+      return updatedAssessments;
+    });
+  }
 }
 
 
