@@ -125,7 +125,7 @@ async function handler(job: Job<BulkCreateResult>) {
       await prisma.fee.findFirst({
         where: {
           programLevelId: Number(programLevelId),
-          semesterId:     Number(semesterId),
+          semesterNumber:     Number(semesterId),
         },
       }),
       await prisma.role.findFirst({where : {name: SystemRoles.Student} , select: {id : true}})
