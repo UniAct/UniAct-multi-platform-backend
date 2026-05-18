@@ -10,6 +10,7 @@ import semesterRoutes from "./SemesterRoutes";
 import jobRoutes from "./JobRoutes";
 import classroomRoutes from "./ClassroomRoutes";
 import classSessionRoutes from "./ScheduleRoutes";
+import attendanceRoutes from "./AttendanceRoutes";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 
@@ -36,6 +37,8 @@ router.use('/classroom', classroomRoutes);
 router.use('/semester', semesterRoutes);
 
 router.use('/schedule', classSessionRoutes);
+
+router.use('/attendance', attendanceRoutes);
 
 // global health check
 router.get('/', (req, res) => {
