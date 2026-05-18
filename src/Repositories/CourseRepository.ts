@@ -2,6 +2,7 @@ import { Prisma, PrismaClient,GradeEnum, RegistrationStatus, CourseAssessmentTyp
 import { CreateCourse, UpdateCourse } from "../Validators/CourseValidator";
 import { AssignCourseAssessmentBodyType } from "../Interfaces/Course/AssignCourseAssessment/AssignCourseAssessmentSchema";
 import { UpdateCourseAssessmentBodyType } from "../Interfaces/Course/UpdateCourseAssessment/UpdateCourseAssessmentSchema";
+import { CreateCourseAssessmentBodyType } from "../Interfaces/Course/CreateCourseAssessment/CreateCourseAssessmentSchema";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -204,6 +205,52 @@ export class CourseRepository {
     });
   }
 
+  public static async IsStaffAssignedToCourse(
+    staffId: number,
+    courseId: number,
+    semesterId: number | null,
+    prisma: DbClient
+  ) {
+    const assignedSlot = await prisma.scheduleSlot.findFirst({
+      where: {
+        teacherId: staffId,
+        courseId,
+        ...(semesterId ? { semesterId } : {}),
+      },
+      select: { id: true },
+    });
+
+    return !!assignedSlot;
+  }
+
+  public static async GetScheduleSlotAccessContext(scheduleSlotId: number, prisma: DbClient) {
+    return await prisma.scheduleSlot.findUnique({
+      where: { id: scheduleSlotId },
+      select: {
+        id: true,
+        courseId: true,
+        semesterId: true,
+        teacherId: true,
+      },
+    });
+  }
+
+  public static async GetSlotContextAccessContext(slotContextId: number, prisma: DbClient) {
+    return await prisma.scheduleSlotContext.findUnique({
+      where: { id: slotContextId },
+      select: {
+        id: true,
+        semesterId: true,
+        slot: {
+          select: {
+            courseId: true,
+            teacherId: true,
+          },
+        },
+      },
+    });
+  }
+
   public static async GetCourseAssessmentByCourseAndSemester<T extends Prisma.CourseAssessmentSelect>(
     courseId:   number,
     semesterId: number,
@@ -232,6 +279,29 @@ export class CourseRepository {
         assessmentType: a.assessmentType as CourseAssessmentType,
         marks:          a.marks,
       })),
+    });
+  }
+
+  public static async CourseAssessmentCreate(
+    courseId: number,
+    semesterId: number,
+    assessment: CreateCourseAssessmentBodyType,
+    prisma: DbClient
+  ) {
+    return await prisma.courseAssessment.create({
+      data: {
+        courseId,
+        semesterId,
+        label: assessment.label,
+        assessmentType: assessment.assessmentType as CourseAssessmentType,
+        marks: assessment.marks,
+      },
+      select: {
+        id: true,
+        label: true,
+        assessmentType: true,
+        marks: true,
+      },
     });
   }
 
@@ -277,6 +347,24 @@ export class CourseRepository {
       select: { 
         id:      true,
         maxMarks: true,
+        courseAssessment: {
+          select: {
+            courseId: true,
+            semesterId: true,
+          },
+        },
+      },
+    });
+  }
+
+  public static async GetCourseAssessmentById(assessmentId: number, prisma: DbClient) {
+    return await prisma.courseAssessment.findUnique({
+      where: { id: assessmentId },
+      select: {
+        id: true,
+        courseId: true,
+        semesterId: true,
+        label: true,
       },
     });
   }
@@ -339,7 +427,11 @@ export class CourseRepository {
         assessments.map((a) =>
           tx.courseAssessment.update({
             where: { id: a.assessmentId },
-            data:  { label: a.label, marks: a.marks },
+            data:  {
+              label: a.label,
+              marks: a.marks,
+              ...(a.assessmentType ? { assessmentType: a.assessmentType as CourseAssessmentType } : {}),
+            },
             select: {
               id:             true,
               label:          true,
@@ -363,7 +455,16 @@ export class CourseRepository {
       return updatedAssessments;
     });
   }
+
+  public static async DeleteCourseAssessment(assessmentId: number, prisma: DbClient) {
+    return await prisma.courseAssessment.delete({
+      where: { id: assessmentId },
+      select: {
+        id: true,
+        label: true,
+        assessmentType: true,
+        marks: true,
+      },
+    });
+  }
 }
-
-
-

@@ -1,4 +1,5 @@
 import z from "zod";
+import { CourseAssessmentType } from "@prisma/client";
 
 export const UpdateCourseAssessmentParams = z.object({
   courseId: z.coerce
@@ -19,6 +20,10 @@ export const UpdateCourseAssessmentBody = z.object({
           .string({ error: "Assessment label is required" })
           .min(1, "Assessment label cannot be empty")
           .max(100, "Assessment label cannot exceed 100 characters"),
+        assessmentType: z.enum(
+          Object.values(CourseAssessmentType) as [string, ...string[]],
+          { error: `Assessment type must be one of: ${Object.values(CourseAssessmentType).join(", ")}` }
+        ).optional(),
         marks: z
           .number({ error: "Marks must be a valid number" })
           .positive("Marks must be greater than 0")
@@ -41,18 +46,6 @@ export const UpdateCourseAssessmentBody = z.object({
           return;
         }
         seen.add(id);
-      }
-    })
-    .check((ctx) => {
-      // guard: total marks must equal 100
-      const total   = ctx.value.reduce((sum, a) => sum + a.marks, 0);
-      const rounded = Math.round(total * 100) / 100;
-      if (rounded !== 100) {
-        ctx.issues.push({
-          code:    "custom",
-          input:   ctx.value,
-          message: `Total marks across all assessments must equal 100. Current total: ${rounded}`,
-        });
       }
     }),
 });

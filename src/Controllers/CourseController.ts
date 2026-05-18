@@ -7,6 +7,7 @@ import { CreateCourse } from "../Validators/CourseValidator";
 import { AssignCourseAssessmentBodyType } from "../Interfaces/Course/AssignCourseAssessment/AssignCourseAssessmentSchema";
 import { UpdateStudentGradeBodyType } from "../Interfaces/Course/UpdateStudentGrade/UpdateStudentGradeSchema";
 import { UpdateCourseAssessmentBodyType } from "../Interfaces/Course/UpdateCourseAssessment/UpdateCourseAssessmentSchema";
+import { CreateCourseAssessmentBodyType } from "../Interfaces/Course/CreateCourseAssessment/CreateCourseAssessmentSchema";
 
 export class CourseController {
   static async CreateCourse(req: Request, res: Response) {
@@ -76,7 +77,7 @@ export class CourseController {
     const courseId = parseInt(req.params.courseId as string);
     const body     = req.body as AssignCourseAssessmentBodyType;
 
-    const dto = await CourseService.AssignCourseAssessment(courseId, body, req.schema_name!);
+    const dto = await CourseService.AssignCourseAssessment(courseId, body, req.schema_name!, req.user!);
 
     res.status(StatusCodes.CREATED).json({
       status: JSendStatus.SUCCESS,
@@ -84,10 +85,22 @@ export class CourseController {
     });
   }
 
+  static async CreateCourseAssessment(req: Request, res: Response) {
+    const courseId = parseInt(req.params.courseId as string);
+    const body = req.body as CreateCourseAssessmentBodyType;
+
+    const dto = await CourseService.CreateCourseAssessment(courseId, body, req.schema_name!, req.user!);
+
+    res.status(StatusCodes.CREATED).json({
+      status: JSendStatus.SUCCESS,
+      data: dto,
+    });
+  }
+
   static async GetCourseStudents(req: Request, res: Response) {
     const courseId = parseInt(req.params.courseId as string);
 
-    const dto = await CourseService.GetCourseStudents(courseId, req.schema_name!);
+    const dto = await CourseService.GetCourseStudents(courseId, req.schema_name!, req.user!);
 
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
@@ -99,7 +112,7 @@ export class CourseController {
     const gradeId = parseInt(req.params.gradeId as string);
     const body    = req.body as UpdateStudentGradeBodyType;
 
-    const dto = await CourseService.UpdateStudentGrade(gradeId, body, req.schema_name!);
+    const dto = await CourseService.UpdateStudentGrade(gradeId, body, req.schema_name!, req.user!);
 
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
@@ -110,7 +123,7 @@ export class CourseController {
   static async GetCourseAssessment(req: Request, res: Response) {
     const courseId = parseInt(req.params.courseId as string);
 
-    const dto = await CourseService.GetCourseAssessment(courseId, req.schema_name!);
+    const dto = await CourseService.GetCourseAssessment(courseId, req.schema_name!, req.user!);
 
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
@@ -122,11 +135,22 @@ export class CourseController {
     const courseId = parseInt(req.params.courseId as string);
     const body     = req.body as UpdateCourseAssessmentBodyType;
 
-    const dto = await CourseService.UpdateCourseAssessment(courseId, body, req.schema_name!);
+    const dto = await CourseService.UpdateCourseAssessment(courseId, body, req.schema_name!, req.user!);
 
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
       data:   dto,
+    });
+  }
+
+  static async DeleteCourseAssessment(req: Request, res: Response) {
+    const assessmentId = parseInt(req.params.assessmentId as string);
+
+    const dto = await CourseService.DeleteCourseAssessment(assessmentId, req.schema_name!, req.user!);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: dto,
     });
   }
 }

@@ -12,6 +12,10 @@ import { MapUpdateStudentGrade } from "../Interfaces/Course/UpdateStudentGrade/M
 import { MapGetCourseAssessment } from "../Interfaces/Course/GetCourseAssessment/Mapper";
 import { UpdateCourseAssessmentBodyType } from "../Interfaces/Course/UpdateCourseAssessment/UpdateCourseAssessmentSchema";
 import { MapUpdateCourseAssessment } from "../Interfaces/Course/UpdateCourseAssessment/Mapper";
+import { TokenPayload } from "../Interfaces/TokenPayload";
+import { CourseAccessService } from "./CourseAccessService";
+import permissions from "../Utils/Permissions.json";
+import { CreateCourseAssessmentBodyType } from "../Interfaces/Course/CreateCourseAssessment/CreateCourseAssessmentSchema";
 
 export class CourseService {
 
@@ -74,7 +78,8 @@ export class CourseService {
   public static async AssignCourseAssessment(
     courseId:    number,
     body:        AssignCourseAssessmentBodyType,
-    schema_name: string
+    schema_name: string,
+    user:        TokenPayload
   ) {
     const prisma = GetTenantClient(schema_name);
 
@@ -82,6 +87,14 @@ export class CourseService {
     if (!currentSemester) {
       throw new NotFoundError("No active semester found");
     }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      courseId,
+      currentSemester.id,
+      permissions.courseAssessment.create.name,
+    );
 
     // prevent duplicate labels for the same course in the same semester
     const existingAssessments = await CourseRepository.GetCourseAssessmentByCourseAndSemester(
@@ -137,13 +150,86 @@ export class CourseService {
     return MapAssignCourseAssessment(createdAssessments);
   }
 
-  public static async GetCourseStudents(courseId: number, schema_name: string) {
+  public static async CreateCourseAssessment(
+    courseId: number,
+    body: CreateCourseAssessmentBodyType,
+    schema_name: string,
+    user: TokenPayload
+  ) {
     const prisma = GetTenantClient(schema_name);
 
     const currentSemester = await SemesterRepository.GetCurrentSemester(prisma, { id: true });
     if (!currentSemester) {
       throw new NotFoundError("No active semester found");
     }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      courseId,
+      currentSemester.id,
+      permissions.courseAssessment.create.name,
+    );
+
+    const existingAssessments = await CourseRepository.GetCourseAssessmentByCourseAndSemester(
+      courseId,
+      currentSemester.id,
+      prisma,
+      { label: true }
+    );
+
+    const normalizedLabel = body.label.trim().toLowerCase();
+    if (existingAssessments.some((assessment) => assessment.label.trim().toLowerCase() === normalizedLabel)) {
+      throw new ConflictError(`Assessment already exists: ${body.label}`);
+    }
+
+    const enrolledRegistrations = await CourseRepository.GetEnrolledRegistrationIds(
+      courseId,
+      currentSemester.id,
+      prisma
+    );
+
+    const createdAssessment = await prisma.$transaction(async (tx) => {
+      const assessment = await CourseRepository.CourseAssessmentCreate(courseId, currentSemester.id, body, tx);
+
+      if (enrolledRegistrations.length > 0) {
+        await CourseRepository.StudentGradeBulkCreate(
+          enrolledRegistrations.map((registration) => ({
+            courseRegistrationId: registration.id,
+            courseAssessmentId: assessment.id,
+            marks: 0,
+            maxMarks: Number(assessment.marks),
+          })),
+          tx
+        );
+      }
+
+      return assessment;
+    });
+
+    return {
+      assessmentId: createdAssessment.id,
+      label: createdAssessment.label,
+      assessmentType: createdAssessment.assessmentType,
+      maxMarks: Number(createdAssessment.marks),
+    };
+  }
+
+  public static async GetCourseStudents(courseId: number, schema_name: string, user: TokenPayload) {
+    const prisma = GetTenantClient(schema_name);
+
+    const currentSemester = await SemesterRepository.GetCurrentSemester(prisma, { id: true });
+    if (!currentSemester) {
+      throw new NotFoundError("No active semester found");
+    }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      courseId,
+      currentSemester.id,
+      permissions.courseAssessment.read.name,
+    );
 
     const rawData = await CourseRepository.GetCourseStudents(courseId, currentSemester.id, prisma);
 
@@ -153,7 +239,8 @@ export class CourseService {
   public static async UpdateStudentGrade(
     gradeId:     number,
     body:        UpdateStudentGradeBodyType,
-    schema_name: string
+    schema_name: string,
+    user:        TokenPayload
   ) {
     const prisma = GetTenantClient(schema_name);
 
@@ -161,6 +248,14 @@ export class CourseService {
     if (!existingGrade) {
       throw new NotFoundError("Grade not found");
     }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      existingGrade.courseAssessment.courseId,
+      existingGrade.courseAssessment.semesterId,
+      permissions.courseAssessment.update.name,
+    );
 
     const maxMarks = Number(existingGrade.maxMarks);
     if (body.marks > maxMarks) {
@@ -174,13 +269,21 @@ export class CourseService {
     return MapUpdateStudentGrade(rawData);
   }
 
-  public static async GetCourseAssessment(courseId: number, schema_name: string) {
+  public static async GetCourseAssessment(courseId: number, schema_name: string, user: TokenPayload) {
     const prisma = GetTenantClient(schema_name);
 
     const currentSemester = await SemesterRepository.GetCurrentSemester(prisma, { id: true });
     if (!currentSemester) {
       throw new NotFoundError("No active semester found");
     }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      courseId,
+      currentSemester.id,
+      permissions.courseAssessment.read.name,
+    );
 
     const rawData = await CourseRepository.GetCourseAssessmentByCourseAndSemester(
       courseId,
@@ -200,7 +303,8 @@ export class CourseService {
   public static async UpdateCourseAssessment(
     courseId:    number,
     body:        UpdateCourseAssessmentBodyType,
-    schema_name: string
+    schema_name: string,
+    user:        TokenPayload
   ) {
     const prisma = GetTenantClient(schema_name);
 
@@ -208,6 +312,14 @@ export class CourseService {
     if (!currentSemester) {
       throw new NotFoundError("No active semester found");
     }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      courseId,
+      currentSemester.id,
+      permissions.courseAssessment.update.name,
+    );
 
     const existingAssessments = await CourseRepository.GetCourseAssessmentByCourseAndSemester(
       courseId,
@@ -231,5 +343,34 @@ export class CourseService {
 
     return MapUpdateCourseAssessment(rawData);
   }
-}
 
+  public static async DeleteCourseAssessment(
+    assessmentId: number,
+    schema_name: string,
+    user: TokenPayload
+  ) {
+    const prisma = GetTenantClient(schema_name);
+
+    const existingAssessment = await CourseRepository.GetCourseAssessmentById(assessmentId, prisma);
+    if (!existingAssessment) {
+      throw new NotFoundError("Assessment not found");
+    }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      existingAssessment.courseId,
+      existingAssessment.semesterId,
+      permissions.courseAssessment.update.name,
+    );
+
+    const deletedAssessment = await CourseRepository.DeleteCourseAssessment(assessmentId, prisma);
+
+    return {
+      assessmentId: deletedAssessment.id,
+      label: deletedAssessment.label,
+      assessmentType: deletedAssessment.assessmentType,
+      maxMarks: Number(deletedAssessment.marks),
+    };
+  }
+}

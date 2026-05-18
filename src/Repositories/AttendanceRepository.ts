@@ -20,6 +20,38 @@ function toAttendanceStatus(status: string): AttendanceStatus {
 }
 
 export class AttendanceRepository {
+  public static async GetAttendanceCourseSummaries(
+    prisma: DbClient,
+    semesterId: number,
+    filters?: {
+      teacherId?: number | null;
+    },
+  ) {
+    return prisma.scheduleSlot.findMany({
+      where: {
+        semesterId,
+        ...(filters?.teacherId ? { teacherId: filters.teacherId } : {}),
+      },
+      distinct: ["courseId"],
+      select: {
+        courseId: true,
+        teacherId: true,
+        course: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            credits: true,
+            description: true,
+          },
+        },
+      },
+      orderBy: [
+        { courseId: "asc" },
+      ],
+    });
+  }
+
   public static async GetAttendanceCourseOptions(
     prisma: DbClient,
     semesterId: number,
@@ -27,14 +59,19 @@ export class AttendanceRepository {
       teacherId?: number | null;
       programId?: number | null;
       academicLevel?: number | null;
+      courseId?: number | null;
     },
   ) {
+    const slotFilters: Record<string, number> = {};
+    if (filters?.teacherId) slotFilters.teacherId = filters.teacherId;
+    if (filters?.courseId) slotFilters.courseId = filters.courseId;
+
     return prisma.scheduleSlotContext.findMany({
       where: {
         semesterId,
         ...(filters?.programId ? { programId: filters.programId } : {}),
         ...(filters?.academicLevel ? { academicLevel: filters.academicLevel } : {}),
-        ...(filters?.teacherId ? { slot: { is: { teacherId: filters.teacherId } } } : {}),
+        ...(Object.keys(slotFilters).length > 0 ? { slot: { is: slotFilters } } : {}),
       },
       select: {
         id: true,

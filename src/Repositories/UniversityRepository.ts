@@ -56,8 +56,15 @@ export class UniversityRepository {
     db_schema: string,
     prisma: PrismaClient
   ): Promise<University | null> {
-    return await prisma.university.findUnique({
-      where: { db_schema },
+    const normalizedSchema = db_schema.trim();
+
+    return await prisma.university.findFirst({
+      where: {
+        db_schema: {
+          equals: normalizedSchema,
+          mode: "insensitive",
+        },
+      },
     });
   }
 

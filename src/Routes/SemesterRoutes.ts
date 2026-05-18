@@ -23,24 +23,24 @@ router.post(
 router.get(
     "/",
     IsAuthenticated,
-    RequirePermission(permissions.semester.read.name),
     AttachAndValidateTenant,
+    RequirePermission(permissions.semester.read.name),
     asyncHandler(SemesterController.GetAllSemesters)
 );
 
 router.get(
     "/current",
     IsAuthenticated,
-    RequirePermission(permissions.semester.read.name),
     AttachAndValidateTenant,
+    RequirePermission(permissions.semester.read.name),
     asyncHandler(SemesterController.GetCurrentSemester)
 );
 
 router.get(
     "/:id",
     IsAuthenticated,
-    RequirePermission(permissions.semester.read.name),
     AttachAndValidateTenant,
+    RequirePermission(permissions.semester.read.name),
     ...SemesterValidator.IdParam(),
     ValidateRequest,
     asyncHandler(SemesterController.GetSemesterById)

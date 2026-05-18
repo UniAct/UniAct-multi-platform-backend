@@ -15,6 +15,11 @@ import { GetCourseStudentsParams } from "../Interfaces/Course/GetCourseStudent/G
 import { UpdateStudentGradeBody, UpdateStudentGradeParam } from "../Interfaces/Course/UpdateStudentGrade/UpdateStudentGradeSchema";
 import { GetCourseAssessmentParams } from "../Interfaces/Course/GetCourseAssessment/GetCourseAssessmentSchema";
 import { UpdateCourseAssessmentBody, UpdateCourseAssessmentParams } from "../Interfaces/Course/UpdateCourseAssessment/UpdateCourseAssessmentSchema";
+import {
+  CreateCourseAssessmentBody,
+  CreateCourseAssessmentParams,
+  DeleteCourseAssessmentParams,
+} from "../Interfaces/Course/CreateCourseAssessment/CreateCourseAssessmentSchema";
 
 const router = Router();
 
@@ -80,12 +85,23 @@ router.post(
   "/:courseId/assign-course-assessments",
   IsAuthenticated,
   AttachAndValidateTenant,
-  RequirePermission(permissions.courseAssessment.create.name),
   ZodValidator({
     params: AssignCourseAssessmentParams,
     body:   AssignCourseAssessmentBody,
   }),
   asyncHandler(CourseController.AssignCourseAssessment)
+);
+
+// create one assessment column for a course in the current semester
+router.post(
+  "/:courseId/course-assessments",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ZodValidator({
+    params: CreateCourseAssessmentParams,
+    body: CreateCourseAssessmentBody,
+  }),
+  asyncHandler(CourseController.CreateCourseAssessment)
 );
 
 
@@ -94,7 +110,6 @@ router.get(
   "/:courseId/course-assessments",
   IsAuthenticated,
   AttachAndValidateTenant,
-  RequirePermission(permissions.courseAssessment.read.name),
   ZodValidator({ params: GetCourseAssessmentParams }),
   asyncHandler(CourseController.GetCourseAssessment)
 );
@@ -104,12 +119,20 @@ router.patch(
   "/:courseId/course-assessments",
   IsAuthenticated,
   AttachAndValidateTenant,
-  RequirePermission(permissions.courseAssessment.update.name),
   ZodValidator({
     params: UpdateCourseAssessmentParams,
     body:   UpdateCourseAssessmentBody,
   }),
   asyncHandler(CourseController.UpdateCourseAssessment)
+);
+
+// delete an assessment column and its grade records
+router.delete(
+  "/course-assessments/:assessmentId",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ZodValidator({ params: DeleteCourseAssessmentParams }),
+  asyncHandler(CourseController.DeleteCourseAssessment)
 );
 
 
@@ -118,7 +141,6 @@ router.get(
   "/:courseId/students",
   IsAuthenticated,
   AttachAndValidateTenant,
-  RequirePermission(permissions.courseAssessment.read.name),
   ZodValidator({ params: GetCourseStudentsParams }),
   asyncHandler(CourseController.GetCourseStudents)
 );
@@ -128,7 +150,6 @@ router.patch(
   "/grade/:gradeId",
   IsAuthenticated,
   AttachAndValidateTenant,
-  RequirePermission(permissions.courseAssessment.update.name),
   ZodValidator({ 
     params: UpdateStudentGradeParam,
     body:   UpdateStudentGradeBody,

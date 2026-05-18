@@ -5,6 +5,9 @@ import { CreateAttendanceSessionDto, ScanAttendanceDto, UpsertAttendancesDto } f
 import { BadRequestError, ForbiddenError } from "../Types/Errors";
 import { TokenPayload } from "../Interfaces/TokenPayload";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
+import permissions from "../Utils/Permissions.json";
+import { CourseAccessService } from "./CourseAccessService";
+import { CourseRepository } from "../Repositories/CourseRepository";
 
 export class AttendanceService {
   private static resolveCurrentDayOfWeek():
@@ -62,18 +65,72 @@ export class AttendanceService {
   public static async GetCourseOptions(
     semesterId: number,
     schema_name: string,
+    user: TokenPayload,
     filters?: {
       teacherId?: number | null;
       programId?: number | null;
       academicLevel?: number | null;
+      courseId?: number | null;
     },
   ) {
     const prisma = GetTenantClient(schema_name);
-    return AttendanceRepository.GetAttendanceCourseOptions(prisma, semesterId, filters);
+    const resolvedFilters = { ...filters };
+    const hasAdminAccess = await CourseAccessService.HasAdminAccess(
+      user,
+      prisma,
+      permissions.program.read.name,
+    );
+
+    if (hasAdminAccess) {
+      return AttendanceRepository.GetAttendanceCourseOptions(prisma, semesterId, resolvedFilters);
+    }
+
+    if (user.isStaff) {
+      if (!user.id) {
+        throw new ForbiddenError("Access denied.");
+      }
+      resolvedFilters.teacherId = user.id;
+    } else {
+      throw new ForbiddenError("Access denied.");
+    }
+
+    return AttendanceRepository.GetAttendanceCourseOptions(prisma, semesterId, resolvedFilters);
   }
 
-  public static async CreateSession(payload: CreateAttendanceSessionDto, schema_name: string) {
+  public static async GetCourseSummaries(
+    semesterId: number,
+    schema_name: string,
+    user: TokenPayload,
+  ) {
     const prisma = GetTenantClient(schema_name);
+    const hasAdminAccess = await CourseAccessService.HasAdminAccess(
+      user,
+      prisma,
+      permissions.program.read.name,
+    );
+
+    if (hasAdminAccess) {
+      return AttendanceRepository.GetAttendanceCourseSummaries(prisma, semesterId);
+    }
+
+    if (!user.isStaff || !user.id) {
+      throw new ForbiddenError("Access denied.");
+    }
+
+    return AttendanceRepository.GetAttendanceCourseSummaries(prisma, semesterId, {
+      teacherId: user.id,
+    });
+  }
+
+  public static async CreateSession(payload: CreateAttendanceSessionDto, schema_name: string, user: TokenPayload) {
+    const prisma = GetTenantClient(schema_name);
+    await CourseAccessService.EnsureCanAccessScheduleSlot(
+      user,
+      prisma,
+      payload.scheduleSlotId,
+      permissions.program.update.name,
+    );
+
     const existingSession = await AttendanceRepository.GetAttendanceSessionBySlotAndDate(
       payload.scheduleSlotId,
       new Date(payload.sessionDate),
@@ -99,13 +156,38 @@ export class AttendanceService {
     return AttendanceRepository.CreateAttendanceSession(data as any, prisma);
   }
 
-  public static async GetSession(id: number, schema_name: string) {
+  public static async GetSession(id: number, schema_name: string, user: TokenPayload) {
     const prisma = GetTenantClient(schema_name);
-    return AttendanceRepository.GetAttendanceSessionById(id, prisma);
+    const session = await AttendanceRepository.GetAttendanceSessionById(id, prisma);
+    if (!session) {
+      throw new BadRequestError("Attendance session not found.");
+    }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      session.scheduleSlot.courseId,
+      session.scheduleSlot.semesterId,
+      permissions.program.read.name,
+    );
+
+    return session;
   }
 
-  public static async GetSessionBySlotAndDate(scheduleSlotId: number, sessionDate: string, schema_name: string) {
+  public static async GetSessionBySlotAndDate(
+    scheduleSlotId: number,
+    sessionDate: string,
+    schema_name: string,
+    user: TokenPayload,
+  ) {
     const prisma = GetTenantClient(schema_name);
+    await CourseAccessService.EnsureCanAccessScheduleSlot(
+      user,
+      prisma,
+      scheduleSlotId,
+      permissions.program.read.name,
+    );
+
     return AttendanceRepository.GetAttendanceSessionBySlotAndDate(
       scheduleSlotId,
       new Date(sessionDate),
@@ -113,18 +195,57 @@ export class AttendanceService {
     );
   }
 
-  public static async GetEnrolledStudents(slotContextId: number, schema_name: string) {
+  public static async GetEnrolledStudents(slotContextId: number, schema_name: string, user: TokenPayload) {
     const prisma = GetTenantClient(schema_name);
+    const slotContext = await CourseRepository.GetSlotContextAccessContext(slotContextId, prisma);
+    if (!slotContext) {
+      throw new BadRequestError("Schedule slot context not found.");
+    }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      slotContext.slot.courseId,
+      slotContext.semesterId,
+      permissions.program.read.name,
+    );
+
     return AttendanceRepository.GetEnrolledStudentsBySlotContext(slotContextId, prisma);
   }
 
-  public static async GetEnrolledStudentsByCourse(courseId: number, semesterId: number | null, schema_name: string) {
+  public static async GetEnrolledStudentsByCourse(
+    courseId: number,
+    semesterId: number | null,
+    schema_name: string,
+    user: TokenPayload,
+  ) {
     const prisma = GetTenantClient(schema_name);
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      courseId,
+      semesterId,
+      permissions.program.read.name,
+    );
+
     return AttendanceRepository.GetEnrolledStudentsByCourse(courseId, semesterId, prisma);
   }
 
-  public static async UpsertAttendances(payload: UpsertAttendancesDto, schema_name: string) {
+  public static async UpsertAttendances(payload: UpsertAttendancesDto, schema_name: string, user: TokenPayload) {
     const prisma = GetTenantClient(schema_name);
+    const session = await AttendanceRepository.GetAttendanceSessionById(payload.attendanceSessionId, prisma);
+    if (!session) {
+      throw new BadRequestError("Attendance session not found.");
+    }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      session.scheduleSlot.courseId,
+      session.scheduleSlot.semesterId,
+      permissions.program.update.name,
+    );
+
     return AttendanceRepository.UpsertStudentAttendances(payload.attendanceSessionId, payload.records, prisma);
   }
 
@@ -210,8 +331,8 @@ export class AttendanceService {
     user: TokenPayload,
     schemaName: string,
   ) {
-    if (!user.id || !user.isStaff) {
-      throw new ForbiddenError("Staff account required.");
+    if (!user.id) {
+      throw new ForbiddenError("Access denied.");
     }
 
     const prisma = GetTenantClient(schemaName);
@@ -220,6 +341,14 @@ export class AttendanceService {
     if (!session) {
       throw new BadRequestError("Attendance session not found.");
     }
+
+    await CourseAccessService.EnsureCanAccessCourse(
+      user,
+      prisma,
+      session.scheduleSlot.courseId,
+      session.scheduleSlot.semesterId,
+      permissions.program.update.name,
+    );
 
     const { studentId } = this.tryDecodeQrPayload(payload.qrPayload);
 

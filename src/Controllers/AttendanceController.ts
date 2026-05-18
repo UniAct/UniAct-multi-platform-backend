@@ -6,6 +6,21 @@ import { CreateAttendanceSessionDto, ScanAttendanceDto, UpsertAttendancesDto } f
 import { BadRequestError } from "../Types/Errors";
 
 export class AttendanceController {
+  static async GetCourseSummaries(req: Request, res: Response) {
+    const semesterId = Number(req.query.semesterId);
+    if (!Number.isInteger(semesterId) || semesterId <= 0) {
+      throw new BadRequestError("A valid semesterId is required.");
+    }
+
+    const courses = await AttendanceService.GetCourseSummaries(
+      semesterId,
+      req.schema_name!,
+      req.user!,
+    );
+
+    res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: courses });
+  }
+
   static async GetCourseOptions(req: Request, res: Response) {
     const semesterId = Number(req.query.semesterId);
     if (!Number.isInteger(semesterId) || semesterId <= 0) {
@@ -15,11 +30,13 @@ export class AttendanceController {
     const teacherId = req.query.teacherId ? Number(req.query.teacherId) : null;
     const programId = req.query.programId ? Number(req.query.programId) : null;
     const academicLevel = req.query.academicLevel ? Number(req.query.academicLevel) : null;
+    const courseId = req.query.courseId ? Number(req.query.courseId) : null;
 
     const courses = await AttendanceService.GetCourseOptions(
       semesterId,
       req.schema_name!,
-      { teacherId, programId, academicLevel },
+      req.user!,
+      { teacherId, programId, academicLevel, courseId },
     );
 
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: courses });
@@ -27,14 +44,14 @@ export class AttendanceController {
 
   static async CreateSession(req: Request, res: Response) {
     const payload = req.body as CreateAttendanceSessionDto;
-    const session = await AttendanceService.CreateSession(payload, req.schema_name!);
+    const session = await AttendanceService.CreateSession(payload, req.schema_name!, req.user!);
 
     res.status(StatusCodes.CREATED).json({ status: JSendStatus.SUCCESS, data: session });
   }
 
   static async GetSession(req: Request, res: Response) {
     const id = Number(req.params.id);
-    const session = await AttendanceService.GetSession(id, req.schema_name!);
+    const session = await AttendanceService.GetSession(id, req.schema_name!, req.user!);
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: session });
   }
 
@@ -45,26 +62,27 @@ export class AttendanceController {
       scheduleSlotId,
       date,
       req.schema_name!,
+      req.user!,
     );
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: session });
   }
 
   static async GetEnrolledStudents(req: Request, res: Response) {
     const slotContextId = Number(req.params.slotContextId);
-    const students = await AttendanceService.GetEnrolledStudents(slotContextId, req.schema_name!);
+    const students = await AttendanceService.GetEnrolledStudents(slotContextId, req.schema_name!, req.user!);
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: students });
   }
 
   static async GetEnrolledStudentsByCourse(req: Request, res: Response) {
     const courseId = Number(req.params.courseId);
     const semesterId = req.query.semesterId ? Number(req.query.semesterId) : null;
-    const students = await AttendanceService.GetEnrolledStudentsByCourse(courseId, semesterId, req.schema_name!);
+    const students = await AttendanceService.GetEnrolledStudentsByCourse(courseId, semesterId, req.schema_name!, req.user!);
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: students });
   }
 
   static async UpsertAttendances(req: Request, res: Response) {
     const payload = req.body as UpsertAttendancesDto;
-    const result = await AttendanceService.UpsertAttendances(payload, req.schema_name!);
+    const result = await AttendanceService.UpsertAttendances(payload, req.schema_name!, req.user!);
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data: result, message: 'Attendances saved' });
   }
 
