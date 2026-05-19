@@ -5,8 +5,11 @@ import path from "path";
 import { GetTenantClient } from "./prismaClient";
 const MIGRATIONS_DIR = path.join(process.cwd(), "prisma/migrations");
 export class SchemaManager {
-  // Deployment fix in main here
-  private static SNAPSHOT = fs.readFileSync("./prisma/template_snapshot.sql", "utf8");
+
+  private static SNAPSHOT = fs.readFileSync(
+    path.join(process.cwd(), "prisma", "template_snapshot.sql"),
+    "utf8"
+  );
 
   private static pool: Pool | null = null;
 
