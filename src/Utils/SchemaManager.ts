@@ -5,8 +5,11 @@ import path from "path";
 import { GetTenantClient } from "./prismaClient";
 const MIGRATIONS_DIR = path.join(process.cwd(), "prisma/migrations");
 export class SchemaManager {
-  
-  private static SNAPSHOT = fs.readFileSync("./prisma/template_snapshot.sql", "utf8");
+
+  private static SNAPSHOT = fs.readFileSync(
+    path.join(process.cwd(), "prisma", "template_snapshot.sql"),
+    "utf8"
+  );
 
   private static pool: Pool | null = null;
 
@@ -30,7 +33,7 @@ export class SchemaManager {
       await client.query(sql);
 
       //seed all migrations as already applied 
-      const migrationFiles =getMigrationFiles();
+      const migrationFiles = getMigrationFiles();
       for (const file of migrationFiles) {
         console.log(file);
         await client.query(
@@ -42,7 +45,7 @@ export class SchemaManager {
 
       logger.info({ action: "createTenant", schema, status: "success" });
     } catch (error) {
-      
+
       await client.query("ROLLBACK");
 
       logger.error({ action: "createTenant", schema, status: "failed", err: error });
@@ -79,7 +82,7 @@ function getMigrationFiles(): string[] {
     if (fs.statSync(fullDir).isDirectory()) {
       const file = path.join(fullDir, "migration.sql");
       if (fs.existsSync(file)) {
-        files.push(path.relative(MIGRATIONS_DIR,file));
+        files.push(path.relative(MIGRATIONS_DIR, file));
       }
     }
   }
