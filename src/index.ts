@@ -24,12 +24,12 @@ app.use(ErrorHandler);
 
 
 if (Environment.IsDevelopment()) {
-  // dev dependencies
+    // dev dependencies
 }
 
 async function Bootstrap(): Promise<void> {
     process.title = "UniAct Backend System";
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, "0.0.0.0", () => {
         logger.info({
             process_name: process.title,
             action: "Server Start",
