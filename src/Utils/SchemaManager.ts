@@ -4,12 +4,27 @@ import { Pool } from "pg";
 import path from "path";
 import { GetTenantClient } from "./prismaClient";
 const MIGRATIONS_DIR = path.join(process.cwd(), "prisma/migrations");
+
+function readSnapshotSql(): string {
+  const candidatePaths = [
+    path.join(process.cwd(), "prisma", "template_snapshot.sql"),
+    path.resolve(__dirname, "../../..", "prisma", "template_snapshot.sql"),
+  ];
+
+  for (const snapshotPath of candidatePaths) {
+    if (fs.existsSync(snapshotPath)) {
+      return fs.readFileSync(snapshotPath, "utf8");
+    }
+  }
+
+  throw new Error(
+    `template_snapshot.sql not found. Checked: ${candidatePaths.join(" | ")}`
+  );
+}
+
 export class SchemaManager {
 
-  private static SNAPSHOT = fs.readFileSync(
-    path.join(process.cwd(), "prisma", "template_snapshot.sql"),
-    "utf8"
-  );
+  private static SNAPSHOT = readSnapshotSql();
 
   private static pool: Pool | null = null;
 
