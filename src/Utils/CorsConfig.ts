@@ -21,6 +21,7 @@ export const corsOptions = {
     allowedHeaders: [
         'Content-Type',
         'Authorization',
-        'university-name'
+        'university-name',
+        'semester-id'
     ],
 };
