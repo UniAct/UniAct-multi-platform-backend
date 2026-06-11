@@ -33,7 +33,20 @@ model University {
   is_active        Boolean   @default(false)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @default(now())
+  settings         UniversitySettings?
 
+}
+
+model UniversitySettings {
+  id              Int        @id @default(autoincrement())
+  university_id   Int        @unique
+  primary_color   String     @default("#2563eb")
+  secondary_color String     @default("#7c3aed")
+  tab_name        String?
+  logo_url        String?
+  hero_images     String[]   @default([])
+  updated_at      DateTime   @updatedAt
+  university      University @relation(fields: [university_id], references: [id], onDelete: Cascade)
 }
 
 model RefreshToken {

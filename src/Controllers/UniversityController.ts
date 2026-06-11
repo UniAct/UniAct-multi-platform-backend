@@ -3,6 +3,7 @@ import { UniversityService } from "../Services/UniversityService";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import { Prisma, PrismaClient, University } from "@prisma/client"
+import { GetTenantClient } from "../Utils/prismaClient";
 
 class UniversityController {
 
@@ -177,7 +178,7 @@ class UniversityController {
         });
       }
 
-      const university = await UniversityService.GetUniversityBySchemaName(schema);
+      const university = await UniversityService.GetPublicProfile(schema);
 
       return res.status(StatusCodes.OK).json({
         status: JSendStatus.SUCCESS,
@@ -189,6 +190,113 @@ class UniversityController {
         data: { message: err.message || "University not found." },
       });
     }
+  }
+
+  public static async GetPublicStats(req: Request, res: Response) {
+    const schema = String(req.params.schema || "").trim().toLowerCase();
+
+    if (!schema) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: JSendStatus.FAIL,
+        data: { message: "Tenant schema is required." },
+      });
+    }
+
+    const prisma = GetTenantClient(schema);
+
+    const [studentCount, staffCount, programCount] = await Promise.all([
+      prisma.student.count(),
+      prisma.staff.count(),
+      prisma.program.count(),
+    ]);
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: {
+        students: studentCount,
+        staff: staffCount,
+        programs: programCount,
+      },
+    });
+  }
+
+  public static async GetSettings(req: Request, res: Response) {
+    const university = await UniversityService.GetUniversityBySchemaName(req.schema_name!);
+    const settings = await UniversityService.GetSettings(university.id);
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: settings,
+    });
+  }
+
+  public static async UpdateSettings(req: Request, res: Response) {
+    const { primary_color, secondary_color, tab_name, logo_url } = req.body;
+    const university = await UniversityService.GetUniversityBySchemaName(req.schema_name!);
+    const settings = await UniversityService.UpdateSettings(university.id, {
+      primary_color,
+      secondary_color,
+      tab_name,
+      logo_url,
+    });
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: settings,
+    });
+  }
+
+  public static async UploadLogo(req: Request, res: Response) {
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: JSendStatus.FAIL,
+        data: { message: "No image provided" },
+      });
+    }
+
+    const university = await UniversityService.GetUniversityBySchemaName(req.schema_name!);
+    const url = await UniversityService.UploadLogo(university.id, req.schema_name!, req.file);
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: { logo_url: url },
+    });
+  }
+
+  public static async UploadHeroImage(req: Request, res: Response) {
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: JSendStatus.FAIL,
+        data: { message: "No image provided" },
+      });
+    }
+
+    const university = await UniversityService.GetUniversityBySchemaName(req.schema_name!);
+    const hero_images = await UniversityService.UploadHeroImage(university.id, req.schema_name!, req.file);
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: { hero_images },
+    });
+  }
+
+  public static async DeleteHeroImage(req: Request, res: Response) {
+    const { url } = req.body;
+
+    if (!url || typeof url !== "string") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: JSendStatus.FAIL,
+        data: { message: "Hero image URL is required" },
+      });
+    }
+
+    const university = await UniversityService.GetUniversityBySchemaName(req.schema_name!);
+    const hero_images = await UniversityService.DeleteHeroImage(university.id, url);
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: { hero_images },
+    });
   }
 
 }

@@ -8,6 +8,7 @@ import UniversityController from "../Controllers/UniversityController";
 import JSendStatus from "../Enums/Jsend";
 import { StatusCodes } from "http-status-codes";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
+import { uploadImage } from "../Utils/MulterConfig";
 
 const router: Router = Router();
 
@@ -22,10 +23,51 @@ router.post(
 
 // Public
 router.get("/list", asyncHandler(UniversityController.List));
+router.get("/public/:schema/stats", asyncHandler(UniversityController.GetPublicStats));
 router.get("/public/:schema", asyncHandler(UniversityController.GetUniversityBySchemaName));
 
 // Admin only
 router.get("/", IsAuthenticated, IsSuperAdmin, asyncHandler(UniversityController.GetAll));
+
+// Tenant settings
+router.get(
+  "/settings",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  asyncHandler(UniversityController.GetSettings)
+);
+
+router.patch(
+  "/settings",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ...UniversityValidator.UpdateSettings(),
+  ValidateRequest,
+  asyncHandler(UniversityController.UpdateSettings)
+);
+
+router.post(
+  "/settings/logo",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  uploadImage,
+  asyncHandler(UniversityController.UploadLogo)
+);
+
+router.post(
+  "/settings/hero",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  uploadImage,
+  asyncHandler(UniversityController.UploadHeroImage)
+);
+
+router.delete(
+  "/settings/hero",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  asyncHandler(UniversityController.DeleteHeroImage)
+);
 
 router.get(
   "/:id",

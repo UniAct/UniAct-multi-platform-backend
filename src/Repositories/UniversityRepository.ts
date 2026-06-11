@@ -68,6 +68,25 @@ export class UniversityRepository {
     });
   }
 
+  public static async GetPublicProfileBySchemaName(
+    db_schema: string,
+    prisma: PrismaClient
+  ) {
+    const normalizedSchema = db_schema.trim();
+
+    return await prisma.university.findFirst({
+      where: {
+        db_schema: {
+          equals: normalizedSchema,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        settings: true,
+      },
+    });
+  }
+
   public static async Activate(id: number, prisma: PrismaClient): Promise<University> {
     return await prisma.university.update({
       where: { id },

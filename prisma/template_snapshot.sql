@@ -26,6 +26,38 @@ CREATE SCHEMA __SCHEMA__;
 
 
 --
+-- Name: AnnouncementAudience; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."AnnouncementAudience" AS ENUM (
+    'ALL',
+    'STUDENTS',
+    'STAFF',
+    'FACULTY'
+);
+
+
+--
+-- Name: AnnouncementStatus; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."AnnouncementStatus" AS ENUM (
+    'DRAFT',
+    'PUBLISHED'
+);
+
+
+--
+-- Name: AnnouncementType; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."AnnouncementType" AS ENUM (
+    'ANNOUNCEMENT',
+    'EVENT'
+);
+
+
+--
 -- Name: AttendanceMode; Type: TYPE; Schema: template; Owner: -
 --
 
@@ -67,7 +99,7 @@ CREATE TYPE __SCHEMA__."BlockReasonType" AS ENUM (
 --
 
 CREATE TYPE __SCHEMA__."ClassroomType" AS ENUM (
-    'Lecture',
+    'Hall',
     'Lab',
     'Auditorium',
     'Other'
@@ -110,6 +142,17 @@ CREATE TYPE __SCHEMA__."DayOfWeek" AS ENUM (
     'Friday',
     'Saturday',
     'Sunday'
+);
+
+
+--
+-- Name: EnrollmentJobStatus; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."EnrollmentJobStatus" AS ENUM (
+    'Pending',
+    'Processing',
+    'Done'
 );
 
 
@@ -171,6 +214,16 @@ CREATE TYPE __SCHEMA__."JobStatus" AS ENUM (
 
 
 --
+-- Name: LearningGroupRole; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."LearningGroupRole" AS ENUM (
+    'Owner',
+    'Member'
+);
+
+
+--
 -- Name: PostType; Type: TYPE; Schema: template; Owner: -
 --
 
@@ -217,16 +270,6 @@ CREATE TYPE __SCHEMA__."ResultDisplayType" AS ENUM (
 
 
 --
--- Name: RoomRole; Type: TYPE; Schema: template; Owner: -
---
-
-CREATE TYPE __SCHEMA__."RoomRole" AS ENUM (
-    'Owner',
-    'Member'
-);
-
-
---
 -- Name: SemesterType; Type: TYPE; Schema: template; Owner: -
 --
 
@@ -235,6 +278,17 @@ CREATE TYPE __SCHEMA__."SemesterType" AS ENUM (
     'Spring',
     'Summer',
     'Winter'
+);
+
+
+--
+-- Name: SlotType; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."SlotType" AS ENUM (
+    'Lecture',
+    'Lab',
+    'Tutorial'
 );
 
 
@@ -310,12 +364,12 @@ ALTER SEQUENCE __SCHEMA__."AcademicLoadGPA_id_seq" OWNED BY __SCHEMA__."Academic
 CREATE TABLE __SCHEMA__."AcademicLoadSemester" (
     id integer NOT NULL,
     program_id integer NOT NULL,
-    semester_id integer NOT NULL,
     program_level_id integer NOT NULL,
     min_credits integer NOT NULL,
     max_credits integer NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    semester_number smallint NOT NULL
 );
 
 
@@ -337,6 +391,45 @@ CREATE SEQUENCE __SCHEMA__."AcademicLoadSemester_id_seq"
 --
 
 ALTER SEQUENCE __SCHEMA__."AcademicLoadSemester_id_seq" OWNED BY __SCHEMA__."AcademicLoadSemester".id;
+
+
+--
+-- Name: Announcement; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."Announcement" (
+    id integer NOT NULL,
+    title character varying(300) NOT NULL,
+    content text NOT NULL,
+    type __SCHEMA__."AnnouncementType" DEFAULT 'ANNOUNCEMENT'::__SCHEMA__."AnnouncementType" NOT NULL,
+    audience __SCHEMA__."AnnouncementAudience" DEFAULT 'ALL'::__SCHEMA__."AnnouncementAudience" NOT NULL,
+    status __SCHEMA__."AnnouncementStatus" DEFAULT 'PUBLISHED'::__SCHEMA__."AnnouncementStatus" NOT NULL,
+    event_date timestamp(3) without time zone,
+    event_location character varying(300),
+    author_id integer NOT NULL,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: Announcement_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."Announcement_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: Announcement_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."Announcement_id_seq" OWNED BY __SCHEMA__."Announcement".id;
 
 
 --
@@ -382,7 +475,6 @@ ALTER SEQUENCE __SCHEMA__."AttendanceReport_id_seq" OWNED BY __SCHEMA__."Attenda
 
 CREATE TABLE __SCHEMA__."AttendanceSession" (
     id integer NOT NULL,
-    class_session_id integer NOT NULL,
     faculty_member_id integer NOT NULL,
     session_date date NOT NULL,
     start_time time(6) without time zone NOT NULL,
@@ -390,9 +482,9 @@ CREATE TABLE __SCHEMA__."AttendanceSession" (
     attendance_mode __SCHEMA__."AttendanceMode" NOT NULL,
     hotspot_ssid character varying(255),
     qr_code character varying(500),
-    is_active boolean DEFAULT true NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    session_notes text
+    session_notes text,
+    schedule_slot_id integer NOT NULL
 );
 
 
@@ -417,55 +509,16 @@ ALTER SEQUENCE __SCHEMA__."AttendanceSession_id_seq" OWNED BY __SCHEMA__."Attend
 
 
 --
--- Name: ClassSession; Type: TABLE; Schema: template; Owner: -
---
-
-CREATE TABLE __SCHEMA__."ClassSession" (
-    id integer NOT NULL,
-    course_id integer NOT NULL,
-    teacher_id integer NOT NULL,
-    program_id integer NOT NULL,
-    classroom_id integer NOT NULL,
-    semester_id integer NOT NULL,
-    room_id integer NOT NULL,
-    academic_level integer NOT NULL,
-    day_of_week __SCHEMA__."DayOfWeek" NOT NULL,
-    start_time time(6) without time zone NOT NULL,
-    end_time time(6) without time zone NOT NULL
-);
-
-
---
--- Name: ClassSession_id_seq; Type: SEQUENCE; Schema: template; Owner: -
---
-
-CREATE SEQUENCE __SCHEMA__."ClassSession_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: ClassSession_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
---
-
-ALTER SEQUENCE __SCHEMA__."ClassSession_id_seq" OWNED BY __SCHEMA__."ClassSession".id;
-
-
---
 -- Name: Classroom; Type: TABLE; Schema: template; Owner: -
 --
 
 CREATE TABLE __SCHEMA__."Classroom" (
     id integer NOT NULL,
-    room_number character varying(50) NOT NULL,
     building character varying(100) NOT NULL,
     capacity integer NOT NULL,
     type __SCHEMA__."ClassroomType" NOT NULL,
-    is_available boolean DEFAULT true NOT NULL
+    classroom_number character varying(50) NOT NULL,
+    "underMaintenance" boolean DEFAULT false NOT NULL
 );
 
 
@@ -514,12 +567,13 @@ CREATE TABLE __SCHEMA__."Course" (
 
 CREATE TABLE __SCHEMA__."CourseAssessment" (
     id integer NOT NULL,
-    class_session_id integer NOT NULL,
     label character varying(100) NOT NULL,
     assessment_type __SCHEMA__."CourseAssessmentType" NOT NULL,
     marks numeric(5,2) NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    course_id integer NOT NULL,
+    semester_id integer NOT NULL
 );
 
 
@@ -560,12 +614,12 @@ CREATE TABLE __SCHEMA__."CoursePrerequisite" (
 CREATE TABLE __SCHEMA__."CourseRegistration" (
     id integer NOT NULL,
     student_id integer NOT NULL,
-    session_id integer NOT NULL,
     semester_id integer NOT NULL,
     enrollment_date date DEFAULT CURRENT_TIMESTAMP NOT NULL,
     status __SCHEMA__."RegistrationStatus" DEFAULT 'Enrolled'::__SCHEMA__."RegistrationStatus" NOT NULL,
     grade __SCHEMA__."GradeEnum",
-    grade_points integer
+    grade_points integer,
+    "slot_context_Id" integer
 );
 
 
@@ -607,6 +661,21 @@ CREATE SEQUENCE __SCHEMA__."Course_id_seq"
 --
 
 ALTER SEQUENCE __SCHEMA__."Course_id_seq" OWNED BY __SCHEMA__."Course".id;
+
+
+--
+-- Name: EnrollmentJob; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."EnrollmentJob" (
+    id uuid NOT NULL,
+    student_id integer NOT NULL,
+    semester_id integer NOT NULL,
+    status __SCHEMA__."EnrollmentJobStatus" DEFAULT 'Pending'::__SCHEMA__."EnrollmentJobStatus" NOT NULL,
+    result jsonb,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(3) without time zone NOT NULL
+);
 
 
 --
@@ -652,12 +721,12 @@ ALTER SEQUENCE __SCHEMA__."Faculty_id_seq" OWNED BY __SCHEMA__."Faculty".id;
 CREATE TABLE __SCHEMA__."Fee" (
     id integer NOT NULL,
     program_level_id integer NOT NULL,
-    semester_id integer NOT NULL,
     fee_type __SCHEMA__."FeeType" NOT NULL,
     amount numeric(12,2) NOT NULL,
     description text,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    semester_number smallint NOT NULL
 );
 
 
@@ -732,6 +801,182 @@ CREATE TABLE __SCHEMA__."Job" (
     started_at timestamp(6) with time zone,
     completed_at timestamp(6) with time zone
 );
+
+
+--
+-- Name: LearningGroup; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."LearningGroup" (
+    id integer NOT NULL,
+    group_name character varying(255) NOT NULL,
+    access_code character varying(50),
+    allow_student_posts boolean DEFAULT false NOT NULL,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "userId" integer
+);
+
+
+--
+-- Name: LearningGroupMember; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."LearningGroupMember" (
+    id integer NOT NULL,
+    learning_group_id integer NOT NULL,
+    user_id integer NOT NULL,
+    role __SCHEMA__."LearningGroupRole" DEFAULT 'Member'::__SCHEMA__."LearningGroupRole" NOT NULL,
+    joined_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: LearningGroupMember_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."LearningGroupMember_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: LearningGroupMember_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."LearningGroupMember_id_seq" OWNED BY __SCHEMA__."LearningGroupMember".id;
+
+
+--
+-- Name: LearningGroupPost; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."LearningGroupPost" (
+    id integer NOT NULL,
+    learning_group_id integer NOT NULL,
+    author_id integer NOT NULL,
+    content text,
+    post_type __SCHEMA__."PostType" NOT NULL,
+    is_pinned boolean DEFAULT false NOT NULL,
+    is_edited boolean DEFAULT false NOT NULL,
+    due_date timestamp(3) without time zone,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(3) without time zone NOT NULL,
+    "learningGroupMemberId" integer
+);
+
+
+--
+-- Name: LearningGroupPostAttachment; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."LearningGroupPostAttachment" (
+    id integer NOT NULL,
+    post_id integer NOT NULL,
+    file_name character varying(255) NOT NULL,
+    file_type character varying(50) NOT NULL,
+    storage_provider __SCHEMA__."StorageProvider" NOT NULL,
+    storage_path character varying(500) NOT NULL,
+    file_size bigint,
+    uploaded_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: LearningGroupPostAttachment_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."LearningGroupPostAttachment_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: LearningGroupPostAttachment_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."LearningGroupPostAttachment_id_seq" OWNED BY __SCHEMA__."LearningGroupPostAttachment".id;
+
+
+--
+-- Name: LearningGroupPostComment; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."LearningGroupPostComment" (
+    id integer NOT NULL,
+    post_id integer NOT NULL,
+    author_id integer NOT NULL,
+    content text NOT NULL,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(3) without time zone NOT NULL
+);
+
+
+--
+-- Name: LearningGroupPostComment_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."LearningGroupPostComment_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: LearningGroupPostComment_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."LearningGroupPostComment_id_seq" OWNED BY __SCHEMA__."LearningGroupPostComment".id;
+
+
+--
+-- Name: LearningGroupPost_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."LearningGroupPost_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: LearningGroupPost_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."LearningGroupPost_id_seq" OWNED BY __SCHEMA__."LearningGroupPost".id;
+
+
+--
+-- Name: LearningGroup_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."LearningGroup_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: LearningGroup_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."LearningGroup_id_seq" OWNED BY __SCHEMA__."LearningGroup".id;
 
 
 --
@@ -817,9 +1062,9 @@ CREATE TABLE __SCHEMA__."Program" (
     program_credit_hours integer DEFAULT 0 NOT NULL,
     program_type __SCHEMA__."ProgramType" NOT NULL,
     result_display __SCHEMA__."ResultDisplayType" DEFAULT 'CourseGrade'::__SCHEMA__."ResultDisplayType" NOT NULL,
-    block_reason __SCHEMA__."BlockReasonType",
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    duration_years integer
 );
 
 
@@ -828,10 +1073,32 @@ CREATE TABLE __SCHEMA__."Program" (
 --
 
 CREATE TABLE __SCHEMA__."ProgramCourse" (
-    program_id integer NOT NULL,
     course_id integer NOT NULL,
-    type __SCHEMA__."CourseType" NOT NULL
+    type __SCHEMA__."CourseType" NOT NULL,
+    id integer NOT NULL,
+    "programId" integer NOT NULL,
+    program_level_id integer NOT NULL
 );
+
+
+--
+-- Name: ProgramCourse_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."ProgramCourse_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ProgramCourse_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."ProgramCourse_id_seq" OWNED BY __SCHEMA__."ProgramCourse".id;
 
 
 --
@@ -870,20 +1137,52 @@ ALTER SEQUENCE __SCHEMA__."ProgramLevel_id_seq" OWNED BY __SCHEMA__."ProgramLeve
 
 
 --
+-- Name: ProgramStaff; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."ProgramStaff" (
+    id integer NOT NULL,
+    staff_id integer NOT NULL,
+    program_id integer NOT NULL,
+    faculty_id integer NOT NULL
+);
+
+
+--
+-- Name: ProgramStaff_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__."ProgramStaff_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ProgramStaff_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__."ProgramStaff_id_seq" OWNED BY __SCHEMA__."ProgramStaff".id;
+
+
+--
 -- Name: ProgramTranscriptDefinition; Type: TABLE; Schema: template; Owner: -
 --
 
 CREATE TABLE __SCHEMA__."ProgramTranscriptDefinition" (
     id integer NOT NULL,
     program_id integer NOT NULL,
-    grade_letter character varying(10) NOT NULL,
     min_score numeric(5,2) NOT NULL,
     max_score numeric(5,2) NOT NULL,
     equivalent_estimate character varying(20),
     min_gpa numeric(5,4) NOT NULL,
     max_gpa numeric(5,4) NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    grade_letter __SCHEMA__."GradeEnum" NOT NULL
 );
 
 
@@ -1013,40 +1312,44 @@ ALTER SEQUENCE __SCHEMA__."Role_id_seq" OWNED BY __SCHEMA__."Role".id;
 
 
 --
--- Name: Room; Type: TABLE; Schema: template; Owner: -
+-- Name: ScheduleSlot; Type: TABLE; Schema: template; Owner: -
 --
 
-CREATE TABLE __SCHEMA__."Room" (
+CREATE TABLE __SCHEMA__."ScheduleSlot" (
     id integer NOT NULL,
-    room_name character varying(255) NOT NULL,
-    description text,
-    created_by integer NOT NULL,
-    max_members integer,
-    access_code character varying(50),
-    allow_student_posts boolean DEFAULT false NOT NULL,
-    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    teacher_id integer NOT NULL,
+    classroom_id integer NOT NULL,
+    semester_id integer NOT NULL,
+    day_of_week __SCHEMA__."DayOfWeek" NOT NULL,
+    start_time time(6) without time zone NOT NULL,
+    end_time time(6) without time zone NOT NULL,
+    type __SCHEMA__."SlotType" DEFAULT 'Lecture'::__SCHEMA__."SlotType" NOT NULL,
+    enrolled_seats smallint DEFAULT 0 NOT NULL,
+    course_id integer NOT NULL,
+    "allowedCapacity" smallint NOT NULL,
+    CONSTRAINT valid_time_range CHECK ((start_time < end_time))
 );
 
 
 --
--- Name: RoomMember; Type: TABLE; Schema: template; Owner: -
+-- Name: ScheduleSlotContext; Type: TABLE; Schema: template; Owner: -
 --
 
-CREATE TABLE __SCHEMA__."RoomMember" (
+CREATE TABLE __SCHEMA__."ScheduleSlotContext" (
     id integer NOT NULL,
-    room_id integer NOT NULL,
-    user_id integer NOT NULL,
-    role __SCHEMA__."RoomRole" DEFAULT 'Member'::__SCHEMA__."RoomRole" NOT NULL,
-    joined_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    slot_id integer NOT NULL,
+    program_id integer NOT NULL,
+    academic_level integer NOT NULL,
+    semester_id integer NOT NULL,
+    learning_group_id integer
 );
 
 
 --
--- Name: RoomMember_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+-- Name: ScheduleSlotContext_id_seq; Type: SEQUENCE; Schema: template; Owner: -
 --
 
-CREATE SEQUENCE __SCHEMA__."RoomMember_id_seq"
+CREATE SEQUENCE __SCHEMA__."ScheduleSlotContext_id_seq"
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -1056,51 +1359,17 @@ CREATE SEQUENCE __SCHEMA__."RoomMember_id_seq"
 
 
 --
--- Name: RoomMember_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+-- Name: ScheduleSlotContext_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
 --
 
-ALTER SEQUENCE __SCHEMA__."RoomMember_id_seq" OWNED BY __SCHEMA__."RoomMember".id;
-
-
---
--- Name: RoomPost; Type: TABLE; Schema: template; Owner: -
---
-
-CREATE TABLE __SCHEMA__."RoomPost" (
-    id integer NOT NULL,
-    room_id integer NOT NULL,
-    author_id integer NOT NULL,
-    content text,
-    post_type __SCHEMA__."PostType" NOT NULL,
-    is_pinned boolean DEFAULT false NOT NULL,
-    is_edited boolean DEFAULT false NOT NULL,
-    due_date timestamp(3) without time zone,
-    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
-);
+ALTER SEQUENCE __SCHEMA__."ScheduleSlotContext_id_seq" OWNED BY __SCHEMA__."ScheduleSlotContext".id;
 
 
 --
--- Name: RoomPostAttachment; Type: TABLE; Schema: template; Owner: -
+-- Name: ScheduleSlot_id_seq; Type: SEQUENCE; Schema: template; Owner: -
 --
 
-CREATE TABLE __SCHEMA__."RoomPostAttachment" (
-    id integer NOT NULL,
-    post_id integer NOT NULL,
-    file_name character varying(255) NOT NULL,
-    file_type character varying(50) NOT NULL,
-    storage_provider __SCHEMA__."StorageProvider" NOT NULL,
-    storage_path character varying(500) NOT NULL,
-    file_size bigint,
-    uploaded_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-
---
--- Name: RoomPostAttachment_id_seq; Type: SEQUENCE; Schema: template; Owner: -
---
-
-CREATE SEQUENCE __SCHEMA__."RoomPostAttachment_id_seq"
+CREATE SEQUENCE __SCHEMA__."ScheduleSlot_id_seq"
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -1110,84 +1379,10 @@ CREATE SEQUENCE __SCHEMA__."RoomPostAttachment_id_seq"
 
 
 --
--- Name: RoomPostAttachment_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+-- Name: ScheduleSlot_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
 --
 
-ALTER SEQUENCE __SCHEMA__."RoomPostAttachment_id_seq" OWNED BY __SCHEMA__."RoomPostAttachment".id;
-
-
---
--- Name: RoomPostComment; Type: TABLE; Schema: template; Owner: -
---
-
-CREATE TABLE __SCHEMA__."RoomPostComment" (
-    id integer NOT NULL,
-    post_id integer NOT NULL,
-    author_id integer NOT NULL,
-    content text NOT NULL,
-    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
-);
-
-
---
--- Name: RoomPostComment_id_seq; Type: SEQUENCE; Schema: template; Owner: -
---
-
-CREATE SEQUENCE __SCHEMA__."RoomPostComment_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: RoomPostComment_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
---
-
-ALTER SEQUENCE __SCHEMA__."RoomPostComment_id_seq" OWNED BY __SCHEMA__."RoomPostComment".id;
-
-
---
--- Name: RoomPost_id_seq; Type: SEQUENCE; Schema: template; Owner: -
---
-
-CREATE SEQUENCE __SCHEMA__."RoomPost_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: RoomPost_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
---
-
-ALTER SEQUENCE __SCHEMA__."RoomPost_id_seq" OWNED BY __SCHEMA__."RoomPost".id;
-
-
---
--- Name: Room_id_seq; Type: SEQUENCE; Schema: template; Owner: -
---
-
-CREATE SEQUENCE __SCHEMA__."Room_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: Room_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
---
-
-ALTER SEQUENCE __SCHEMA__."Room_id_seq" OWNED BY __SCHEMA__."Room".id;
+ALTER SEQUENCE __SCHEMA__."ScheduleSlot_id_seq" OWNED BY __SCHEMA__."ScheduleSlot".id;
 
 
 --
@@ -1392,7 +1587,8 @@ CREATE TABLE __SCHEMA__."User" (
     country character varying(100) NOT NULL,
     national_id character varying(50) NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    "blockReason" __SCHEMA__."BlockReasonType"
 );
 
 
@@ -1452,6 +1648,13 @@ ALTER TABLE ONLY __SCHEMA__."AcademicLoadSemester" ALTER COLUMN id SET DEFAULT n
 
 
 --
+-- Name: Announcement id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."Announcement" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."Announcement_id_seq"'::regclass);
+
+
+--
 -- Name: AttendanceReport id; Type: DEFAULT; Schema: template; Owner: -
 --
 
@@ -1463,13 +1666,6 @@ ALTER TABLE ONLY __SCHEMA__."AttendanceReport" ALTER COLUMN id SET DEFAULT nextv
 --
 
 ALTER TABLE ONLY __SCHEMA__."AttendanceSession" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."AttendanceSession_id_seq"'::regclass);
-
-
---
--- Name: ClassSession id; Type: DEFAULT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."ClassSession_id_seq"'::regclass);
 
 
 --
@@ -1522,6 +1718,41 @@ ALTER TABLE ONLY __SCHEMA__."Grade" ALTER COLUMN id SET DEFAULT nextval('__SCHEM
 
 
 --
+-- Name: LearningGroup id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroup" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroup_id_seq"'::regclass);
+
+
+--
+-- Name: LearningGroupMember id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupMember" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroupMember_id_seq"'::regclass);
+
+
+--
+-- Name: LearningGroupPost id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPost" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroupPost_id_seq"'::regclass);
+
+
+--
+-- Name: LearningGroupPostAttachment id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostAttachment" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroupPostAttachment_id_seq"'::regclass);
+
+
+--
+-- Name: LearningGroupPostComment id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostComment" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroupPostComment_id_seq"'::regclass);
+
+
+--
 -- Name: MercyRule id; Type: DEFAULT; Schema: template; Owner: -
 --
 
@@ -1543,10 +1774,24 @@ ALTER TABLE ONLY __SCHEMA__."Program" ALTER COLUMN id SET DEFAULT nextval('__SCH
 
 
 --
+-- Name: ProgramCourse id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramCourse" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."ProgramCourse_id_seq"'::regclass);
+
+
+--
 -- Name: ProgramLevel id; Type: DEFAULT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__."ProgramLevel" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."ProgramLevel_id_seq"'::regclass);
+
+
+--
+-- Name: ProgramStaff id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramStaff" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."ProgramStaff_id_seq"'::regclass);
 
 
 --
@@ -1571,38 +1816,17 @@ ALTER TABLE ONLY __SCHEMA__."Role" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA
 
 
 --
--- Name: Room id; Type: DEFAULT; Schema: template; Owner: -
+-- Name: ScheduleSlot id; Type: DEFAULT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."Room" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."Room_id_seq"'::regclass);
-
-
---
--- Name: RoomMember id; Type: DEFAULT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomMember" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."RoomMember_id_seq"'::regclass);
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlot" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."ScheduleSlot_id_seq"'::regclass);
 
 
 --
--- Name: RoomPost id; Type: DEFAULT; Schema: template; Owner: -
+-- Name: ScheduleSlotContext id; Type: DEFAULT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomPost" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."RoomPost_id_seq"'::regclass);
-
-
---
--- Name: RoomPostAttachment id; Type: DEFAULT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomPostAttachment" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."RoomPostAttachment_id_seq"'::regclass);
-
-
---
--- Name: RoomPostComment id; Type: DEFAULT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomPostComment" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."RoomPostComment_id_seq"'::regclass);
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlotContext" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."ScheduleSlotContext_id_seq"'::regclass);
 
 
 --
@@ -1657,6 +1881,14 @@ ALTER TABLE ONLY __SCHEMA__."AcademicLoadSemester"
 
 
 --
+-- Name: Announcement Announcement_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."Announcement"
+    ADD CONSTRAINT "Announcement_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: AttendanceReport AttendanceReport_pkey; Type: CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -1670,14 +1902,6 @@ ALTER TABLE ONLY __SCHEMA__."AttendanceReport"
 
 ALTER TABLE ONLY __SCHEMA__."AttendanceSession"
     ADD CONSTRAINT "AttendanceSession_pkey" PRIMARY KEY (id);
-
-
---
--- Name: ClassSession ClassSession_pkey; Type: CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_pkey" PRIMARY KEY (id);
 
 
 --
@@ -1721,6 +1945,14 @@ ALTER TABLE ONLY __SCHEMA__."Course"
 
 
 --
+-- Name: EnrollmentJob EnrollmentJob_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."EnrollmentJob"
+    ADD CONSTRAINT "EnrollmentJob_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: Faculty Faculty_pkey; Type: CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -1753,6 +1985,46 @@ ALTER TABLE ONLY __SCHEMA__."Job"
 
 
 --
+-- Name: LearningGroupMember LearningGroupMember_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupMember"
+    ADD CONSTRAINT "LearningGroupMember_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: LearningGroupPostAttachment LearningGroupPostAttachment_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostAttachment"
+    ADD CONSTRAINT "LearningGroupPostAttachment_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: LearningGroupPostComment LearningGroupPostComment_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostComment"
+    ADD CONSTRAINT "LearningGroupPostComment_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: LearningGroupPost LearningGroupPost_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
+    ADD CONSTRAINT "LearningGroupPost_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: LearningGroup LearningGroup_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroup"
+    ADD CONSTRAINT "LearningGroup_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: MercyRule MercyRule_pkey; Type: CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -1773,7 +2045,7 @@ ALTER TABLE ONLY __SCHEMA__."Permission"
 --
 
 ALTER TABLE ONLY __SCHEMA__."ProgramCourse"
-    ADD CONSTRAINT "ProgramCourse_pkey" PRIMARY KEY (program_id, course_id);
+    ADD CONSTRAINT "ProgramCourse_pkey" PRIMARY KEY (id);
 
 
 --
@@ -1782,6 +2054,14 @@ ALTER TABLE ONLY __SCHEMA__."ProgramCourse"
 
 ALTER TABLE ONLY __SCHEMA__."ProgramLevel"
     ADD CONSTRAINT "ProgramLevel_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: ProgramStaff ProgramStaff_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramStaff"
+    ADD CONSTRAINT "ProgramStaff_pkey" PRIMARY KEY (id);
 
 
 --
@@ -1825,43 +2105,19 @@ ALTER TABLE ONLY __SCHEMA__."Role"
 
 
 --
--- Name: RoomMember RoomMember_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlotContext ScheduleSlotContext_pkey; Type: CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomMember"
-    ADD CONSTRAINT "RoomMember_pkey" PRIMARY KEY (id);
-
-
---
--- Name: RoomPostAttachment RoomPostAttachment_pkey; Type: CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomPostAttachment"
-    ADD CONSTRAINT "RoomPostAttachment_pkey" PRIMARY KEY (id);
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlotContext"
+    ADD CONSTRAINT "ScheduleSlotContext_pkey" PRIMARY KEY (id);
 
 
 --
--- Name: RoomPostComment RoomPostComment_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlot ScheduleSlot_pkey; Type: CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomPostComment"
-    ADD CONSTRAINT "RoomPostComment_pkey" PRIMARY KEY (id);
-
-
---
--- Name: RoomPost RoomPost_pkey; Type: CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomPost"
-    ADD CONSTRAINT "RoomPost_pkey" PRIMARY KEY (id);
-
-
---
--- Name: Room Room_pkey; Type: CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."Room"
-    ADD CONSTRAINT "Room_pkey" PRIMARY KEY (id);
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlot"
+    ADD CONSTRAINT "ScheduleSlot_pkey" PRIMARY KEY (id);
 
 
 --
@@ -1944,24 +2200,38 @@ CREATE INDEX "AcademicLoadGPA_program_id_idx" ON __SCHEMA__."AcademicLoadGPA" US
 
 
 --
--- Name: AcademicLoadSemester_program_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: AcademicLoadSemester_program_id_semester_number_program_lev_key; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "AcademicLoadSemester_program_id_idx" ON __SCHEMA__."AcademicLoadSemester" USING btree (program_id);
-
-
---
--- Name: AcademicLoadSemester_program_id_semester_id_program_level_i_key; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE UNIQUE INDEX "AcademicLoadSemester_program_id_semester_id_program_level_i_key" ON __SCHEMA__."AcademicLoadSemester" USING btree (program_id, semester_id, program_level_id);
+CREATE UNIQUE INDEX "AcademicLoadSemester_program_id_semester_number_program_lev_key" ON __SCHEMA__."AcademicLoadSemester" USING btree (program_id, semester_number, program_level_id);
 
 
 --
--- Name: AcademicLoadSemester_semester_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: AcademicLoadSemester_semester_number_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "AcademicLoadSemester_semester_id_idx" ON __SCHEMA__."AcademicLoadSemester" USING btree (semester_id);
+CREATE INDEX "AcademicLoadSemester_semester_number_idx" ON __SCHEMA__."AcademicLoadSemester" USING btree (semester_number);
+
+
+--
+-- Name: Announcement_created_at_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "Announcement_created_at_idx" ON __SCHEMA__."Announcement" USING btree (created_at DESC);
+
+
+--
+-- Name: Announcement_status_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "Announcement_status_idx" ON __SCHEMA__."Announcement" USING btree (status);
+
+
+--
+-- Name: Announcement_type_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "Announcement_type_idx" ON __SCHEMA__."Announcement" USING btree (type);
 
 
 --
@@ -1993,24 +2263,10 @@ CREATE INDEX "AttendanceReport_student_id_idx" ON __SCHEMA__."AttendanceReport" 
 
 
 --
--- Name: AttendanceSession_class_session_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: AttendanceSession_schedule_slot_id_session_date_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "AttendanceSession_class_session_id_idx" ON __SCHEMA__."AttendanceSession" USING btree (class_session_id);
-
-
---
--- Name: AttendanceSession_faculty_member_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "AttendanceSession_faculty_member_id_idx" ON __SCHEMA__."AttendanceSession" USING btree (faculty_member_id);
-
-
---
--- Name: AttendanceSession_is_active_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "AttendanceSession_is_active_idx" ON __SCHEMA__."AttendanceSession" USING btree (is_active);
+CREATE INDEX "AttendanceSession_schedule_slot_id_session_date_idx" ON __SCHEMA__."AttendanceSession" USING btree (schedule_slot_id, session_date);
 
 
 --
@@ -2021,41 +2277,6 @@ CREATE INDEX "AttendanceSession_session_date_idx" ON __SCHEMA__."AttendanceSessi
 
 
 --
--- Name: ClassSession_course_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "ClassSession_course_id_idx" ON __SCHEMA__."ClassSession" USING btree (course_id);
-
-
---
--- Name: ClassSession_day_of_week_start_time_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "ClassSession_day_of_week_start_time_idx" ON __SCHEMA__."ClassSession" USING btree (day_of_week, start_time);
-
-
---
--- Name: ClassSession_program_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "ClassSession_program_id_idx" ON __SCHEMA__."ClassSession" USING btree (program_id);
-
-
---
--- Name: ClassSession_semester_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "ClassSession_semester_id_idx" ON __SCHEMA__."ClassSession" USING btree (semester_id);
-
-
---
--- Name: ClassSession_teacher_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "ClassSession_teacher_id_idx" ON __SCHEMA__."ClassSession" USING btree (teacher_id);
-
-
---
 -- Name: Classroom_building_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -2063,17 +2284,17 @@ CREATE INDEX "Classroom_building_idx" ON __SCHEMA__."Classroom" USING btree (bui
 
 
 --
--- Name: Classroom_is_available_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: Classroom_classroom_number_building_key; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "Classroom_is_available_idx" ON __SCHEMA__."Classroom" USING btree (is_available);
+CREATE UNIQUE INDEX "Classroom_classroom_number_building_key" ON __SCHEMA__."Classroom" USING btree (classroom_number, building);
 
 
 --
--- Name: Classroom_room_number_building_key; Type: INDEX; Schema: template; Owner: -
+-- Name: Classroom_underMaintenance_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE UNIQUE INDEX "Classroom_room_number_building_key" ON __SCHEMA__."Classroom" USING btree (room_number, building);
+CREATE INDEX "Classroom_underMaintenance_idx" ON __SCHEMA__."Classroom" USING btree ("underMaintenance");
 
 
 --
@@ -2084,17 +2305,17 @@ CREATE INDEX "CourseAssessment_assessment_type_idx" ON __SCHEMA__."CourseAssessm
 
 
 --
--- Name: CourseAssessment_class_session_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: CourseAssessment_course_id_semester_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "CourseAssessment_class_session_id_idx" ON __SCHEMA__."CourseAssessment" USING btree (class_session_id);
+CREATE INDEX "CourseAssessment_course_id_semester_id_idx" ON __SCHEMA__."CourseAssessment" USING btree (course_id, semester_id);
 
 
 --
--- Name: CoursePrerequisite_prerequisite_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: CoursePrerequisite_prerequisite_id_course_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "CoursePrerequisite_prerequisite_id_idx" ON __SCHEMA__."CoursePrerequisite" USING btree (prerequisite_id);
+CREATE INDEX "CoursePrerequisite_prerequisite_id_course_id_idx" ON __SCHEMA__."CoursePrerequisite" USING btree (prerequisite_id, course_id);
 
 
 --
@@ -2105,10 +2326,10 @@ CREATE INDEX "CourseRegistration_semester_id_idx" ON __SCHEMA__."CourseRegistrat
 
 
 --
--- Name: CourseRegistration_session_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: CourseRegistration_slot_context_Id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "CourseRegistration_session_id_idx" ON __SCHEMA__."CourseRegistration" USING btree (session_id);
+CREATE INDEX "CourseRegistration_slot_context_Id_idx" ON __SCHEMA__."CourseRegistration" USING btree ("slot_context_Id");
 
 
 --
@@ -2126,17 +2347,10 @@ CREATE INDEX "CourseRegistration_student_id_idx" ON __SCHEMA__."CourseRegistrati
 
 
 --
--- Name: CourseRegistration_student_id_session_id_semester_id_key; Type: INDEX; Schema: template; Owner: -
+-- Name: CourseRegistration_student_id_slot_context_Id_semester_id_key; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE UNIQUE INDEX "CourseRegistration_student_id_session_id_semester_id_key" ON __SCHEMA__."CourseRegistration" USING btree (student_id, session_id, semester_id);
-
-
---
--- Name: Course_code_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "Course_code_idx" ON __SCHEMA__."Course" USING btree (code);
+CREATE UNIQUE INDEX "CourseRegistration_student_id_slot_context_Id_semester_id_key" ON __SCHEMA__."CourseRegistration" USING btree (student_id, "slot_context_Id", semester_id);
 
 
 --
@@ -2144,6 +2358,34 @@ CREATE INDEX "Course_code_idx" ON __SCHEMA__."Course" USING btree (code);
 --
 
 CREATE UNIQUE INDEX "Course_code_key" ON __SCHEMA__."Course" USING btree (code);
+
+
+--
+-- Name: Course_code_name_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "Course_code_name_idx" ON __SCHEMA__."Course" USING btree (code, name);
+
+
+--
+-- Name: Course_name_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "Course_name_idx" ON __SCHEMA__."Course" USING btree (name);
+
+
+--
+-- Name: EnrollmentJob_status_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "EnrollmentJob_status_idx" ON __SCHEMA__."EnrollmentJob" USING btree (status);
+
+
+--
+-- Name: EnrollmentJob_student_id_semester_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "EnrollmentJob_student_id_semester_id_idx" ON __SCHEMA__."EnrollmentJob" USING btree (student_id, semester_id);
 
 
 --
@@ -2175,24 +2417,17 @@ CREATE INDEX "Fee_fee_type_idx" ON __SCHEMA__."Fee" USING btree (fee_type);
 
 
 --
--- Name: Fee_program_level_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: Fee_program_level_id_semester_number_fee_type_key; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "Fee_program_level_id_idx" ON __SCHEMA__."Fee" USING btree (program_level_id);
-
-
---
--- Name: Fee_program_level_id_semester_id_fee_type_key; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE UNIQUE INDEX "Fee_program_level_id_semester_id_fee_type_key" ON __SCHEMA__."Fee" USING btree (program_level_id, semester_id, fee_type);
+CREATE UNIQUE INDEX "Fee_program_level_id_semester_number_fee_type_key" ON __SCHEMA__."Fee" USING btree (program_level_id, semester_number, fee_type);
 
 
 --
--- Name: Fee_semester_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: Fee_semester_number_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "Fee_semester_id_idx" ON __SCHEMA__."Fee" USING btree (semester_id);
+CREATE INDEX "Fee_semester_number_idx" ON __SCHEMA__."Fee" USING btree (semester_number);
 
 
 --
@@ -2224,6 +2459,69 @@ CREATE INDEX "Job_status_idx" ON __SCHEMA__."Job" USING btree (status);
 
 
 --
+-- Name: LearningGroupMember_learning_group_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupMember_learning_group_id_idx" ON __SCHEMA__."LearningGroupMember" USING btree (learning_group_id);
+
+
+--
+-- Name: LearningGroupMember_learning_group_id_user_id_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX "LearningGroupMember_learning_group_id_user_id_key" ON __SCHEMA__."LearningGroupMember" USING btree (learning_group_id, user_id);
+
+
+--
+-- Name: LearningGroupMember_user_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupMember_user_id_idx" ON __SCHEMA__."LearningGroupMember" USING btree (user_id);
+
+
+--
+-- Name: LearningGroupPostAttachment_post_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupPostAttachment_post_id_idx" ON __SCHEMA__."LearningGroupPostAttachment" USING btree (post_id);
+
+
+--
+-- Name: LearningGroupPostComment_author_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupPostComment_author_id_idx" ON __SCHEMA__."LearningGroupPostComment" USING btree (author_id);
+
+
+--
+-- Name: LearningGroupPostComment_created_at_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupPostComment_created_at_idx" ON __SCHEMA__."LearningGroupPostComment" USING btree (created_at);
+
+
+--
+-- Name: LearningGroupPostComment_post_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupPostComment_post_id_idx" ON __SCHEMA__."LearningGroupPostComment" USING btree (post_id);
+
+
+--
+-- Name: LearningGroupPost_author_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupPost_author_id_idx" ON __SCHEMA__."LearningGroupPost" USING btree (author_id);
+
+
+--
+-- Name: LearningGroupPost_learning_group_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroupPost_learning_group_id_idx" ON __SCHEMA__."LearningGroupPost" USING btree (learning_group_id);
+
+
+--
 -- Name: MercyRule_regulation_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -2249,6 +2547,20 @@ CREATE UNIQUE INDEX "Permission_name_key" ON __SCHEMA__."Permission" USING btree
 --
 
 CREATE INDEX "ProgramCourse_course_id_idx" ON __SCHEMA__."ProgramCourse" USING btree (course_id);
+
+
+--
+-- Name: ProgramCourse_programId_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "ProgramCourse_programId_idx" ON __SCHEMA__."ProgramCourse" USING btree ("programId");
+
+
+--
+-- Name: ProgramCourse_program_level_id_course_id_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX "ProgramCourse_program_level_id_course_id_key" ON __SCHEMA__."ProgramCourse" USING btree (program_level_id, course_id);
 
 
 --
@@ -2280,6 +2592,20 @@ CREATE UNIQUE INDEX "ProgramLevel_program_id_level_key" ON __SCHEMA__."ProgramLe
 
 
 --
+-- Name: ProgramStaff_faculty_id_staff_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "ProgramStaff_faculty_id_staff_id_idx" ON __SCHEMA__."ProgramStaff" USING btree (faculty_id, staff_id);
+
+
+--
+-- Name: ProgramStaff_staff_id_program_id_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX "ProgramStaff_staff_id_program_id_key" ON __SCHEMA__."ProgramStaff" USING btree (staff_id, program_id);
+
+
+--
 -- Name: ProgramTranscriptDefinition_program_id_grade_letter_key; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -2305,6 +2631,13 @@ CREATE INDEX "Program_faculty_id_idx" ON __SCHEMA__."Program" USING btree (facul
 --
 
 CREATE INDEX "Program_head_id_idx" ON __SCHEMA__."Program" USING btree (head_id);
+
+
+--
+-- Name: Program_name_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX "Program_name_key" ON __SCHEMA__."Program" USING btree (name);
 
 
 --
@@ -2343,94 +2676,52 @@ CREATE UNIQUE INDEX "Role_name_key" ON __SCHEMA__."Role" USING btree (name);
 
 
 --
--- Name: RoomMember_room_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlotContext_semester_id_program_id_academic_level_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "RoomMember_room_id_idx" ON __SCHEMA__."RoomMember" USING btree (room_id);
-
-
---
--- Name: RoomMember_room_id_user_id_key; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE UNIQUE INDEX "RoomMember_room_id_user_id_key" ON __SCHEMA__."RoomMember" USING btree (room_id, user_id);
+CREATE INDEX "ScheduleSlotContext_semester_id_program_id_academic_level_idx" ON __SCHEMA__."ScheduleSlotContext" USING btree (semester_id, program_id, academic_level);
 
 
 --
--- Name: RoomMember_user_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlotContext_semester_id_slot_id_program_id_key; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "RoomMember_user_id_idx" ON __SCHEMA__."RoomMember" USING btree (user_id);
-
-
---
--- Name: RoomPostAttachment_post_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "RoomPostAttachment_post_id_idx" ON __SCHEMA__."RoomPostAttachment" USING btree (post_id);
+CREATE UNIQUE INDEX "ScheduleSlotContext_semester_id_slot_id_program_id_key" ON __SCHEMA__."ScheduleSlotContext" USING btree (semester_id, slot_id, program_id);
 
 
 --
--- Name: RoomPostComment_author_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlotContext_slot_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "RoomPostComment_author_id_idx" ON __SCHEMA__."RoomPostComment" USING btree (author_id);
-
-
---
--- Name: RoomPostComment_created_at_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "RoomPostComment_created_at_idx" ON __SCHEMA__."RoomPostComment" USING btree (created_at);
+CREATE INDEX "ScheduleSlotContext_slot_id_idx" ON __SCHEMA__."ScheduleSlotContext" USING btree (slot_id);
 
 
 --
--- Name: RoomPostComment_post_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlot_classroom_id_day_of_week_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "RoomPostComment_post_id_idx" ON __SCHEMA__."RoomPostComment" USING btree (post_id);
-
-
---
--- Name: RoomPost_author_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "RoomPost_author_id_idx" ON __SCHEMA__."RoomPost" USING btree (author_id);
+CREATE INDEX "ScheduleSlot_classroom_id_day_of_week_idx" ON __SCHEMA__."ScheduleSlot" USING btree (classroom_id, day_of_week);
 
 
 --
--- Name: RoomPost_created_at_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlot_semester_id_day_of_week_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "RoomPost_created_at_idx" ON __SCHEMA__."RoomPost" USING btree (created_at);
-
-
---
--- Name: RoomPost_is_pinned_room_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "RoomPost_is_pinned_room_id_idx" ON __SCHEMA__."RoomPost" USING btree (is_pinned, room_id);
+CREATE INDEX "ScheduleSlot_semester_id_day_of_week_idx" ON __SCHEMA__."ScheduleSlot" USING btree (semester_id, day_of_week);
 
 
 --
--- Name: RoomPost_room_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlot_semester_id_teacher_id_classroom_id_day_of_wee_key; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "RoomPost_room_id_idx" ON __SCHEMA__."RoomPost" USING btree (room_id);
-
-
---
--- Name: Room_access_code_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "Room_access_code_idx" ON __SCHEMA__."Room" USING btree (access_code);
+CREATE UNIQUE INDEX "ScheduleSlot_semester_id_teacher_id_classroom_id_day_of_wee_key" ON __SCHEMA__."ScheduleSlot" USING btree (semester_id, teacher_id, classroom_id, day_of_week, start_time, end_time);
 
 
 --
--- Name: Room_created_by_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: ScheduleSlot_teacher_id_semester_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "Room_created_by_idx" ON __SCHEMA__."Room" USING btree (created_by);
+CREATE INDEX "ScheduleSlot_teacher_id_semester_id_idx" ON __SCHEMA__."ScheduleSlot" USING btree (teacher_id, semester_id);
 
 
 --
@@ -2640,11 +2931,11 @@ ALTER TABLE ONLY __SCHEMA__."AcademicLoadSemester"
 
 
 --
--- Name: AcademicLoadSemester AcademicLoadSemester_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: Announcement Announcement_author_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."AcademicLoadSemester"
-    ADD CONSTRAINT "AcademicLoadSemester_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY __SCHEMA__."Announcement"
+    ADD CONSTRAINT "Announcement_author_id_fkey" FOREIGN KEY (author_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -2664,14 +2955,6 @@ ALTER TABLE ONLY __SCHEMA__."AttendanceReport"
 
 
 --
--- Name: AttendanceSession AttendanceSession_class_session_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."AttendanceSession"
-    ADD CONSTRAINT "AttendanceSession_class_session_id_fkey" FOREIGN KEY (class_session_id) REFERENCES __SCHEMA__."ClassSession"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: AttendanceSession AttendanceSession_faculty_member_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -2680,59 +2963,27 @@ ALTER TABLE ONLY __SCHEMA__."AttendanceSession"
 
 
 --
--- Name: ClassSession ClassSession_classroom_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: AttendanceSession AttendanceSession_schedule_slot_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_classroom_id_fkey" FOREIGN KEY (classroom_id) REFERENCES __SCHEMA__."Classroom"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: ClassSession ClassSession_course_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_course_id_fkey" FOREIGN KEY (course_id) REFERENCES __SCHEMA__."Course"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY __SCHEMA__."AttendanceSession"
+    ADD CONSTRAINT "AttendanceSession_schedule_slot_id_fkey" FOREIGN KEY (schedule_slot_id) REFERENCES __SCHEMA__."ScheduleSlot"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: ClassSession ClassSession_program_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_program_id_fkey" FOREIGN KEY (program_id) REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: ClassSession ClassSession_room_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_room_id_fkey" FOREIGN KEY (room_id) REFERENCES __SCHEMA__."Room"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: ClassSession ClassSession_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: ClassSession ClassSession_teacher_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ClassSession"
-    ADD CONSTRAINT "ClassSession_teacher_id_fkey" FOREIGN KEY (teacher_id) REFERENCES __SCHEMA__."Staff"(user_id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: CourseAssessment CourseAssessment_class_session_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: CourseAssessment CourseAssessment_course_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__."CourseAssessment"
-    ADD CONSTRAINT "CourseAssessment_class_session_id_fkey" FOREIGN KEY (class_session_id) REFERENCES __SCHEMA__."ClassSession"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT "CourseAssessment_course_id_fkey" FOREIGN KEY (course_id) REFERENCES __SCHEMA__."Course"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: CourseAssessment CourseAssessment_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."CourseAssessment"
+    ADD CONSTRAINT "CourseAssessment_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -2760,11 +3011,11 @@ ALTER TABLE ONLY __SCHEMA__."CourseRegistration"
 
 
 --
--- Name: CourseRegistration CourseRegistration_session_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: CourseRegistration CourseRegistration_slot_context_Id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__."CourseRegistration"
-    ADD CONSTRAINT "CourseRegistration_session_id_fkey" FOREIGN KEY (session_id) REFERENCES __SCHEMA__."ClassSession"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "CourseRegistration_slot_context_Id_fkey" FOREIGN KEY ("slot_context_Id") REFERENCES __SCHEMA__."ScheduleSlotContext"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -2773,6 +3024,22 @@ ALTER TABLE ONLY __SCHEMA__."CourseRegistration"
 
 ALTER TABLE ONLY __SCHEMA__."CourseRegistration"
     ADD CONSTRAINT "CourseRegistration_student_id_fkey" FOREIGN KEY (student_id) REFERENCES __SCHEMA__."Student"(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: EnrollmentJob EnrollmentJob_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."EnrollmentJob"
+    ADD CONSTRAINT "EnrollmentJob_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: EnrollmentJob EnrollmentJob_student_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."EnrollmentJob"
+    ADD CONSTRAINT "EnrollmentJob_student_id_fkey" FOREIGN KEY (student_id) REFERENCES __SCHEMA__."Student"(user_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -2792,14 +3059,6 @@ ALTER TABLE ONLY __SCHEMA__."Fee"
 
 
 --
--- Name: Fee Fee_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."Fee"
-    ADD CONSTRAINT "Fee_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: Grade Grade_course_assessment_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -2813,6 +3072,78 @@ ALTER TABLE ONLY __SCHEMA__."Grade"
 
 ALTER TABLE ONLY __SCHEMA__."Grade"
     ADD CONSTRAINT "Grade_course_registration_id_fkey" FOREIGN KEY (course_registration_id) REFERENCES __SCHEMA__."CourseRegistration"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: LearningGroupMember LearningGroupMember_learning_group_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupMember"
+    ADD CONSTRAINT "LearningGroupMember_learning_group_id_fkey" FOREIGN KEY (learning_group_id) REFERENCES __SCHEMA__."LearningGroup"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: LearningGroupMember LearningGroupMember_user_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupMember"
+    ADD CONSTRAINT "LearningGroupMember_user_id_fkey" FOREIGN KEY (user_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: LearningGroupPostAttachment LearningGroupPostAttachment_post_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostAttachment"
+    ADD CONSTRAINT "LearningGroupPostAttachment_post_id_fkey" FOREIGN KEY (post_id) REFERENCES __SCHEMA__."LearningGroupPost"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: LearningGroupPostComment LearningGroupPostComment_author_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostComment"
+    ADD CONSTRAINT "LearningGroupPostComment_author_id_fkey" FOREIGN KEY (author_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: LearningGroupPostComment LearningGroupPostComment_post_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPostComment"
+    ADD CONSTRAINT "LearningGroupPostComment_post_id_fkey" FOREIGN KEY (post_id) REFERENCES __SCHEMA__."LearningGroupPost"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: LearningGroupPost LearningGroupPost_author_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
+    ADD CONSTRAINT "LearningGroupPost_author_id_fkey" FOREIGN KEY (author_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: LearningGroupPost LearningGroupPost_learningGroupMemberId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
+    ADD CONSTRAINT "LearningGroupPost_learningGroupMemberId_fkey" FOREIGN KEY ("learningGroupMemberId") REFERENCES __SCHEMA__."LearningGroupMember"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: LearningGroupPost LearningGroupPost_learning_group_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
+    ADD CONSTRAINT "LearningGroupPost_learning_group_id_fkey" FOREIGN KEY (learning_group_id) REFERENCES __SCHEMA__."LearningGroup"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: LearningGroup LearningGroup_userId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroup"
+    ADD CONSTRAINT "LearningGroup_userId_fkey" FOREIGN KEY ("userId") REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -2832,11 +3163,19 @@ ALTER TABLE ONLY __SCHEMA__."ProgramCourse"
 
 
 --
--- Name: ProgramCourse ProgramCourse_program_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: ProgramCourse ProgramCourse_programId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__."ProgramCourse"
-    ADD CONSTRAINT "ProgramCourse_program_id_fkey" FOREIGN KEY (program_id) REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT "ProgramCourse_programId_fkey" FOREIGN KEY ("programId") REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ProgramCourse ProgramCourse_program_level_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramCourse"
+    ADD CONSTRAINT "ProgramCourse_program_level_id_fkey" FOREIGN KEY (program_level_id) REFERENCES __SCHEMA__."ProgramLevel"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -2845,6 +3184,30 @@ ALTER TABLE ONLY __SCHEMA__."ProgramCourse"
 
 ALTER TABLE ONLY __SCHEMA__."ProgramLevel"
     ADD CONSTRAINT "ProgramLevel_program_id_fkey" FOREIGN KEY (program_id) REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ProgramStaff ProgramStaff_faculty_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramStaff"
+    ADD CONSTRAINT "ProgramStaff_faculty_id_fkey" FOREIGN KEY (faculty_id) REFERENCES __SCHEMA__."Faculty"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ProgramStaff ProgramStaff_program_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramStaff"
+    ADD CONSTRAINT "ProgramStaff_program_id_fkey" FOREIGN KEY (program_id) REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ProgramStaff ProgramStaff_staff_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ProgramStaff"
+    ADD CONSTRAINT "ProgramStaff_staff_id_fkey" FOREIGN KEY (staff_id) REFERENCES __SCHEMA__."Staff"(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -2896,67 +3259,59 @@ ALTER TABLE ONLY __SCHEMA__."RolePermission"
 
 
 --
--- Name: RoomMember RoomMember_room_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlotContext ScheduleSlotContext_learning_group_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomMember"
-    ADD CONSTRAINT "RoomMember_room_id_fkey" FOREIGN KEY (room_id) REFERENCES __SCHEMA__."Room"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: RoomMember RoomMember_user_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomMember"
-    ADD CONSTRAINT "RoomMember_user_id_fkey" FOREIGN KEY (user_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlotContext"
+    ADD CONSTRAINT "ScheduleSlotContext_learning_group_id_fkey" FOREIGN KEY (learning_group_id) REFERENCES __SCHEMA__."LearningGroup"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: RoomPostAttachment RoomPostAttachment_post_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlotContext ScheduleSlotContext_program_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomPostAttachment"
-    ADD CONSTRAINT "RoomPostAttachment_post_id_fkey" FOREIGN KEY (post_id) REFERENCES __SCHEMA__."RoomPost"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: RoomPostComment RoomPostComment_author_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomPostComment"
-    ADD CONSTRAINT "RoomPostComment_author_id_fkey" FOREIGN KEY (author_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlotContext"
+    ADD CONSTRAINT "ScheduleSlotContext_program_id_fkey" FOREIGN KEY (program_id) REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: RoomPostComment RoomPostComment_post_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlotContext ScheduleSlotContext_slot_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomPostComment"
-    ADD CONSTRAINT "RoomPostComment_post_id_fkey" FOREIGN KEY (post_id) REFERENCES __SCHEMA__."RoomPost"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: RoomPost RoomPost_author_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."RoomPost"
-    ADD CONSTRAINT "RoomPost_author_id_fkey" FOREIGN KEY (author_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlotContext"
+    ADD CONSTRAINT "ScheduleSlotContext_slot_id_fkey" FOREIGN KEY (slot_id) REFERENCES __SCHEMA__."ScheduleSlot"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: RoomPost RoomPost_room_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlot ScheduleSlot_classroom_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."RoomPost"
-    ADD CONSTRAINT "RoomPost_room_id_fkey" FOREIGN KEY (room_id) REFERENCES __SCHEMA__."Room"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlot"
+    ADD CONSTRAINT "ScheduleSlot_classroom_id_fkey" FOREIGN KEY (classroom_id) REFERENCES __SCHEMA__."Classroom"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: Room Room_created_by_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: ScheduleSlot ScheduleSlot_course_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
-ALTER TABLE ONLY __SCHEMA__."Room"
-    ADD CONSTRAINT "Room_created_by_fkey" FOREIGN KEY (created_by) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlot"
+    ADD CONSTRAINT "ScheduleSlot_course_id_fkey" FOREIGN KEY (course_id) REFERENCES __SCHEMA__."Course"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ScheduleSlot ScheduleSlot_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlot"
+    ADD CONSTRAINT "ScheduleSlot_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ScheduleSlot ScheduleSlot_teacher_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."ScheduleSlot"
+    ADD CONSTRAINT "ScheduleSlot_teacher_id_fkey" FOREIGN KEY (teacher_id) REFERENCES __SCHEMA__."Staff"(user_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
