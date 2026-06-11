@@ -38,3 +38,27 @@ export const uploadExcel = multer({
     files: 1,
   },
 }).single("file");
+
+const imageFilter = (
+  _req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  const allowed = [".jpg", ".jpeg", ".png", ".webp", ".svg"];
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  if (allowed.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed"));
+  }
+};
+
+export const uploadImage = multer({
+  storage,
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 3 * 1024 * 1024,
+    files: 1,
+  },
+}).single("image");

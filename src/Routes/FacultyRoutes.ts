@@ -9,6 +9,9 @@ import { asyncHandler } from "../Middlewares/ErrorHandler";
 import permissions from "../Utils/Permissions.json";
 
 const router = Router();
+
+router.get("/public/:schema/faculties", asyncHandler(FacultyController.GetPublicFaculties));
+
 //Create Faculty
 router.post(
     "/",

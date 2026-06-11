@@ -87,4 +87,29 @@ export default class UniversityValidator {
         .toInt(),
     ];
   }
+
+  public static UpdateSettings() {
+    return [
+      body("primary_color")
+        .optional()
+        .matches(/^#[0-9A-Fa-f]{6}$/)
+        .withMessage("Must be hex color e.g. #1A3C6E"),
+
+      body("secondary_color")
+        .optional()
+        .matches(/^#[0-9A-Fa-f]{6}$/)
+        .withMessage("Must be hex color"),
+
+      body("tab_name")
+        .optional({ nullable: true })
+        .isString()
+        .isLength({ max: 80 })
+        .withMessage("Tab name max 80 chars"),
+
+      body("logo_url")
+        .optional({ nullable: true })
+        .isString()
+        .withMessage("Logo URL must be a string"),
+    ];
+  }
 }

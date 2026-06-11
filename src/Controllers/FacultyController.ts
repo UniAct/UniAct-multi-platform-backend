@@ -3,6 +3,7 @@ import { Prisma,Faculty } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { FacultyService } from "../Services/FacultyService";
+import { GetTenantClient } from "../Utils/prismaClient";
 
 export class FacultyController {
 
@@ -23,6 +24,43 @@ export class FacultyController {
         res.status(StatusCodes.OK).json({
             status: JSendStatus.SUCCESS,
             data: faculties,
+        });
+    }
+
+    static async GetPublicFaculties(req: Request, res: Response) {
+        const schema = String(req.params.schema || "").trim().toLowerCase();
+        const prisma = GetTenantClient(schema);
+
+        const faculties = await prisma.faculty.findMany({
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                programs: {
+                    select: {
+                        name: true,
+                        durationYears: true,
+                        _count: {
+                            select: { students: true },
+                        },
+                    },
+                },
+            },
+            orderBy: { name: "asc" },
+        });
+
+        const data = faculties.map((faculty) => ({
+            id: faculty.id,
+            name: faculty.name,
+            description: faculty.description,
+            programs: faculty.programs.map((program) => program.name),
+            students: faculty.programs.reduce((sum, program) => sum + program._count.students, 0),
+            years: faculty.programs[0]?.durationYears ?? 4,
+        }));
+
+        res.status(StatusCodes.OK).json({
+            status: JSendStatus.SUCCESS,
+            data,
         });
     }
 
