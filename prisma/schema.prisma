@@ -121,11 +121,37 @@ model User {
   staff                     Staff?
   student                   Student?
   userRoles                 UserRole[]
+  announcements             Announcement[]
 
   @@index([email])
   @@index([username])
   @@index([nationalId])
   @@map("User")
+}
+
+model Announcement {
+  id            Int                    @id @default(autoincrement())
+  title         String                 @db.VarChar(300)
+  content       String
+
+  type          AnnouncementType       @default(ANNOUNCEMENT)
+  audience      AnnouncementAudience   @default(ALL)
+  status        AnnouncementStatus     @default(PUBLISHED)
+
+  eventDate     DateTime?              @map("event_date")
+  eventLocation String?                @map("event_location") @db.VarChar(300)
+
+  authorId      Int                    @map("author_id")
+
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  author        User                   @relation(fields: [authorId], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("Announcement")
 }
 
 model Staff {
@@ -820,6 +846,23 @@ model LearningGroupPostComment {
   @@index([authorId])
   @@index([createdAt])
   @@map("LearningGroupPostComment")
+}
+
+enum AnnouncementType {
+  ANNOUNCEMENT
+  EVENT
+}
+
+enum AnnouncementAudience {
+  ALL
+  STUDENTS
+  STAFF
+  FACULTY
+}
+
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
 }
 
 enum EnrollmentJobStatus {
