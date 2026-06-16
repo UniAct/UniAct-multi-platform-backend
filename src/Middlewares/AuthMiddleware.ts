@@ -7,8 +7,20 @@ import JwtService from "../Utils/JwtService";
 
 export default function IsAuthenticated(req: Request, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader?.split(" ")[1];
+    const rawAuthHeader =
+      req.get("Authorization") ||
+      req.headers["authorization"] ||
+      req.headers["Authorization"];
+
+    const authHeader = Array.isArray(rawAuthHeader)
+      ? rawAuthHeader[0]
+      : typeof rawAuthHeader === "string"
+      ? rawAuthHeader
+      : undefined;
+
+    const token = authHeader
+      ? authHeader.trim().replace(/^Bearer\s+/i, "")
+      : undefined;
 
     if (!token) {
       return res.status(StatusCodes.UNAUTHORIZED).json({

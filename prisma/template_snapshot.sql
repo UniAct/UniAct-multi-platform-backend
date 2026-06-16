@@ -2,9 +2,8 @@
 -- PostgreSQL database dump
 --
 
-
 -- Dumped from database version 17.2
--- Dumped by pg_dump version 18.3
+-- Dumped by pg_dump version 17.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3429,5 +3428,4 @@ ALTER TABLE ONLY __SCHEMA__."UserRole"
 --
 -- PostgreSQL database dump complete
 --
-
 

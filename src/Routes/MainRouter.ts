@@ -12,6 +12,7 @@ import classroomRoutes from "./ClassroomRoutes";
 import classSessionRoutes from "./ScheduleRoutes";
 import attendanceRoutes from "./AttendanceRoutes";
 import announcementRoutes from "./AnnouncementRoutes";
+import transcriptRoutes from "./TranscriptRoutes";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 
@@ -32,6 +33,7 @@ router.use('/program', ProgramRoutes);
 router.use("/faculty", facultyRoutes)
 
 router.use("/course", courseRoutes)
+router.use('/transcripts', transcriptRoutes);
 
 router.use('/classroom', classroomRoutes);
 
