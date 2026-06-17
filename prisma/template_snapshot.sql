@@ -300,7 +300,8 @@ CREATE TYPE __SCHEMA__."StorageProvider" AS ENUM (
     'LOCAL',
     'S3',
     'Azure Blob Storage',
-    'Google Cloud Storage'
+    'Google Cloud Storage',
+    'Cloudinary'
 );
 
 
@@ -314,6 +315,19 @@ CREATE TYPE __SCHEMA__."StudentStatus" AS ENUM (
     'SingleChance',
     'ExternalReenrollment',
     'Deactivate'
+);
+
+
+--
+-- Name: TranscriptJobStatus; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."TranscriptJobStatus" AS ENUM (
+    'Pending',
+    'Processing',
+    'Completed',
+    'Failed',
+    'Partial_failure'
 );
 
 
@@ -408,7 +422,7 @@ CREATE TABLE __SCHEMA__."Announcement" (
     event_location character varying(300),
     author_id integer NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -813,7 +827,8 @@ CREATE TABLE __SCHEMA__."LearningGroup" (
     access_code character varying(50),
     allow_student_posts boolean DEFAULT false NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "userId" integer
+    course_id integer NOT NULL,
+    semester_id integer NOT NULL
 );
 
 
@@ -822,32 +837,11 @@ CREATE TABLE __SCHEMA__."LearningGroup" (
 --
 
 CREATE TABLE __SCHEMA__."LearningGroupMember" (
-    id integer NOT NULL,
     learning_group_id integer NOT NULL,
     user_id integer NOT NULL,
     role __SCHEMA__."LearningGroupRole" DEFAULT 'Member'::__SCHEMA__."LearningGroupRole" NOT NULL,
     joined_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
-
---
--- Name: LearningGroupMember_id_seq; Type: SEQUENCE; Schema: template; Owner: -
---
-
-CREATE SEQUENCE __SCHEMA__."LearningGroupMember_id_seq"
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: LearningGroupMember_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
---
-
-ALTER SEQUENCE __SCHEMA__."LearningGroupMember_id_seq" OWNED BY __SCHEMA__."LearningGroupMember".id;
 
 
 --
@@ -864,8 +858,7 @@ CREATE TABLE __SCHEMA__."LearningGroupPost" (
     is_edited boolean DEFAULT false NOT NULL,
     due_date timestamp(3) without time zone,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL,
-    "learningGroupMemberId" integer
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -915,7 +908,8 @@ CREATE TABLE __SCHEMA__."LearningGroupPostComment" (
     author_id integer NOT NULL,
     content text NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL,
+    is_edited boolean DEFAULT false NOT NULL
 );
 
 
@@ -1340,8 +1334,7 @@ CREATE TABLE __SCHEMA__."ScheduleSlotContext" (
     slot_id integer NOT NULL,
     program_id integer NOT NULL,
     academic_level integer NOT NULL,
-    semester_id integer NOT NULL,
-    learning_group_id integer
+    semester_id integer NOT NULL
 );
 
 
@@ -1548,6 +1541,21 @@ CREATE TABLE __SCHEMA__."Transcript" (
 
 
 --
+-- Name: TranscriptJob; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."TranscriptJob" (
+    id uuid NOT NULL,
+    faculty_id integer NOT NULL,
+    semester_id integer NOT NULL,
+    status __SCHEMA__."TranscriptJobStatus" DEFAULT 'Pending'::__SCHEMA__."TranscriptJobStatus" NOT NULL,
+    result jsonb,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(3) without time zone NOT NULL
+);
+
+
+--
 -- Name: Transcript_id_seq; Type: SEQUENCE; Schema: template; Owner: -
 --
 
@@ -1722,13 +1730,6 @@ ALTER TABLE ONLY __SCHEMA__."Grade" ALTER COLUMN id SET DEFAULT nextval('__SCHEM
 --
 
 ALTER TABLE ONLY __SCHEMA__."LearningGroup" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroup_id_seq"'::regclass);
-
-
---
--- Name: LearningGroupMember id; Type: DEFAULT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."LearningGroupMember" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."LearningGroupMember_id_seq"'::regclass);
 
 
 --
@@ -1989,7 +1990,7 @@ ALTER TABLE ONLY __SCHEMA__."Job"
 --
 
 ALTER TABLE ONLY __SCHEMA__."LearningGroupMember"
-    ADD CONSTRAINT "LearningGroupMember_pkey" PRIMARY KEY (id);
+    ADD CONSTRAINT "LearningGroupMember_pkey" PRIMARY KEY (learning_group_id, user_id);
 
 
 --
@@ -2158,6 +2159,14 @@ ALTER TABLE ONLY __SCHEMA__."StudentFeeReport"
 
 ALTER TABLE ONLY __SCHEMA__."Student"
     ADD CONSTRAINT "Student_pkey" PRIMARY KEY (user_id);
+
+
+--
+-- Name: TranscriptJob TranscriptJob_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
+    ADD CONSTRAINT "TranscriptJob_pkey" PRIMARY KEY (id);
 
 
 --
@@ -2459,20 +2468,6 @@ CREATE INDEX "Job_status_idx" ON __SCHEMA__."Job" USING btree (status);
 
 
 --
--- Name: LearningGroupMember_learning_group_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "LearningGroupMember_learning_group_id_idx" ON __SCHEMA__."LearningGroupMember" USING btree (learning_group_id);
-
-
---
--- Name: LearningGroupMember_learning_group_id_user_id_key; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE UNIQUE INDEX "LearningGroupMember_learning_group_id_user_id_key" ON __SCHEMA__."LearningGroupMember" USING btree (learning_group_id, user_id);
-
-
---
 -- Name: LearningGroupMember_user_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -2494,13 +2489,6 @@ CREATE INDEX "LearningGroupPostComment_author_id_idx" ON __SCHEMA__."LearningGro
 
 
 --
--- Name: LearningGroupPostComment_created_at_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "LearningGroupPostComment_created_at_idx" ON __SCHEMA__."LearningGroupPostComment" USING btree (created_at);
-
-
---
 -- Name: LearningGroupPostComment_post_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -2515,10 +2503,24 @@ CREATE INDEX "LearningGroupPost_author_id_idx" ON __SCHEMA__."LearningGroupPost"
 
 
 --
--- Name: LearningGroupPost_learning_group_id_idx; Type: INDEX; Schema: template; Owner: -
+-- Name: LearningGroupPost_learning_group_id_post_type_idx; Type: INDEX; Schema: template; Owner: -
 --
 
-CREATE INDEX "LearningGroupPost_learning_group_id_idx" ON __SCHEMA__."LearningGroupPost" USING btree (learning_group_id);
+CREATE INDEX "LearningGroupPost_learning_group_id_post_type_idx" ON __SCHEMA__."LearningGroupPost" USING btree (learning_group_id, post_type);
+
+
+--
+-- Name: LearningGroup_course_id_semester_id_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX "LearningGroup_course_id_semester_id_key" ON __SCHEMA__."LearningGroup" USING btree (course_id, semester_id);
+
+
+--
+-- Name: LearningGroup_semester_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "LearningGroup_semester_id_idx" ON __SCHEMA__."LearningGroup" USING btree (semester_id);
 
 
 --
@@ -2830,6 +2832,20 @@ CREATE UNIQUE INDEX "Student_university_student_id_key" ON __SCHEMA__."Student" 
 
 
 --
+-- Name: TranscriptJob_semester_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "TranscriptJob_semester_id_idx" ON __SCHEMA__."TranscriptJob" USING btree (semester_id);
+
+
+--
+-- Name: TranscriptJob_status_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "TranscriptJob_status_idx" ON __SCHEMA__."TranscriptJob" USING btree (status);
+
+
+--
 -- Name: Transcript_semester_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -3123,27 +3139,27 @@ ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
 
 
 --
--- Name: LearningGroupPost LearningGroupPost_learningGroupMemberId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
-    ADD CONSTRAINT "LearningGroupPost_learningGroupMemberId_fkey" FOREIGN KEY ("learningGroupMemberId") REFERENCES __SCHEMA__."LearningGroupMember"(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
 -- Name: LearningGroupPost LearningGroupPost_learning_group_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__."LearningGroupPost"
-    ADD CONSTRAINT "LearningGroupPost_learning_group_id_fkey" FOREIGN KEY (learning_group_id) REFERENCES __SCHEMA__."LearningGroup"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT "LearningGroupPost_learning_group_id_fkey" FOREIGN KEY (learning_group_id) REFERENCES __SCHEMA__."LearningGroup"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: LearningGroup LearningGroup_userId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+-- Name: LearningGroup LearningGroup_course_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__."LearningGroup"
-    ADD CONSTRAINT "LearningGroup_userId_fkey" FOREIGN KEY ("userId") REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT "LearningGroup_course_id_fkey" FOREIGN KEY (course_id) REFERENCES __SCHEMA__."Course"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: LearningGroup LearningGroup_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."LearningGroup"
+    ADD CONSTRAINT "LearningGroup_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -3256,14 +3272,6 @@ ALTER TABLE ONLY __SCHEMA__."RolePermission"
 
 ALTER TABLE ONLY __SCHEMA__."RolePermission"
     ADD CONSTRAINT "RolePermission_role_id_fkey" FOREIGN KEY (role_id) REFERENCES __SCHEMA__."Role"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: ScheduleSlotContext ScheduleSlotContext_learning_group_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."ScheduleSlotContext"
-    ADD CONSTRAINT "ScheduleSlotContext_learning_group_id_fkey" FOREIGN KEY (learning_group_id) REFERENCES __SCHEMA__."LearningGroup"(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -3392,6 +3400,14 @@ ALTER TABLE ONLY __SCHEMA__."Student"
 
 ALTER TABLE ONLY __SCHEMA__."Student"
     ADD CONSTRAINT "Student_user_id_fkey" FOREIGN KEY (user_id) REFERENCES __SCHEMA__."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: TranscriptJob TranscriptJob_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
+    ADD CONSTRAINT "TranscriptJob_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
