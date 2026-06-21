@@ -21,8 +21,7 @@ export const ScheduleSlotInputSchema = z.object({
   courseId: z.coerce.number().int().positive(),
   teacherId: z.coerce.number().int().positive(),
   classroomId: z.coerce.number().int().positive(),
-  learningGroupId: z.coerce.number().nullable().default(null),
-  allowedCpacity: z.number().int().positive(),
+  allowedCapacity: z.number().int().positive(),
   enrolledSeats: z.number().default(0),
   // Helpers for UI validation/errors
   teacherName: z.string().optional(),

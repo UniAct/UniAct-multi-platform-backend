@@ -1,4 +1,4 @@
-import { DayOfWeek, Prisma } from "@prisma/client";
+import { DayOfWeek, LearningGroupRole, Prisma, PrismaClient } from "@prisma/client";
 import { ScheduleRepository } from "../Repositories/ScheduleRepository";
 import { ConflictError, NotFoundError } from "../Types/Errors";
 import { SlotResponse, SaveScheduleInput, SlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
@@ -23,61 +23,61 @@ export class ScheduleService {
 
 
   public static async GetSchedule(
-  params: { programId: number; academicLevel: number; facultyId: number },
-  semesterId: number,
-  schemaName: string,
-  studentId?: number
-) {
-  const { programId, academicLevel, facultyId } = params;
-  const prisma = GetTenantClient(schemaName);
-  
-  
+    params: { programId: number; academicLevel: number; facultyId: number },
+    semesterId: number,
+    schemaName: string,
+    studentId?: number
+  ) {
+    const { programId, academicLevel, facultyId } = params;
+    const prisma = GetTenantClient(schemaName);
 
-  // 3. Dynamic Parallel Fetching
-  // We always fetch the slots, but lookups are conditional.
-  const tasks: Promise<any>[] = [
-    ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma, studentId)
-  ];
 
-  if (typeof(studentId) != "number") {
-    tasks.push(
-      ScheduleRepository.GetCoursesByLevel(academicLevel, prisma),
-      ScheduleRepository.GetAllAvailableClassrooms(prisma),
-      ScheduleRepository.GetStaffByFaculty(facultyId, prisma)
-    );
+
+    // 3. Dynamic Parallel Fetching
+    // We always fetch the slots, but lookups are conditional.
+    const tasks: Promise<any>[] = [
+      ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma, studentId)
+    ];
+
+    if (typeof (studentId) != "number") {
+      tasks.push(
+        ScheduleRepository.GetCoursesByLevel(academicLevel, prisma),
+        ScheduleRepository.GetAllAvailableClassrooms(prisma),
+        ScheduleRepository.GetStaffByFaculty(facultyId, prisma)
+      );
+    }
+
+    // Execute only the necessary queries
+    const [slotsContexts, courses = [], classrooms = [], staff = []] = (await Promise.all(tasks)) as [
+      SlotsResult,
+      CoursesResult,
+      ClassroomsResult,
+      StaffResult
+    ];
+
+    // 4. Conditional Response Construction
+    return {
+      meta: {
+        programId,
+        // programName: program.name,
+        academicLevel,
+        semesterId,
+      },
+      // Only populate lookups if the user isn't a student
+      lookups: typeof (studentId) === 'number' ? null : {
+        courses: courses.map(c => c.course),
+        classrooms: classrooms.map(c => ({
+          ...c,
+          label: `${c.building} / ${c.classroomNumber}`
+        })),
+        staff: staff.map(s => ({
+          id: s.staffId,
+          name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
+        })),
+      },
+      scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
+    };
   }
-
-  // Execute only the necessary queries
-  const [slotsContexts, courses = [], classrooms = [], staff = []] = (await Promise.all(tasks)) as [
-    SlotsResult,
-    CoursesResult,
-    ClassroomsResult,
-    StaffResult
-  ];
-
-  // 4. Conditional Response Construction
-  return {
-    meta: {
-      programId,
-      // programName: program.name,
-      academicLevel,
-      semesterId,
-    },
-    // Only populate lookups if the user isn't a student
-    lookups: typeof(studentId) === 'number' ? null : {
-      courses: courses.map(c => c.course),
-      classrooms: classrooms.map(c => ({
-        ...c,
-        label: `${c.building} / ${c.classroomNumber}`
-      })),
-      staff: staff.map(s => ({
-        id: s.staffId,
-        name: `${s.staff.user.firstName} ${s.staff.user.lastName}`,
-      })),
-    },
-    scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
-  };
-}
 
 
   public static async SaveSchedule(
@@ -100,11 +100,28 @@ export class ScheduleService {
     const incomingIds = new Set(incomingSlots.map(s => s.id).filter(Boolean));
 
     // 3. HANDLE DELETIONS
-    // i want to delete bthe physical Slot id NOT THE context since there could be shared clase (so in this case i will only delete one context and the other will still be left as stale context )
-    const idsToDelete = existingContexts.filter(c => !incomingIds.has(c.id)).map(c => c.slotId);
-    if (idsToDelete.length > 0) {
-      
-      await tx.scheduleSlot.deleteMany({ where: { id: { in: idsToDelete } }  });
+    const contextsToDelete = existingContexts.filter(c => !incomingIds.has(c.id));
+    let slotIdsToDelete: number[] = [];
+
+    if (contextsToDelete.length > 0) {
+      slotIdsToDelete = contextsToDelete.map(c => c.slotId);
+
+      // i want to delete bthe physical Slot id NOT THE context
+      // since there could be shared clase (so in this case i will only delete one context and the other will still be left as stale context )
+      await tx.scheduleSlot.deleteMany({ where: { id: { in: slotIdsToDelete } } });
+
+      //Delete orphan Learning Groups if the course no longer exists 
+      const uniqueCleanups = new Map<string, { courseId: number, teacherId: number }>();
+
+      for (const ctx of contextsToDelete) {
+        const key = `${ctx.slot.courseId}_${ctx.slot.teacherId}`;
+        uniqueCleanups.set(key, { courseId: ctx.slot.courseId, teacherId: ctx.slot.teacherId });
+      }
+
+      for (const target of uniqueCleanups.values()) {
+        //Delete The whole Learning Group or only remove the teacher if he no longer a teacher of this course
+        await this.handleGroupOrMemberCleanup(target.courseId, semesterId, target.teacherId, tx);
+      }
     }
 
     // 4. SYNC INCOMING SLOTS
@@ -113,7 +130,7 @@ export class ScheduleService {
     for (const incoming of incomingSlots) {
       const existingContext = incoming.id ? existingMap.get(incoming.id) : null;
 
-      // if it was existing then weather it's unchanged or needs to be updated
+      // if it was existing then  it's either unchanged or needs to be updated
       if (existingContext) {
 
         const isUnchanged = this.getFingerprint(incoming) === this.getFingerprintFromDB(existingContext)
@@ -124,6 +141,12 @@ export class ScheduleService {
         }
         //needs to be updated
         else {
+          //these variables will be needed for LearningGroup update checks
+          const oldCourseId = existingContext.slot.courseId;
+          const oldTeacherId = existingContext.slot.teacherId;
+          const newCourseId = incoming.courseId;
+          const newTeacherId = incoming.teacherId;
+
           await tx.scheduleSlot.update({
             where: { id: existingContext.slotId },
             data: {
@@ -134,9 +157,16 @@ export class ScheduleService {
               startTime: incoming.startTime,
               endTime: incoming.endTime,
               dayOfWeek: incoming.dayOfWeek,
-              allowedCapacity: incoming.allowedCpacity,
+              allowedCapacity: incoming.allowedCapacity,
             }
           })
+
+          // If identities shifted, cleanly execute de-provisioning and re-provisioning
+          if (oldCourseId !== newCourseId || oldTeacherId !== newTeacherId) {
+            await this.handleGroupOrMemberCleanup(oldCourseId, semesterId, oldTeacherId, tx);
+            await this.ensureLearningGroupExistsWithOwner(newCourseId, semesterId, newTeacherId, tx);
+          }
+
           stats.updated++;
           continue;
         }
@@ -172,7 +202,6 @@ export class ScheduleService {
                 programId,
                 academicLevel,
                 semesterId,
-                learningGroupId: incoming.learningGroupId
               }
             });
             stats.created++;
@@ -194,7 +223,7 @@ export class ScheduleService {
               teacherId: incoming.teacherId,
               courseId: incoming.courseId,
               classroomId: incoming.classroomId,
-              allowedCapacity:incoming.allowedCpacity,
+              allowedCapacity: incoming.allowedCapacity,
               dayOfWeek: incoming.dayOfWeek,
               startTime: incoming.startTime,
               endTime: incoming.endTime,
@@ -211,24 +240,124 @@ export class ScheduleService {
               programId,
               academicLevel,
               semesterId,
-              learningGroupId: incoming.learningGroupId
             }
           });
+
+          await this.ensureLearningGroupExistsWithOwner(incoming.courseId, semesterId, incoming.teacherId, tx)
           stats.created++;
+
         }
       }
     }
 
     const refreshed = await ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, tx);
     return {
-      metrics: { deleted: idsToDelete.length, ...stats },
+      metrics: { deleted: slotIdsToDelete.length , ...stats },
       scheduleSlots: refreshed.map(context => this.mapSlotToResponse(context))
     };
   }
 
+  //===========================================THIS PART FOR HELPER FUNCTIONS==============================================
+
+
+  private static async ensureLearningGroupExistsWithOwner(
+  courseId: number,
+  semesterId: number,
+  teacherId: number,
+  tx: Prisma.TransactionClient
+) {
+  const existingGroup = await this.checkLearningGroupExistance(courseId, semesterId, teacherId, tx);
+
+  if (!existingGroup) {
+    const course = await tx.course.findUnique({ where: { id: courseId }, select: { name: true } });
+    await this.CreateLearningGroupWithOwner(
+      courseId, 
+      semesterId, 
+      course?.name || 'Course', 
+      teacherId, 
+      LearningGroupRole.Owner, 
+      tx
+    );
+  } else if (existingGroup.members.length === 0) {
+    await this.addLearningGroupMember(existingGroup.id, teacherId, LearningGroupRole.Owner, tx);
+  }
+}
+
+private static async handleGroupOrMemberCleanup(
+  courseId: number,
+  semesterId: number,
+  teacherId: number,
+  tx: Prisma.TransactionClient
+) {
+  // Fix: Check globally across the whole semester instead of isolating by program context
+  const remainingGlobalSlotsForCourse = await tx.scheduleSlot.count({
+    where: { courseId, semesterId }
+  });
+
+  if (remainingGlobalSlotsForCourse === 0) {
+    // True total orphan: Purge the group cleanly out of the database
+    await tx.learningGroup.deleteMany({
+      where: { courseId, semesterId }
+    });
+    return;
+  }
+
+  // If the group is still preserved globally, check if this specific teacher is completely done with it
+  const remainingSlotsForTeacher = await tx.scheduleSlot.count({
+    where: { courseId, semesterId, teacherId }
+  });
+
+  if (remainingSlotsForTeacher === 0) {
+    // Evict them safely without risking crashing the interactive transaction block
+    await tx.learningGroupMember.deleteMany({
+      where: {
+        userId: teacherId,
+        group: { courseId, semesterId }
+      }
+    });
+  }
+}
+
+  private static async addLearningGroupMember(groupId: number, userId: number, role: LearningGroupRole, tx: PrismaClient | Prisma.TransactionClient) {
+    await tx.learningGroupMember.create({
+      data: { learningGroupId: groupId, userId, role }
+    });
+  }
+
+  private static async checkLearningGroupExistance(
+    courseId: number,
+    semesterId: number,
+    teacherId: number,
+    tx: Prisma.TransactionClient
+  ) {
+    const existingGroup = await tx.learningGroup.findUnique({
+      where: { courseId_semesterId: { courseId, semesterId } },
+      select: { id: true, members: { where: { userId: teacherId }, select: { userId: true } } }
+    });
+    return existingGroup;
+  }
+
+  private static async CreateLearningGroupWithOwner(courseId: number, semesterId: number, courseName: string, memberId: number, role: LearningGroupRole, tx: PrismaClient | Prisma.TransactionClient) {
+
+    const accessCode = this.generateAccessCode();
+
+    await tx.learningGroup.create({
+      data: {
+        courseId,
+        semesterId,
+        groupName: `${courseName} Group`,
+        accessCode,
+        members: {
+          //add the teacher as an owner of the group
+          create: { userId: memberId, role}
+        }
+      }
+    });
+  }
+
   // Fingerprint for Incoming Data
   private static getFingerprint(s: SlotInput): string {
-    return `${s.courseId}-${s.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
+    return `${s.courseId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
   }
 
   // Fingerprint for DB Data
@@ -321,6 +450,17 @@ export class ScheduleService {
   }
 
 
+  private static generateAccessCode(length = 6): string {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoids confusing chars
+    let code = "";
+
+    for (let i = 0; i < length; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    return code;
+  }
+
   private static formatFullName(first?: string, last?: string): string {
     return `${first || ''} ${last || ''}`.trim();
   }
@@ -334,19 +474,19 @@ export class ScheduleService {
   }
 
   public static async Enroll(
-    schemaName : string,
-    studentId : number,
-    cgpa : number,
-    currentStudentProgramLevelId : number,
+    schemaName: string,
+    studentId: number,
+    cgpa: number,
+    currentStudentProgramLevelId: number,
     studentProgramId: number,
-    currentSemester: {id : number , term: number},
-    schedule : EnrollInScheduleRequestDto
-  ){
+    currentSemester: { id: number, term: number },
+    schedule: EnrollInScheduleRequestDto
+  ) {
     const prisma = GetTenantClient(schemaName);
 
-    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId , currentSemester.id , prisma);
+    const jobId = await JobRepository.CreateEnrollmentJobRecord(studentId, currentSemester.id, prisma);
 
-    const message : EnrollmentJobMessage = {
+    const message: EnrollmentJobMessage = {
       jobId,
       schemaName,
       studentId,
