@@ -128,6 +128,10 @@ export class ScheduleRepository {
             course: {
               include: {
                 prerequisites: true,
+                learningGroups: {
+                  where: { semesterId },
+                  select: { id: true },
+                },
               },
             },
           },
