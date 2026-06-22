@@ -2,13 +2,13 @@ import { LearningGroupRole, Prisma } from "@prisma/client";
 
 export class LearningGroupService {
 
-    public static async ensureLearningGroupExistsWithOwner(
+    public static async EnsureLearningGroupExistsWithOwner(
       courseId: number,
       semesterId: number,
       teacherId: number,
       tx: Prisma.TransactionClient
    ) {
-      const existingGroup = await this.checkLearningGroupExistance(courseId, semesterId, teacherId, tx);
+      const existingGroup = await this.CheckLearningGroupExistance(courseId, semesterId, teacherId, tx);
 
       if (!existingGroup) {
          const course = await tx.course.findUnique({ where: { id: courseId }, select: { name: true } });
@@ -21,11 +21,11 @@ export class LearningGroupService {
             tx
          );
       } else if (existingGroup.members.length === 0) {
-         await this.addLearningGroupMember(existingGroup.id, teacherId, LearningGroupRole.Owner, tx);
+         await this.AddLearningGroupMember(existingGroup.id, teacherId, LearningGroupRole.Owner, tx);
       }
    }
 
-    public static async handleGroupOrMemberCleanup(
+    public static async HandleGroupOrOwnerCleanup(
       courseId: number,
       semesterId: number,
       teacherId: number,
@@ -61,14 +61,14 @@ export class LearningGroupService {
    }
    
 
-    public static async addLearningGroupMember(groupId: number, userId: number, role: LearningGroupRole, tx: Prisma.TransactionClient) {
+    public static async AddLearningGroupMember(groupId: number, userId: number, role: LearningGroupRole, tx: Prisma.TransactionClient) {
       await tx.learningGroupMember.create({
          data: { learningGroupId: groupId, userId, role }
       });
    }
 
 
-    public static async checkLearningGroupExistance(
+    public static async CheckLearningGroupExistance(
       courseId: number,
       semesterId: number,
       teacherId: number,
@@ -91,7 +91,7 @@ export class LearningGroupService {
       tx: Prisma.TransactionClient
    ) {
 
-      const accessCode = this.generateAccessCode();
+      const accessCode = this.GenerateAccessCode();
 
       await tx.learningGroup.create({
          data: {
@@ -108,7 +108,7 @@ export class LearningGroupService {
    }
 
 
-    public static generateAccessCode(length = 6): string {
+    public static GenerateAccessCode(length = 6): string {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoids confusing chars
       let code = "";
 

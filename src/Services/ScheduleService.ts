@@ -121,7 +121,7 @@ export class ScheduleService {
 
       for (const target of uniqueCleanups.values()) {
         //Delete The whole Learning Group or only remove the teacher if he no longer a teacher of this course
-        await LearningGroupService.handleGroupOrMemberCleanup(target.courseId, semesterId, target.teacherId, tx);
+        await LearningGroupService.HandleGroupOrOwnerCleanup(target.courseId, semesterId, target.teacherId, tx);
       }
     }
 
@@ -164,8 +164,8 @@ export class ScheduleService {
 
           // If identities shifted, cleanly execute de-provisioning and re-provisioning
           if (oldCourseId !== newCourseId || oldTeacherId !== newTeacherId) {
-            await LearningGroupService.handleGroupOrMemberCleanup(oldCourseId, semesterId, oldTeacherId, tx);
-            await LearningGroupService.ensureLearningGroupExistsWithOwner(newCourseId, semesterId, newTeacherId, tx);
+            await LearningGroupService.HandleGroupOrOwnerCleanup(oldCourseId, semesterId, oldTeacherId, tx);
+            await LearningGroupService.EnsureLearningGroupExistsWithOwner(newCourseId, semesterId, newTeacherId, tx);
           }
 
           stats.updated++;
@@ -244,7 +244,7 @@ export class ScheduleService {
             }
           });
 
-          await LearningGroupService.ensureLearningGroupExistsWithOwner(incoming.courseId, semesterId, incoming.teacherId, tx)
+          await LearningGroupService.EnsureLearningGroupExistsWithOwner(incoming.courseId, semesterId, incoming.teacherId, tx)
           stats.created++;
 
         }
