@@ -10,6 +10,7 @@ import { Queues } from "../Enums/Queues";
 import { logger } from "../Utils/Logger";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
+import { LearningGroupService } from "./LearningGroupService";
 
 
 
@@ -120,7 +121,7 @@ export class ScheduleService {
 
       for (const target of uniqueCleanups.values()) {
         //Delete The whole Learning Group or only remove the teacher if he no longer a teacher of this course
-        await this.handleGroupOrMemberCleanup(target.courseId, semesterId, target.teacherId, tx);
+        await LearningGroupService.handleGroupOrMemberCleanup(target.courseId, semesterId, target.teacherId, tx);
       }
     }
 
@@ -163,8 +164,8 @@ export class ScheduleService {
 
           // If identities shifted, cleanly execute de-provisioning and re-provisioning
           if (oldCourseId !== newCourseId || oldTeacherId !== newTeacherId) {
-            await this.handleGroupOrMemberCleanup(oldCourseId, semesterId, oldTeacherId, tx);
-            await this.ensureLearningGroupExistsWithOwner(newCourseId, semesterId, newTeacherId, tx);
+            await LearningGroupService.handleGroupOrMemberCleanup(oldCourseId, semesterId, oldTeacherId, tx);
+            await LearningGroupService.ensureLearningGroupExistsWithOwner(newCourseId, semesterId, newTeacherId, tx);
           }
 
           stats.updated++;
@@ -243,7 +244,7 @@ export class ScheduleService {
             }
           });
 
-          await this.ensureLearningGroupExistsWithOwner(incoming.courseId, semesterId, incoming.teacherId, tx)
+          await LearningGroupService.ensureLearningGroupExistsWithOwner(incoming.courseId, semesterId, incoming.teacherId, tx)
           stats.created++;
 
         }
@@ -259,101 +260,6 @@ export class ScheduleService {
 
   //===========================================THIS PART FOR HELPER FUNCTIONS==============================================
 
-
-  private static async ensureLearningGroupExistsWithOwner(
-  courseId: number,
-  semesterId: number,
-  teacherId: number,
-  tx: Prisma.TransactionClient
-) {
-  const existingGroup = await this.checkLearningGroupExistance(courseId, semesterId, teacherId, tx);
-
-  if (!existingGroup) {
-    const course = await tx.course.findUnique({ where: { id: courseId }, select: { name: true } });
-    await this.CreateLearningGroupWithOwner(
-      courseId, 
-      semesterId, 
-      course?.name || 'Course', 
-      teacherId, 
-      LearningGroupRole.Owner, 
-      tx
-    );
-  } else if (existingGroup.members.length === 0) {
-    await this.addLearningGroupMember(existingGroup.id, teacherId, LearningGroupRole.Owner, tx);
-  }
-}
-
-private static async handleGroupOrMemberCleanup(
-  courseId: number,
-  semesterId: number,
-  teacherId: number,
-  tx: Prisma.TransactionClient
-) {
-  // Fix: Check globally across the whole semester instead of isolating by program context
-  const remainingGlobalSlotsForCourse = await tx.scheduleSlot.count({
-    where: { courseId, semesterId }
-  });
-
-  if (remainingGlobalSlotsForCourse === 0) {
-    // True total orphan: Purge the group cleanly out of the database
-    await tx.learningGroup.deleteMany({
-      where: { courseId, semesterId }
-    });
-    return;
-  }
-
-  // If the group is still preserved globally, check if this specific teacher is completely done with it
-  const remainingSlotsForTeacher = await tx.scheduleSlot.count({
-    where: { courseId, semesterId, teacherId }
-  });
-
-  if (remainingSlotsForTeacher === 0) {
-    // Evict them safely without risking crashing the interactive transaction block
-    await tx.learningGroupMember.deleteMany({
-      where: {
-        userId: teacherId,
-        group: { courseId, semesterId }
-      }
-    });
-  }
-}
-
-  private static async addLearningGroupMember(groupId: number, userId: number, role: LearningGroupRole, tx: PrismaClient | Prisma.TransactionClient) {
-    await tx.learningGroupMember.create({
-      data: { learningGroupId: groupId, userId, role }
-    });
-  }
-
-  private static async checkLearningGroupExistance(
-    courseId: number,
-    semesterId: number,
-    teacherId: number,
-    tx: Prisma.TransactionClient
-  ) {
-    const existingGroup = await tx.learningGroup.findUnique({
-      where: { courseId_semesterId: { courseId, semesterId } },
-      select: { id: true, members: { where: { userId: teacherId }, select: { userId: true } } }
-    });
-    return existingGroup;
-  }
-
-  private static async CreateLearningGroupWithOwner(courseId: number, semesterId: number, courseName: string, memberId: number, role: LearningGroupRole, tx: PrismaClient | Prisma.TransactionClient) {
-
-    const accessCode = this.generateAccessCode();
-
-    await tx.learningGroup.create({
-      data: {
-        courseId,
-        semesterId,
-        groupName: `${courseName} Group`,
-        accessCode,
-        members: {
-          //add the teacher as an owner of the group
-          create: { userId: memberId, role}
-        }
-      }
-    });
-  }
 
   // Fingerprint for Incoming Data
   private static getFingerprint(s: SlotInput): string {
@@ -449,17 +355,7 @@ private static async handleGroupOrMemberCleanup(
     }
   }
 
-
-  private static generateAccessCode(length = 6): string {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoids confusing chars
-    let code = "";
-
-    for (let i = 0; i < length; i++) {
-      code += chars[Math.floor(Math.random() * chars.length)];
-    }
-
-    return code;
-  }
+  
 
   private static formatFullName(first?: string, last?: string): string {
     return `${first || ''} ${last || ''}`.trim();
