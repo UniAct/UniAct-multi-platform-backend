@@ -156,6 +156,19 @@ CREATE TYPE __SCHEMA__."EnrollmentJobStatus" AS ENUM (
 
 
 --
+-- Name: TranscriptJobStatus; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."TranscriptJobStatus" AS ENUM (
+    'Pending',
+    'Processing',
+    'Completed',
+    'Failed',
+    'Partial failure'
+);
+
+
+--
 -- Name: FeeStatus; Type: TYPE; Schema: template; Owner: -
 --
 
@@ -617,7 +630,7 @@ CREATE TABLE __SCHEMA__."CourseRegistration" (
     enrollment_date date DEFAULT CURRENT_TIMESTAMP NOT NULL,
     status __SCHEMA__."RegistrationStatus" DEFAULT 'Enrolled'::__SCHEMA__."RegistrationStatus" NOT NULL,
     grade __SCHEMA__."GradeEnum",
-    grade_points integer,
+    grade_points numeric(5,4),
     "slot_context_Id" integer
 );
 
@@ -1547,6 +1560,21 @@ CREATE TABLE __SCHEMA__."Transcript" (
 
 
 --
+-- Name: TranscriptJob; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__."TranscriptJob" (
+    id uuid NOT NULL,
+    faculty_id integer NOT NULL,
+    semester_id integer NOT NULL,
+    status __SCHEMA__."TranscriptJobStatus" DEFAULT 'Pending'::__SCHEMA__."TranscriptJobStatus" NOT NULL,
+    result jsonb,
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(3) without time zone NOT NULL
+);
+
+
+--
 -- Name: Transcript_id_seq; Type: SEQUENCE; Schema: template; Owner: -
 --
 
@@ -2157,6 +2185,14 @@ ALTER TABLE ONLY __SCHEMA__."StudentFeeReport"
 
 ALTER TABLE ONLY __SCHEMA__."Student"
     ADD CONSTRAINT "Student_pkey" PRIMARY KEY (user_id);
+
+
+--
+-- Name: TranscriptJob TranscriptJob_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
+    ADD CONSTRAINT "TranscriptJob_pkey" PRIMARY KEY (id);
 
 
 --
@@ -2829,6 +2865,20 @@ CREATE UNIQUE INDEX "Student_university_student_id_key" ON __SCHEMA__."Student" 
 
 
 --
+-- Name: TranscriptJob_status_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "TranscriptJob_status_idx" ON __SCHEMA__."TranscriptJob" USING btree (status);
+
+
+--
+-- Name: TranscriptJob_semester_id_faculty_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "TranscriptJob_semester_id_faculty_id_idx" ON __SCHEMA__."TranscriptJob" USING btree (semester_id, faculty_id);
+
+
+--
 -- Name: Transcript_semester_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -3394,6 +3444,22 @@ ALTER TABLE ONLY __SCHEMA__."Student"
 
 
 --
+-- Name: TranscriptJob TranscriptJob_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
+    ADD CONSTRAINT "TranscriptJob_semester_id_fkey" FOREIGN KEY (semester_id) REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: TranscriptJob TranscriptJob_faculty_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
+    ADD CONSTRAINT "TranscriptJob_faculty_id_fkey" FOREIGN KEY (faculty_id) REFERENCES __SCHEMA__."Faculty"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: Transcript Transcript_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -3428,4 +3494,3 @@ ALTER TABLE ONLY __SCHEMA__."UserRole"
 --
 -- PostgreSQL database dump complete
 --
-

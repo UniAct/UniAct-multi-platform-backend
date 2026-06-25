@@ -1,5 +1,7 @@
 export type TranscriptJobMessage = {
-  studentId: number;
+  jobId: string;
+  facultyId: number;
   semesterId: number;
   schemaName: string;
 };
+

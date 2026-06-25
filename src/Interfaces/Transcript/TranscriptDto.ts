@@ -2,41 +2,43 @@ export type TranscriptDto = {
   id: number;
   studentId: number;
   semesterId: number;
+  semester: TranscriptSemesterInfoDto | null;
   year: number;
   semesterGpa: number;
   cumulativeGpa: number;
   totalCredits: number;
   generatedDate: string;
+  courses: TranscriptCourseDto[];
 };
 
-export type TranscriptGenerationSummaryDto = {
-  semesterId: number;
-  totalStudents: number;
-  queuedCount: number;
-  queuedJobs: Array<{
-    studentId: number;
-    jobId: string;
-  }>;
-};
-
-export type TranscriptJobQueuedDto = {
+export type StudentTranscriptSemestersDto = {
   studentId: number;
-  semesterId: number;
-  jobId: string;
+  semesters: TranscriptDto[];
+};
+
+export type TranscriptSemesterInfoDto = {
+  id: number;
+  year: number;
+  term: number;
+  type: string;
+  startDate: string;
+  endDate: string;
+};
+
+export type TranscriptCourseDto = {
+  registrationId: number;
+  courseCode: string | null;
+  courseName: string | null;
+  credits: number;
+  grade: string | null;
+  gradePoints: number | null;
+  status: string;
+  totalMarks: number;
+  totalMaxMarks: number;
+  scorePercentage: number | null;
 };
 
 export type TranscriptBatchGenerationSummaryDto = {
-  semesterId: number;
-  facultyId: number;
+  jobId: string;
   totalStudents: number;
-  queuedCount: number;
-  levelBreakdown: Array<{
-    level: number;
-    totalStudents: number;
-  }>;
-  queuedJobs: Array<{
-    studentId: number;
-    jobId: string;
-    level: number;
-  }>;
 };

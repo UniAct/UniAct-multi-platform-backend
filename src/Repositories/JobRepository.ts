@@ -1,4 +1,5 @@
-import { EnrollmentJobStatus, JobStatus, Prisma, PrismaClient } from "@prisma/client";
+import { EnrollmentJobStatus, JobStatus, Prisma, PrismaClient, TranscriptJobStatus } from "@prisma/client";
+import { GetTenantClient } from "../Utils/prismaClient";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 export class JobRepository {
@@ -57,6 +58,7 @@ export class JobRepository {
     return job.id;
   }
 
+
   static async CheckStudentEnrollmentStatus(
     jobId: string,
     prisma: DbClient
@@ -67,6 +69,78 @@ export class JobRepository {
         id: true,
         status: true,
         studentId: true,
+        result: true,
+      }
+    });
+  }
+
+  static async CreateTranscriptJobRecord(
+    facultyId: number,
+    semesterId: number,
+    prisma: DbClient
+  ): Promise<string> {
+    const job = await prisma.transcriptJob.create({
+      data: {
+        facultyId,
+        semesterId,
+        status: TranscriptJobStatus.Pending,
+        result: Prisma.JsonNull,
+      },
+      select: { id: true }
+    });
+
+    return job.id;
+  }
+
+  static async CreateTranscriptJobRecordForTenant(
+    schemaName: string,
+    facultyId: number,
+    semesterId: number
+  ): Promise<string> {
+    return this.CreateTranscriptJobRecord(
+      facultyId,
+      semesterId,
+      GetTenantClient(schemaName)
+    );
+  }
+
+
+  static async UpdateTranscriptJob(
+    jobId: string,
+    update: {
+      status?: TranscriptJobStatus;
+      result?: Prisma.InputJsonValue;
+    },
+    prisma: DbClient
+  ) {
+    return prisma.transcriptJob.update({
+      where: { id: jobId },
+      data: update,
+    });
+  }
+
+  static async UpdateTranscriptJobForTenant(
+    schemaName: string,
+    jobId: string,
+    update: {
+      status?: TranscriptJobStatus;
+      result?: Prisma.InputJsonValue;
+    }
+  ) {
+    return this.UpdateTranscriptJob(jobId, update, GetTenantClient(schemaName));
+  }
+
+  static async CheckStudentTranscriptStatus(
+    jobId: string,
+    prisma: DbClient
+  ) {
+    return prisma.transcriptJob.findFirst({
+      where: { id: jobId },
+      select: {
+        id: true,
+        status: true,
+        facultyId: true,
+        semesterId: true,
         result: true,
       }
     });

@@ -1,49 +1,27 @@
-import { param } from "express-validator";
+import z from "zod/v4";
 
-export default class TranscriptValidator {
-  public static StudentIdParam() {
-    return [
-      param("studentId")
-        .exists()
-        .withMessage("Student ID is required")
-        .isInt({ gt: 0 })
-        .withMessage("Student ID must be a positive integer")
-        .toInt(),
-    ];
-  }
+const positiveIntegerParam = (fieldName: string) =>
+  z.coerce
+    .number({
+      error: `${fieldName} is required`,
+    })
+    .int(`${fieldName} must be an integer`)
+    .positive(`${fieldName} must be a positive integer`);
 
-  public static SemesterIdParam() {
-    return [
-      param("semesterId")
-        .exists()
-        .withMessage("Semester ID is required")
-        .isInt({ gt: 0 })
-        .withMessage("Semester ID must be a positive integer")
-        .toInt(),
-    ];
-  }
+export const StudentIdParamSchema = z.object({
+  studentId: positiveIntegerParam("Student ID"),
+});
 
-  public static GenerateStudentTranscript() {
-    return [...this.StudentIdParam(), ...this.SemesterIdParam()];
-  }
+export const SemesterIdParamSchema = z.object({
+  semesterId: positiveIntegerParam("Semester ID"),
+});
 
-  public static GenerateSemesterTranscripts() {
-    return [...this.SemesterIdParam()];
-  }
+export const StudentSemesterParamsSchema = z.object({
+  studentId: positiveIntegerParam("Student ID"),
+  semesterId: positiveIntegerParam("Semester ID"),
+});
 
-  public static GenerateSemesterTranscriptsByFaculty() {
-    return [
-      ...this.SemesterIdParam(),
-      param("facultyId")
-        .exists()
-        .withMessage("Faculty ID is required")
-        .isInt({ gt: 0 })
-        .withMessage("Faculty ID must be a positive integer")
-        .toInt(),
-    ];
-  }
-
-  public static StudentSemesterParams() {
-    return [...this.StudentIdParam(), ...this.SemesterIdParam()];
-  }
-}
+export const FacultySemesterParamsSchema = z.object({
+  semesterId: positiveIntegerParam("Semester ID"),
+  facultyId: positiveIntegerParam("Faculty ID"),
+});

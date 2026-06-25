@@ -4,75 +4,44 @@ import { TranscriptController } from "../Controllers/TranscriptController";
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import JSendStatus from "../Enums/Jsend";
-import TranscriptValidator from "../Interfaces/Transcript/TranscriptValidator";
+import { ZodValidator } from "../Middlewares/ZodValidation";
+import { FacultySemesterParamsSchema, StudentIdParamSchema, StudentSemesterParamsSchema } from "../Interfaces/Transcript/TranscriptValidator";
 
 const router = Router();
 
-router.get(
-  "/",
-  IsAuthenticated,
-  AttachAndValidateTenant,
-  (req, res) => {
-    return res.status(StatusCodes.OK).json({
-      status: JSendStatus.SUCCESS,
-      data: {
-        message: "Transcript API root",
-        availableRoutes: [
-          "/students/:studentId/semesters/:semesterId/generate",
-          "/semesters/:semesterId/generate",
-          "/semesters/:semesterId/faculties/:facultyId/generate",
-          "/students/:studentId",
-          "/students/:studentId/semesters/:semesterId",
-        ],
-      },
-    });
-  }
-);
 
-router.post(
-  "/students/:studentId/semesters/:semesterId/generate",
-  IsAuthenticated,
-  AttachAndValidateTenant,
-  ...TranscriptValidator.GenerateStudentTranscript(),
-  ValidateRequest,
-  asyncHandler(TranscriptController.GenerateStudentTranscript)
-);
-
-router.post(
-  "/semesters/:semesterId/generate",
-  IsAuthenticated,
-  AttachAndValidateTenant,
-  ...TranscriptValidator.GenerateSemesterTranscripts(),
-  ValidateRequest,
-  asyncHandler(TranscriptController.GenerateSemesterTranscripts)
-);
 
 router.post(
   "/semesters/:semesterId/faculties/:facultyId/generate",
   IsAuthenticated,
   AttachAndValidateTenant,
-  ...TranscriptValidator.GenerateSemesterTranscriptsByFaculty(),
-  ValidateRequest,
+  ZodValidator({ params: FacultySemesterParamsSchema }),
   asyncHandler(TranscriptController.GenerateFacultySemesterTranscripts)
 );
 
+// add each course with its grade
 router.get(
   "/students/:studentId",
   IsAuthenticated,
   AttachAndValidateTenant,
-  ...TranscriptValidator.StudentIdParam(),
-  ValidateRequest,
+  ZodValidator({ params: StudentIdParamSchema }),
   asyncHandler(TranscriptController.GetStudentTranscripts)
+);
+
+router.post(
+  "/students/:studentId/generate",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ZodValidator({ params: StudentIdParamSchema }),
+  asyncHandler(TranscriptController.GenerateStudentTranscriptsForAllSemesters)
 );
 
 router.get(
   "/students/:studentId/semesters/:semesterId",
   IsAuthenticated,
   AttachAndValidateTenant,
-  ...TranscriptValidator.StudentSemesterParams(),
-  ValidateRequest,
+  ZodValidator({ params: StudentSemesterParamsSchema }),
   asyncHandler(TranscriptController.GetStudentSemesterTranscript)
 );
 

@@ -656,7 +656,7 @@ CREATE TABLE CourseRegistration (
     enrollment_date DATE NOT NULL DEFAULT CURRENT_DATE,
     status registration_status NOT NULL DEFAULT 'Enrolled',
     grade grade_enum,
-    grade_points SMALLINT,
+    grade_points NUMERIC(5,4),
     
     CONSTRAINT fk_courseregistration_student FOREIGN KEY (student_id) 
         REFERENCES Student(user_id) ON DELETE CASCADE,
@@ -665,7 +665,7 @@ CREATE TABLE CourseRegistration (
     CONSTRAINT fk_courseregistration_semester FOREIGN KEY (semester_id) 
         REFERENCES Semester(id) ON DELETE RESTRICT,
     CONSTRAINT uq_courseregistration_student_session UNIQUE (student_id, session_id, semester_id),
-    CONSTRAINT chk_courseregistration_grade_points CHECK (grade_points IS NULL OR (grade_points >= 0 AND grade_points <= 100))
+    CONSTRAINT chk_courseregistration_grade_points CHECK (grade_points IS NULL OR (grade_points >= 0 AND grade_points <= 4.0))
 );
 
 CREATE INDEX idx_courseregistration_student ON CourseRegistration(student_id);
