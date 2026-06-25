@@ -1,4 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
+import dotenv from 'dotenv';
+dotenv.config();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,3 +9,7 @@ cloudinary.config({
 });
 
 export default cloudinary;
+
+cloudinary.api.ping()
+  .then((res) => console.log("Cloudinary connected:", res))
+  .catch((err) => console.error("Cloudinary connection failed:", err));

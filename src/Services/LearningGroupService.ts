@@ -1,6 +1,21 @@
 import { LearningGroupRole, Prisma } from "@prisma/client";
 import { LearningGroupRepository } from "../Repositories/LearningGroupRepository";
 import { logger } from "../Utils/Logger";
+import { GetTenantClient } from "../Utils/prismaClient";
+import { ConflictError, ForbiddenError, NotFoundError } from "../Types/Errors";
+import { MapLearningGroupDetails } from "../Interfaces/LearningGroup/GetGroupDetails/Mapper";
+import { MapLearningGroupMembers } from "../Interfaces/LearningGroup/GetGroupMembers/Mapper";
+import { CreatePostDto } from "../Interfaces/LearningGroup/UploadPosts/CreatePostRequest";
+import { deleteFromCloudinary, UploadRawFileToCloudinary } from "../Utils/ImageUpload";
+import { MapCreatedPost } from "../Interfaces/LearningGroup/UploadPosts/Mapper";
+import { GetPostsQueryDto } from "../Interfaces/LearningGroup/GetPosts/GetPostsRequest";
+import { IPage } from "../Interfaces/Common/PaginatedList";
+import { MapGroupPosts, PostDto } from "../Interfaces/LearningGroup/GetPosts/Mapper";
+import { UpdatePostDto } from "../Interfaces/LearningGroup/UpdatePost/UpdatePostRequest";
+import { MapUpdatedPost } from "../Interfaces/LearningGroup/UpdatePost/Mapper";
+import { MapTogglePinPost } from "../Interfaces/LearningGroup/TogglePinPost/Mapper";
+import { MapPostComments } from "../Interfaces/LearningGroup/GetPostComment/Mapper";
+import { MapCreatedComment } from "../Interfaces/LearningGroup/CreateComment/Mapper";
 
 export class LearningGroupService {
 
@@ -183,5 +198,470 @@ export class LearningGroupService {
         message: "BatchLeaveGroups failed",
       });
     }
+  }
+
+  public static async GetMyGroups(
+    schemaName: string,
+    userId: number,
+    semesterId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const groups = await LearningGroupRepository.GetGroupsForUser(
+      userId,
+      semesterId,
+      prisma
+    );
+
+    logger.info({
+      action: "LearningGroupService.GetMyGroups",
+      status: "success",
+      schema: schemaName,
+      userId,
+      semesterId,
+      groupCount: groups.length,
+    });
+
+    return groups;
+  }
+
+  public static async GetGroupDetails(
+    schemaName: string,
+    groupId: number,
+    requestingUserId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const rawGroup = await LearningGroupRepository.GetGroupDetails(groupId, prisma);
+
+    if (!rawGroup) {
+      throw new NotFoundError("Learning group not found.");
+    }
+
+    const group = MapLearningGroupDetails(rawGroup, requestingUserId);
+
+    logger.info({
+      action: "LearningGroupService.GetGroupDetails",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      requestingUserId,
+    });
+
+    return group;
+  }
+
+  public static async GetGroupMembers(
+    schemaName: string,
+    groupId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const rawMembers = await LearningGroupRepository.GetGroupMembers(groupId, prisma);
+
+    const members = MapLearningGroupMembers(rawMembers);
+
+    logger.info({
+      action: "LearningGroupService.GetGroupMembers",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      memberCount: members.length,
+    });
+
+    return members;
+  }
+
+  public static async JoinByAccessCode(
+    schemaName: string,
+    userId: number,
+    accessCode: string
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const group = await LearningGroupRepository.FindGroupByAccessCode(accessCode, prisma);
+
+    if (!group) {
+      throw new NotFoundError("Invalid access code.");
+    }
+
+    const existingMembership = await LearningGroupRepository.FindMembership(
+      group.id,
+      userId,
+      prisma
+    );
+
+    if (existingMembership) {
+      throw new ConflictError("You are already a member of this learning group.");
+    }
+
+    await LearningGroupRepository.AddMember(
+      group.id,
+      userId,
+      LearningGroupRole.Member,
+      prisma
+    );
+
+    logger.info({
+      action: "LearningGroupService.JoinByAccessCode",
+      status: "success",
+      schema: schemaName,
+      userId,
+      groupId: group.id,
+    });
+
+    return { groupId: group.id, groupName: group.groupName };
+  }
+
+  public static async CreatePost(
+    schemaName: string,
+    groupId: number,
+    authorId: number,
+    data: CreatePostDto,
+    files: Express.Multer.File[]
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const membership = await LearningGroupRepository.CanUserPost(groupId, authorId, prisma);
+
+    if (!membership) {
+      throw new NotFoundError("Learning group not found.");
+    }
+
+    if (membership.role !== "Owner" && !membership.group.allowStudentPosts) {
+      throw new ForbiddenError("Members are not allowed to post in this group.");
+    }
+
+    const uploadedFiles = await Promise.all(
+      files.map(async (file) => {
+        const { url } = await UploadRawFileToCloudinary(
+          file.buffer,
+          `${schemaName}/learning-groups/${groupId}/posts`,
+          file.originalname
+        );
+
+        return {
+          fileName: file.originalname,
+          fileType: file.mimetype,
+          storagePath: url,
+          fileSize: file.size,
+        };
+      })
+    );
+
+    const rawPost = await LearningGroupRepository.CreatePostWithAttachments(
+      groupId,
+      authorId,
+      data.postType,
+      data.content,
+      data.dueDate ? new Date(data.dueDate) : undefined,
+      uploadedFiles,
+      prisma
+    );
+
+    const post = MapCreatedPost(rawPost);
+
+    logger.info({
+      action: "LearningGroupService.CreatePost",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      authorId,
+      postType: data.postType,
+      fileCount: uploadedFiles.length,
+    });
+
+    return post;
+  }
+
+  public static async GetGroupPosts(
+    schemaName: string,
+    groupId: number,
+    query: GetPostsQueryDto
+  ): Promise<IPage<PostDto>> {
+    const prisma = GetTenantClient(schemaName);
+
+    const rawResult = await LearningGroupRepository.GetGroupPosts(
+      groupId,
+      query.postType,
+      query.pageNumber,
+      query.pageSize,
+      prisma
+    );
+
+    const page = MapGroupPosts(rawResult, query.pageNumber, query.pageSize);
+
+    logger.info({
+      action: "LearningGroupService.GetGroupPosts",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postType: query.postType,
+      pageNumber: query.pageNumber,
+      returned: page.items?.length ?? 0,
+    });
+
+    return page;
+  }
+
+  public static async UpdatePost(
+    schemaName: string,
+    groupId: number,
+    postId: number,
+    authorId: number,
+    data: UpdatePostDto,
+    newFiles: Express.Multer.File[]
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const post = await LearningGroupRepository.FindPostForUpdate(postId, groupId, prisma);
+
+    if (!post) {
+      throw new NotFoundError("Post not found.");
+    }
+
+    if (post.authorId !== authorId) {
+      throw new ForbiddenError("Only the original author can update this post.");
+    }
+
+    const validRemoveIds = data.removeAttachmentIds.filter((id) =>
+      post.attachments.some((a) => a.id === id)
+    );
+
+    if (validRemoveIds.length > 0) {
+      const toDelete = post.attachments.filter((a) => validRemoveIds.includes(a.id));
+
+      await Promise.all(
+        toDelete.map((a) => deleteFromCloudinary(a.storagePath))
+      );
+
+      await LearningGroupRepository.DeleteAttachments(validRemoveIds, postId, prisma);
+    }
+
+    if (newFiles.length > 0) {
+      const uploadedFiles = await Promise.all(
+        newFiles.map(async (file) => {
+          const { url } = await UploadRawFileToCloudinary(
+            file.buffer,
+            `learning-groups/${groupId}/posts`,
+            file.originalname
+          );
+
+          return {
+            fileName: file.originalname,
+            fileType: file.mimetype,
+            storagePath: url,
+            fileSize: file.size,
+          };
+        })
+      );
+
+      await LearningGroupRepository.AddAttachments(postId, uploadedFiles, prisma);
+    }
+
+    const rawUpdated = await LearningGroupRepository.UpdatePostContent(
+      postId,
+      data.content,
+      data.dueDate ? new Date(data.dueDate) : undefined,
+      prisma
+    );
+
+    const updatedPost = MapUpdatedPost(rawUpdated);
+
+    logger.info({
+      action: "LearningGroupService.UpdatePost",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postId,
+      authorId,
+      removedAttachments: validRemoveIds.length,
+      addedAttachments: newFiles.length,
+    });
+
+    return updatedPost;
+  }
+
+  public static async DeletePost(
+    schemaName: string,
+    groupId: number,
+    postId: number,
+    requestingUserId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const post = await LearningGroupRepository.FindPostForDelete(postId, groupId, prisma);
+
+    if (!post) {
+      throw new NotFoundError("Post not found.");
+    }
+
+    const membership = await LearningGroupRepository.FindMembership(
+      groupId,
+      requestingUserId,
+      prisma
+    );
+
+    const isAuthor = post.authorId === requestingUserId;
+    const isOwner = membership?.role === "Owner";
+
+    if (!isAuthor && !isOwner) {
+      throw new ForbiddenError("Only the post author or a group owner can delete this post.");
+    }
+
+    if (post.attachments.length > 0) {
+      await Promise.all(
+        post.attachments.map((a) => deleteFromCloudinary(a.storagePath))
+      );
+    }
+
+    await LearningGroupRepository.DeletePost(postId, prisma);
+
+    logger.info({
+      action: "LearningGroupService.DeletePost",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postId,
+      requestingUserId,
+      deletedAsOwner: isOwner && !isAuthor,
+    });
+  }
+
+  public static async TogglePinPost(
+    schemaName: string,
+    groupId: number,
+    postId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const rawPost = await LearningGroupRepository.TogglePinPost(postId, groupId, prisma);
+
+    if (!rawPost) {
+      throw new NotFoundError("Post not found.");
+    }
+
+    const post = MapTogglePinPost(rawPost);
+
+    logger.info({
+      action: "LearningGroupService.TogglePinPost",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postId,
+      isPinned: post.isPinned,
+    });
+
+    return post;
+  }
+
+  public static async GetPostComments(
+    schemaName: string,
+    groupId: number,
+    postId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const rawComments = await LearningGroupRepository.GetPostComments(postId, groupId, prisma);
+
+    if (!rawComments) {
+      throw new NotFoundError("Post not found.");
+    }
+
+    const comments = MapPostComments(rawComments);
+
+    logger.info({
+      action: "LearningGroupService.GetPostComments",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postId,
+      commentCount: comments.length,
+    });
+
+    return comments;
+  }
+
+  public static async CreateComment(
+    schemaName: string,
+    groupId: number,
+    postId: number,
+    authorId: number,
+    content: string
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const post = await LearningGroupRepository.FindPostInGroup(postId, groupId, prisma);
+
+    if (!post) {
+      throw new NotFoundError("Post not found.");
+    }
+
+    const rawComment = await LearningGroupRepository.CreateComment(
+      postId,
+      authorId,
+      content,
+      prisma
+    );
+
+    const comment = MapCreatedComment(rawComment);
+
+    logger.info({
+      action: "LearningGroupService.CreateComment",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postId,
+      authorId,
+    });
+
+    return comment;
+  }
+
+  public static async DeleteComment(
+    schemaName: string,
+    groupId: number,
+    postId: number,
+    commentId: number,
+    requestingUserId: number
+  ) {
+    const prisma = GetTenantClient(schemaName);
+
+    const comment = await LearningGroupRepository.FindCommentForDelete(
+      commentId,
+      postId,
+      groupId,
+      prisma
+    );
+
+    if (!comment) {
+      throw new NotFoundError("Comment not found.");
+    }
+
+    const membership = await LearningGroupRepository.FindMembership(
+      groupId,
+      requestingUserId,
+      prisma
+    );
+
+    const isAuthor = comment.authorId === requestingUserId;
+    const isOwner = membership?.role === "Owner";
+
+    if (!isAuthor && !isOwner) {
+      throw new ForbiddenError("Only the comment author or a group owner can delete this comment.");
+    }
+
+    await LearningGroupRepository.DeleteComment(commentId, prisma);
+
+    logger.info({
+      action: "LearningGroupService.DeleteComment",
+      status: "success",
+      schema: schemaName,
+      groupId,
+      postId,
+      commentId,
+      requestingUserId,
+      deletedAsOwner: isOwner && !isAuthor,
+    });
   }
 }
