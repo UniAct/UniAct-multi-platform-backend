@@ -29,5 +29,14 @@ router.get(
     asyncHandler(JobController.CheckStudentEnrollmentStatus)
 );
 
+router.get(
+    "/student-transcript/:id",
+    IsAuthenticated,
+    AttachAndValidateTenant,
+    RequirePermission(permissions.account.read.name),
+    ZodValidator({ params:JobIdParamSchema }),
+    asyncHandler(JobController.CheckStudentTranscriptStatus)
+);
+
 
 export default router;

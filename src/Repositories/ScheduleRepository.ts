@@ -95,6 +95,7 @@ export class ScheduleRepository {
             classroom: true
           }
         },
+learningGroup: { select: { id: true, groupName: true } },
         registrations: studentId
           ? {
               where: {

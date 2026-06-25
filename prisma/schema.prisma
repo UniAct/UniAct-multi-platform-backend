@@ -504,6 +504,7 @@ model LearningGroup {
   semester Semester              @relation(fields: [semesterId], references: [id])
   members  LearningGroupMember[]
   posts    LearningGroupPost[]
+  scheduleSlotContexts ScheduleSlotContext[]
 
   @@unique([courseId, semesterId]) // one group per course per semester
   @@index([semesterId])
@@ -550,10 +551,12 @@ model ScheduleSlotContext {
   programId     Int @map("program_id")
   academicLevel Int @map("academic_level")
   semesterId    Int @map("semester_id")
+  learningGroupId Int? @map("learning_group_id")
 
   // Relations
   slot          ScheduleSlot         @relation(fields: [slotId], references: [id], onDelete: Cascade)
   program       Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
+  learningGroup LearningGroup?       @relation(fields: [learningGroupId], references: [id], onDelete: SetNull)
   registrations CourseRegistration[]
 
   @@unique([semesterId, slotId, programId])
@@ -701,7 +704,7 @@ model CourseRegistration {
   enrollmentDate      DateTime             @default(now()) @map("enrollment_date") @db.Date
   status              RegistrationStatus   @default(Enrolled)
   grade               GradeEnum?
-  gradePoints         Int?                 @map("grade_points")
+  gradePoints         Decimal?             @map("grade_points") @db.Decimal(5, 4)
   semester            Semester             @relation(fields: [semesterId], references: [id])
   student             Student              @relation(fields: [studentId], references: [userId], onDelete: Cascade)
   grades              Grade[]

@@ -2,9 +2,8 @@
 -- PostgreSQL database dump
 --
 
-
 -- Dumped from database version 17.2
--- Dumped by pg_dump version 18.3
+-- Dumped by pg_dump version 17.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -153,6 +152,19 @@ CREATE TYPE __SCHEMA__."EnrollmentJobStatus" AS ENUM (
     'Pending',
     'Processing',
     'Done'
+);
+
+
+--
+-- Name: TranscriptJobStatus; Type: TYPE; Schema: template; Owner: -
+--
+
+CREATE TYPE __SCHEMA__."TranscriptJobStatus" AS ENUM (
+    'Pending',
+    'Processing',
+    'Completed',
+    'Failed',
+    'Partial failure'
 );
 
 
@@ -632,7 +644,7 @@ CREATE TABLE __SCHEMA__."CourseRegistration" (
     enrollment_date date DEFAULT CURRENT_TIMESTAMP NOT NULL,
     status __SCHEMA__."RegistrationStatus" DEFAULT 'Enrolled'::__SCHEMA__."RegistrationStatus" NOT NULL,
     grade __SCHEMA__."GradeEnum",
-    grade_points integer,
+    grade_points numeric(5,4),
     "slot_context_Id" integer
 );
 
@@ -2846,6 +2858,13 @@ CREATE INDEX "TranscriptJob_status_idx" ON __SCHEMA__."TranscriptJob" USING btre
 
 
 --
+-- Name: TranscriptJob_semester_id_faculty_id_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "TranscriptJob_semester_id_faculty_id_idx" ON __SCHEMA__."TranscriptJob" USING btree (semester_id, faculty_id);
+
+
+--
 -- Name: Transcript_semester_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -3411,6 +3430,14 @@ ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
 
 
 --
+-- Name: TranscriptJob TranscriptJob_faculty_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
+    ADD CONSTRAINT "TranscriptJob_faculty_id_fkey" FOREIGN KEY (faculty_id) REFERENCES __SCHEMA__."Faculty"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: Transcript Transcript_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -3445,5 +3472,3 @@ ALTER TABLE ONLY __SCHEMA__."UserRole"
 --
 -- PostgreSQL database dump complete
 --
-
-
