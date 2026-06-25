@@ -1,3 +1,4 @@
+
 import { Job } from "bullmq";
 import { Queues } from "../../Enums/Queues";
 import { GetWorkerSingleton } from "../../Utils/BullMQConfig";
@@ -10,6 +11,7 @@ import { Channels } from "../../Enums/Channels";
 import { ScheduleRepository } from "../../Repositories/ScheduleRepository";
 import { ProgramRepository } from "../../Repositories/ProgramRepository";
 import { CourseRepository } from "../../Repositories/CourseRepository";
+import { LearningGroupService } from "../../Services/LearningGroupService";
 
 
 interface SlotOutcome {
@@ -81,6 +83,10 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
           prisma
         ),
       ]);
+
+    type SlotContext = typeof dbSlotContexts[number];
+    const GetLearningGroupId = (ctx: SlotContext): number | null => ctx.slot.course.learningGroups[0]?.id ?? null;
+
 
     // ─── 2. Security check — all submitted slot contexts must exist in this program ──
     if (dbSlotContexts.length !== submittedContextIds.length) {
@@ -192,6 +198,8 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
     }
 
     // ─── 6a. Process drops ────────────────────────────────────────────────────
+    const learningGroupsToLeave = new Set<number>();
+
     for (const reg of toDrop) {
       try {
         await prisma.$transaction(async (tx) => {
@@ -201,23 +209,9 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
             where: { id: reg.scheduleSlotContext!.slot.id },
             data: { enrolledSeats: { decrement: 1 } },
           });
-          
-          /**
-           * safer solution (in case of admin adjust the capacity every time)
-           * const updated = await tx.scheduleSlot.update({
-           *   where: { id: reg.scheduleSlotContext!.slot.id },
-           *   data: { enrolledSeats: { decrement: 1 } },
-           *   select: { id: true, enrolledSeats: true, allowedCapacity: true }, 
-           * });
-           * const remaining = updated.allowedCapacity - updated.enrolledSeats; 
-           */
 
-          // allowedCapacity is admin-configured and changes only when an admin
-          // explicitly adjusts slot capacity — never during active enrollment.
-          // Reading it from the pre-fetched snapshot is safe here.
           const remaining =
-            reg.scheduleSlotContext!.slot.allowedCapacity -
-            updated.enrolledSeats;
+            reg.scheduleSlotContext!.slot.allowedCapacity - updated.enrolledSeats;
 
           await RedisPublisher.publish(
             Channels.StudentEnrollment,
@@ -226,11 +220,15 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
         });
 
         outcomes.push({
-          slotId:     reg.scheduleSlotContext!.slot.id,
+          slotId: reg.scheduleSlotContext!.slot.id,
           courseCode: reg.scheduleSlotContext?.slot.course.code!,
           courseName: reg.scheduleSlotContext?.slot.course.name!,
           status: "dropped",
         });
+
+        const groupId = reg.scheduleSlotContext!.slot.course.learningGroups[0]?.id;
+        if (groupId) learningGroupsToLeave.add(groupId);
+
       } catch (err) {
         logger.error({ studentId, regId: reg.id, err, message: "Drop failed" });
         outcomes.push({
@@ -244,8 +242,9 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
     }
 
     // ─── 6b. Process adds ────────────────────────────────────────────────────
+    const learningGroupsToJoin = new Set<number>();
+
     for (const ctx of validToAdd) {
-      // Stale pre-check (optimistic early exit — real guard is inside the tx)
       if (ctx.slot.enrolledSeats >= ctx.slot.allowedCapacity) {
         outcomes.push({
           slotId: ctx.slot.id,
@@ -295,6 +294,9 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
           status: "enrolled",
         });
 
+        const groupId = GetLearningGroupId(ctx);
+        if (groupId) learningGroupsToJoin.add(groupId);
+
         await RedisPublisher.publish(
           Channels.StudentEnrollment,
           JSON.stringify({ slotId: ctx.slotId, remainingSeats: remaining })
@@ -308,6 +310,20 @@ async function Handler(job: Job<EnrollmentJobMessage>) {
           reason: err.message,
         });
       }
+    }
+
+    // ─── 7. Deferred learning group sync (one batched transaction, best-effort) ──
+    if (learningGroupsToJoin.size > 0 || learningGroupsToLeave.size > 0) {
+      await prisma.$transaction(async (tx) => {
+        await LearningGroupService.BatchJoinGroups(studentId, learningGroupsToJoin, tx);
+        await LearningGroupService.BatchLeaveGroups(
+          studentId,
+          semester.id,
+          learningGroupsToLeave,
+          learningGroupsToJoin,
+          tx
+        );
+      });
     }
 
     await prisma.enrollmentJob.update({

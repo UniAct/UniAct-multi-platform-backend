@@ -95,7 +95,6 @@ export class ScheduleRepository {
             classroom: true
           }
         },
-        learningGroup: { select: { id: true, GroupName: true } },
         registrations: studentId
           ? {
               where: {
@@ -129,6 +128,10 @@ export class ScheduleRepository {
             course: {
               include: {
                 prerequisites: true,
+                learningGroups: {
+                  where: { semesterId },
+                  select: { id: true },
+                },
               },
             },
           },

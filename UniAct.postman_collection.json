@@ -139,7 +139,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJtYXJrIiwiZW1haWwiOiJtYXJrQGdtYWlsLmNvbSIsInJvbGVzIjpbIlN1cGVyQWRtaW4iXSwiaWF0IjoxNzc0NTI1NDc1LCJleHAiOjE3NzQ2MTE4NzV9.GJOlby0dTDyp78M3a9vww7GGUtxmoAAbuFat3K7Qpgw",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJNYXJrTWFnZHkiLCJlbWFpbCI6Im1hcmtAZ21haWwuY29tIiwicm9sZXMiOlsiU3VwZXJBZG1pbiJdLCJpYXQiOjE3NzkxOTk1NzYsImV4cCI6MTc3OTI4NTk3Nn0.BmciPo7FHwDDqBL2bImsqpMyJa63kGle-lM8-Y9ITwI",
                   "type": "string"
                 }
               ]
@@ -148,14 +148,14 @@
             "header": [
               {
                 "key": "x-tenant-id",
-                "value": "bla7",
+                "value": "",
                 "type": "text",
                 "disabled": true
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Alexandria National University\",\r\n  \"address\": \"Alexandria University Campus, Abis, Alexandria, Egypt\",\r\n  \"phone\": \"+20 122 885 8407\",\r\n  \"email\": \"info@anu.edu.eg\",\r\n  \"website\": \"https://anu.edu.eg\",\r\n  \"established_date\": \"2022-09-05\",\r\n  \"accreditation\": \"Established by Presidential Decree No. 425 of 2022 and affiliated with Alexandria University under the Supreme Council of Universities (Egypt)\",\r\n  \"db_schema\": \"anu\"\r\n}",
+              "raw": "{\r\n  \"name\": \"Ain Shams University\",\r\n  \"address\": \"Khalifa El-Maamon Street, Abbassia, Cairo, Egypt\",\r\n  \"phone\": \"+20 2 26831474\",\r\n  \"email\": \"info@asu.edu.eg\",\r\n  \"website\": \"https://www.asu.edu.eg\",\r\n  \"established_date\": \"1950-07-21\",\r\n  \"accreditation\": \"Public Egyptian university accredited by the Ministry of Higher Education and supervised by the Supreme Council of Universities\",\r\n  \"db_schema\": \"asu\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -815,7 +815,7 @@
           ]
         },
         {
-          "name": "Login",
+          "name": "Login As Admin",
           "request": {
             "auth": {
               "type": "bearer",
@@ -838,6 +838,147 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n    \"email\": \"markmagdy148@gmail.com\",\r\n    \"password\": \"aaAA11!!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/user/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "user",
+                "login"
+              ]
+            },
+            "description": "{\n\nmarkmagdy148@gmail.com\n\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "Login As Student A",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "university-name",
+                "value": "Alexandria National University",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"mohamed2.hassan@example.com\",\r\n    \"password\": \"29902021367891\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/user/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "user",
+                "login"
+              ]
+            },
+            "description": "{\n\nmarkmagdy148@gmail.com\n\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "Login As Student B",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "university-name",
+                "value": "Alexandria National University",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"omar.hassan@example.com\",\r\n    \"password\": \"30005011234567\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/user/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "user",
+                "login"
+              ]
+            },
+            "description": "{\n\nmarkmagdy148@gmail.com\n\n}"
+          },
+          "response": []
+        },
+        {
+          "name": "Login As Staff",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "university-name",
+                "value": "Alexandria National University",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"youssef.waled@example.com\",\r\n    \"password\": \"aaAA11!!\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1752,7 +1893,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsImVtYWlsIjoibW9uYS5hbGlAZXhhbXBsZS5jb20iLCJ1bml2ZXJzaXR5X25hbWUiOiJBbGV4YW5kcmlhIE5hdGlvbmFsIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJTdHVkZW50Il0sInBlcm1pc3Npb25zIjpbInByb2dyYW0ucmVhZCIsInNjaGVkdWxlLmVucm9sbCJdLCJpc1N0YWZmIjpmYWxzZSwiaXNTdHVkZW50Ijp0cnVlLCJwcm9ncmFtIjp7ImlkIjoxLCJwcm9ncmFtTmFtZSI6IkNvbXB1dGVyIFNjaWVuY2UifSwicHJvZ3JhbUxldmVsIjp7ImlkIjoxLCJsZXZlbCI6MX0sInN0dWRlbnQiOnsiZnVsbG5hbWUiOiJNb25hQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAzMTUxMjM0NTY3IiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJGIiwicmVsaWdpb24iOiJDIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MTAwMDAwMn0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3NzcyOTk5MTAsImV4cCI6MTc3NzM4NjMxMH0.4ODZwqAnnxzn8WVSVR6nxNfabZ5nkn9OVMFPtGryvBo",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIxMzg2MjAsImV4cCI6MTc4MjIyNTAyMH0.IayFdDZtu3_RuQs8GuUEGJoYs3c7jjs25l8Y959sZ3s",
                   "type": "string"
                 }
               ]
@@ -1760,7 +1901,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/job/student-enrollment/57bf3bd3-2767-49bf-81a0-4381a7c70ba9",
+              "raw": "http://localhost:3000/api/job/student-enrollment/332bad21-16b6-43ef-b6f9-afbb9310d529",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1770,7 +1911,7 @@
                 "api",
                 "job",
                 "student-enrollment",
-                "57bf3bd3-2767-49bf-81a0-4381a7c70ba9"
+                "332bad21-16b6-43ef-b6f9-afbb9310d529"
               ]
             }
           },
@@ -1789,7 +1930,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJtb2hhbWVkLmhhc3NhbkBleGFtcGxlLmNvbSIsInVuaXZlcnNpdHlfbmFtZSI6IkFsZXhhbmRyaWEgTmF0aW9uYWwgVW5pdmVyc2l0eSIsInJvbGVzIjpbIlN0dWRlbnQiXSwicGVybWlzc2lvbnMiOlsicHJvZ3JhbS5yZWFkIiwic2NoZWR1bGUuZW5yb2xsIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOnRydWUsInByb2dyYW0iOnsiaWQiOjEsInByb2dyYW1OYW1lIjoiQ29tcHV0ZXIgU2NpZW5jZSJ9LCJwcm9ncmFtTGV2ZWwiOnsiaWQiOjEsImxldmVsIjoxfSwic3R1ZGVudCI6eyJmdWxsbmFtZSI6Ik1vaGFtZWQgSGFzc2FuIEFsaSIsIm5hdGlvbmFsSWQiOiIyOTkwMjAyMTU2Nzg5MSIsImNncGEiOiIwIiwiZ2VuZGVyIjoiTSIsInJlbGlnaW9uIjoiTSIsInVuaXZlcnNpdHlTdHVkZW50SWQiOjIyMDUwNzd9LCJzZW1lc3RlciI6eyJpZCI6MTIsInllYXIiOjIwMjYsInR5cGUiOiJTcHJpbmciLCJ0ZXJtIjoyfSwiaWF0IjoxNzc4MTU4Mjk3LCJleHAiOjE3NzgyNDQ2OTd9.CpIjvMiMBNQ3OrrMN_tGRAcw2hIuPMmfQnlM-F4smHc",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYXJrbWFnZHkxNDhAZ21haWwuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiUm9vdCJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIiwiY2xhc3Nyb29tLmNyZWF0ZSIsImNsYXNzcm9vbS5yZWFkIiwiY2xhc3Nyb29tLnVwZGF0ZSIsImNsYXNzcm9vbS5kZWxldGUiLCJzY2hlZHVsZS5lbnJvbGwiLCJjb3Vyc2VBc3Nlc3NtZW50LmNyZWF0ZSIsImNvdXJzZUFzc2Vzc21lbnQucmVhZCIsImNvdXJzZUFzc2Vzc21lbnQudXBkYXRlIl0sImlzU3RhZmYiOmZhbHNlLCJpc1N0dWRlbnQiOmZhbHNlLCJpYXQiOjE3ODIxMzY5ODEsImV4cCI6MTc4MjIyMzM4MX0.6axLTM-uDaEAmEIj5cVMrqcagerpTaGqYQe5UR0UylY",
                   "type": "string"
                 }
               ]
@@ -1972,7 +2113,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzYsImVtYWlsIjoibW9uYS5hbGlAZXhhbXBsZS5jb20iLCJ1bml2ZXJzaXR5X25hbWUiOiJBbGV4YW5kcmlhIE5hdGlvbmFsIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJTdHVkZW50Il0sInBlcm1pc3Npb25zIjpbInByb2dyYW0ucmVhZCIsInNjaGVkdWxlLmVucm9sbCJdLCJpc1N0YWZmIjpmYWxzZSwiaXNTdHVkZW50Ijp0cnVlLCJwcm9ncmFtIjp7ImlkIjoxLCJwcm9ncmFtTmFtZSI6IkNvbXB1dGVyIFNjaWVuY2UifSwicHJvZ3JhbUxldmVsIjp7ImlkIjoxLCJsZXZlbCI6MX0sInN0dWRlbnQiOnsiZnVsbG5hbWUiOiJNb25hQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAzMTUxMjM0NTY3IiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJGIiwicmVsaWdpb24iOiJDIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MTAwMDAwMn0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3NzcyOTk5MTAsImV4cCI6MTc3NzM4NjMxMH0.4ODZwqAnnxzn8WVSVR6nxNfabZ5nkn9OVMFPtGryvBo",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIxMzg2MjAsImV4cCI6MTc4MjIyNTAyMH0.IayFdDZtu3_RuQs8GuUEGJoYs3c7jjs25l8Y959sZ3s",
                   "type": "string"
                 }
               ]
@@ -1987,7 +2128,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"id\": 42,\r\n      \"start_time\": \"2026-04-15T09:00:00.000Z\",\r\n      \"end_time\": \"2026-04-15T10:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 43,\r\n        \"code\": \"SEC401\",\r\n        \"name\": \"Proactive Computer Security\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 6,\r\n        \"label\": \"A / A2A1\",\r\n        \"capacity\": 150\r\n      }\r\n    },\r\n    {\r\n      \"id\": 43,\r\n      \"start_time\": \"2026-04-18T11:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T12:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 35,\r\n        \"code\": \"SEC402\",\r\n        \"name\": \"Security of Distributed Systems\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 44,\r\n      \"start_time\": \"2026-04-18T15:00:00.000Z\",\r\n      \"end_time\": \"2026-04-18T16:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 31,\r\n        \"code\": \"SEC403\",\r\n        \"name\": \"Computer and Network Security\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 5,\r\n        \"label\": \"C / C0L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 45,\r\n      \"start_time\": \"2026-04-20T11:00:00.000Z\",\r\n      \"end_time\": \"2026-04-20T12:40:00.000Z\",\r\n      \"type\": \"Tutorial\",\r\n      \"course\": {\r\n        \"id\": 35,\r\n        \"code\": \"SEC402\",\r\n        \"name\": \"Security of Distributed Systems\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 6,\r\n        \"label\": \"A / A2A1\",\r\n        \"capacity\": 150\r\n      }\r\n    },\r\n    {\r\n      \"id\": 46,\r\n      \"start_time\": \"2026-04-20T13:00:00.000Z\",\r\n      \"end_time\": \"2026-04-20T14:40:00.000Z\",\r\n      \"type\": \"Tutorial\",\r\n      \"course\": {\r\n        \"id\": 33,\r\n        \"code\": \"SEC404\",\r\n        \"name\": \"Information Security Management\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n        {\r\n      \"id\": 47,\r\n      \"start_time\": \"2026-04-20T15:00:00.000Z\",\r\n      \"end_time\": \"2026-04-20T16:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 43,\r\n        \"code\": \"SEC401\",\r\n        \"name\": \"Proactive Computer Security\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 48,\r\n      \"start_time\": \"2026-04-21T15:00:00.000Z\",\r\n      \"end_time\": \"2026-04-21T16:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 33,\r\n        \"code\": \"SEC404\",\r\n        \"name\": \"Information Security Management\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    }\r\n  ]\r\n}",
+              "raw": "{\r\n  \"scheduleSlots\": [\r\n    {\r\n      \"id\": 166,\r\n      \"start_time\": \"2026-06-26T11:00:00.000Z\",\r\n      \"end_time\": \"2026-06-26T12:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 24,\r\n        \"code\": \"02-24-00307\",\r\n        \"name\": \"Operating Systems\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 8,\r\n        \"label\": \"E / E3L3\",\r\n        \"capacity\": 30\r\n      }\r\n    },\r\n    {\r\n      \"id\": 78,\r\n      \"start_time\": \"2026-06-20T09:00:00.000Z\",\r\n      \"end_time\": \"2026-06-20T10:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 2,\r\n        \"code\": \"02-24-00101\",\r\n        \"name\": \"Linear Algebra\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 79,\r\n      \"start_time\": \"2026-06-20T09:00:00.000Z\",\r\n      \"end_time\": \"2026-06-20T10:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 2,\r\n        \"code\": \"02-24-00101\",\r\n        \"name\": \"Linear Algebra\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 6,\r\n        \"label\": \"A / A2A1\",\r\n        \"capacity\": 150\r\n      }\r\n    },\r\n    {\r\n      \"id\": 90,\r\n      \"start_time\": \"2026-06-25T13:00:00.000Z\",\r\n      \"end_time\": \"2026-06-25T14:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 1,\r\n        \"code\": \"0xc2fz\",\r\n        \"name\": \"tec. writing\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 88,\r\n      \"start_time\": \"2026-06-25T09:00:00.000Z\",\r\n      \"end_time\": \"2026-06-25T10:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 8,\r\n        \"code\": \"02-24-00107\",\r\n        \"name\": \"Discrete Structures\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 4,\r\n        \"label\": \"A / A0L1\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 89,\r\n      \"start_time\": \"2026-06-25T11:00:00.000Z\",\r\n      \"end_time\": \"2026-06-25T12:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 8,\r\n        \"code\": \"02-24-00107\",\r\n        \"name\": \"Discrete Structures\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 7,\r\n        \"label\": \"E / E2L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 87,\r\n      \"start_time\": \"2026-06-23T13:00:00.000Z\",\r\n      \"end_time\": \"2026-06-23T14:40:00.000Z\",\r\n      \"type\": \"Lecture\",\r\n      \"course\": {\r\n        \"id\": 7,\r\n        \"code\": \"02-24-00106\",\r\n        \"name\": \"Probability and Statistics 1\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 89,\r\n        \"name\": \"mark magdy\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 5,\r\n        \"label\": \"C / C0L2\",\r\n        \"capacity\": 50\r\n      }\r\n    },\r\n    {\r\n      \"id\": 86,\r\n      \"start_time\": \"2026-06-23T11:00:00.000Z\",\r\n      \"end_time\": \"2026-06-23T12:40:00.000Z\",\r\n      \"type\": \"Lab\",\r\n      \"course\": {\r\n        \"id\": 7,\r\n        \"code\": \"02-24-00106\",\r\n        \"name\": \"Probability and Statistics 1\",\r\n        \"credits\": 3\r\n      },\r\n      \"teacher\": {\r\n        \"id\": 2,\r\n        \"name\": \"youssef waled\"\r\n      },\r\n      \"classroom\": {\r\n        \"id\": 5,\r\n        \"label\": \"C / C0L2\",\r\n        \"capacity\": 50\r\n      }\r\n    }\r\n  ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2228,6 +2369,475 @@
                 "api",
                 "course",
                 "grade",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Learning Group",
+      "item": [
+        {
+          "name": "Get Group Details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNjg1OTEsImV4cCI6MTc4MjQ1NDk5MX0.8MSTlYc7bjpoYWl7dlO8KoyKERuMFl9MzJEGFPxl7ck",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group Members",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNjg1OTEsImV4cCI6MTc4MjQ1NDk5MX0.8MSTlYc7bjpoYWl7dlO8KoyKERuMFl9MzJEGFPxl7ck",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/members",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Join A Group Using AccessCode",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzcsImVtYWlsIjoib21hci5oYXNzYW5AZXhhbXBsZS5jb20iLCJ1bml2ZXJzaXR5X25hbWUiOiJBbGV4YW5kcmlhIE5hdGlvbmFsIFVuaXZlcnNpdHkiLCJyb2xlcyI6WyJTdHVkZW50Il0sInBlcm1pc3Npb25zIjpbInByb2dyYW0ucmVhZCIsInNjaGVkdWxlLmVucm9sbCJdLCJpc1N0YWZmIjpmYWxzZSwiaXNTdHVkZW50Ijp0cnVlLCJwcm9ncmFtIjp7ImlkIjoxLCJwcm9ncmFtTmFtZSI6IkNvbXB1dGVyIFNjaWVuY2UifSwicHJvZ3JhbUxldmVsIjp7ImlkIjoxLCJsZXZlbCI6MX0sInN0dWRlbnQiOnsiZnVsbG5hbWUiOiJPbWFySGFzc2FuIiwibmF0aW9uYWxJZCI6IjMwMDA1MDExMjM0NTY3IiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MTAwMDAwM30sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNjk1NjUsImV4cCI6MTc4MjQ1NTk2NX0.wdGT3_waRhKGtXrsCTov-OkNKTdotv8mSlgQLKw1au0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"accessCode\": \"A1B2C3\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/join",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "join"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Post",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ5b3Vzc2VmLndhbGVkQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOnRydWUsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc4MjM3MDAwOSwiZXhwIjoxNzgyNDU2NDA5fQ.L-YwJU67teAZeDppx28WJ536mY7Sa5b323zBlyTRJ8U",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "postType",
+                  "value": "MATERIAL",
+                  "type": "text",
+                  "uuid": "9d73cc0d-8ce7-4640-a4f8-1b7c4a396dc6"
+                },
+                {
+                  "key": "content",
+                  "value": "Chapter 1 - Sets, Functions and Relations. Covers set notation, cardinality, set operations, and relation properties (reflexive, symmetric, transitive).",
+                  "type": "text",
+                  "uuid": "243ec4d5-8106-44ef-8449-5d52ea0b5ae7"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "uuid": "cc1d0974-7a1a-48ec-a754-73475cf5d694",
+                  "src": [
+                    "postman-cloud:///1f1706bc-1029-46e0-ac0b-d0dcf008cb19",
+                    "postman-cloud:///1f1706bb-332a-4b90-afbd-661bd722e0d2"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update A Post",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ5b3Vzc2VmLndhbGVkQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOnRydWUsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc4MjM3ODAxMSwiZXhwIjoxNzgyNDY0NDExfQ.P3bvlHc_B1RtkFS5egobFmUkQ-ZwReKn2i884O-3-1M",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "content",
+                  "value": "Welcome to Discrete Structures! Office hours are Sundays and Tuesdays 11am-12:40pm. Midterm exam is scheduled for week 8.",
+                  "type": "text",
+                  "uuid": "3e66fdf2-e212-46c2-9656-fc07e55d2cbd"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts/5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Learning Group Posts (Paginated)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNjg1OTEsImV4cCI6MTc4MjQ1NDk5MX0.8MSTlYc7bjpoYWl7dlO8KoyKERuMFl9MzJEGFPxl7ck",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts?postType=MATERIAL&pageSize=2&pageNumber=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "postType",
+                  "value": "MATERIAL"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "2"
+                },
+                {
+                  "key": "pageNumber",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "you can filter by postType , pageSize and pageNumber\n\n[http://localhost:3000/api/learning-group/11/posts?postType=MATERIAL&amp;pageSize=2&amp;pageNumber=1](http://localhost:3000/api/learning-group/11/posts?postType=MATERIAL&pageSize=2&pageNumber=1EndFragment)\n\nget all posts\n\n[http://localhost:3000/api/learning-group/11/posts](http://localhost:3000/api/learning-group/11/posts?postType=MATERIAL&pageSize=2&pageNumber=1EndFragment)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete A Post",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ5b3Vzc2VmLndhbGVkQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOnRydWUsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc4MjM3ODAxMSwiZXhwIjoxNzgyNDY0NDExfQ.P3bvlHc_B1RtkFS5egobFmUkQ-ZwReKn2i884O-3-1M",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Pin Post",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ5b3Vzc2VmLndhbGVkQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiRGF0YSBFbnRyeSJdLCJwZXJtaXNzaW9ucyI6WyJyb2xlLmNyZWF0ZSIsInJvbGUucmVhZCIsInJvbGUudXBkYXRlIiwicm9sZS5kZWxldGUiLCJhY2NvdW50LmNyZWF0ZSIsImFjY291bnQucmVhZCIsImFjY291bnQudXBkYXRlIiwiYWNjb3VudC5kZWxldGUiLCJhY2NvdW50LmFzc2lnbl9yb2xlIiwiZmFjdWx0eS5jcmVhdGUiLCJmYWN1bHR5LnJlYWQiLCJmYWN1bHR5LnVwZGF0ZSIsImZhY3VsdHkuZGVsZXRlIiwicHJvZ3JhbS5jcmVhdGUiLCJwcm9ncmFtLnJlYWQiLCJwcm9ncmFtLnVwZGF0ZSIsInByb2dyYW0uZGVsZXRlIiwiY291cnNlLmNyZWF0ZSIsImNvdXJzZS5yZWFkIiwiY291cnNlLnVwZGF0ZSIsImNvdXJzZS5kZWxldGUiLCJzZW1lc3Rlci5jcmVhdGUiLCJzZW1lc3Rlci5yZWFkIiwic2VtZXN0ZXIudXBkYXRlIiwic2VtZXN0ZXIuZGVsZXRlIl0sImlzU3RhZmYiOnRydWUsImlzU3R1ZGVudCI6ZmFsc2UsImlhdCI6MTc4MjM3ODAxMSwiZXhwIjoxNzgyNDY0NDExfQ.P3bvlHc_B1RtkFS5egobFmUkQ-ZwReKn2i884O-3-1M",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts/1/pin",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts",
+                "1",
+                "pin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create A Comment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNzg0MzcsImV4cCI6MTc4MjQ2NDgzN30.8LLDLIYbSO307CMZJIPUsFYY22OXPJlhFHg9sdmomwo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"content\": \"it is a database slides not discrete , doctor\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts/5/comments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts",
+                "5",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Comments Related To A Post",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNjg1OTEsImV4cCI6MTc4MjQ1NDk5MX0.8MSTlYc7bjpoYWl7dlO8KoyKERuMFl9MzJEGFPxl7ck",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"content\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts/5/comments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts",
+                "5",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete A Comment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibW9oYW1lZDIuaGFzc2FuQGV4YW1wbGUuY29tIiwidW5pdmVyc2l0eV9uYW1lIjoiQWxleGFuZHJpYSBOYXRpb25hbCBVbml2ZXJzaXR5Iiwicm9sZXMiOlsiU3R1ZGVudCJdLCJwZXJtaXNzaW9ucyI6WyJwcm9ncmFtLnJlYWQiLCJzY2hlZHVsZS5lbnJvbGwiXSwiaXNTdGFmZiI6ZmFsc2UsImlzU3R1ZGVudCI6dHJ1ZSwicHJvZ3JhbSI6eyJpZCI6MSwicHJvZ3JhbU5hbWUiOiJDb21wdXRlciBTY2llbmNlIn0sInByb2dyYW1MZXZlbCI6eyJpZCI6MSwibGV2ZWwiOjF9LCJzdHVkZW50Ijp7ImZ1bGxuYW1lIjoiTW9oYW1lZCBIYXNzYW4gQWxpIiwibmF0aW9uYWxJZCI6IjI5OTAyMDIxMzY3ODkxIiwiY2dwYSI6IjAiLCJnZW5kZXIiOiJNIiwicmVsaWdpb24iOiJNIiwidW5pdmVyc2l0eVN0dWRlbnRJZCI6MjIwNTA3NX0sInNlbWVzdGVyIjp7ImlkIjoxMiwieWVhciI6MjAyNiwidHlwZSI6IlNwcmluZyIsInRlcm0iOjJ9LCJpYXQiOjE3ODIzNjg1OTEsImV4cCI6MTc4MjQ1NDk5MX0.8MSTlYc7bjpoYWl7dlO8KoyKERuMFl9MzJEGFPxl7ck",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/learning-group/11/posts/5/comments/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "learning-group",
+                "11",
+                "posts",
+                "5",
+                "comments",
                 "1"
               ]
             }

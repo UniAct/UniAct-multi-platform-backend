@@ -40,3 +40,32 @@ export async function deleteFromCloudinary(urlOrId: string): Promise<void> {
 
   await cloudinary.uploader.destroy(publicId);
 }
+
+
+export async function UploadRawFileToCloudinary(
+  buffer: Buffer,
+  folder: string,
+  originalFileName: string
+): Promise<{ url: string; publicId: string }> {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "auto",
+        use_filename: true,
+        unique_filename: true,
+        filename_override: originalFileName,
+      },
+      (err, result: UploadApiResponse | undefined) => {
+        if (err || !result) {
+          reject(err ?? new Error("Upload failed"));
+          return;
+        }
+
+        resolve({ url: result.secure_url, publicId: result.public_id });
+      }
+    );
+
+    stream.end(buffer);
+  });
+}

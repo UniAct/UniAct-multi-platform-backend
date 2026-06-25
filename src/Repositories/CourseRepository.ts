@@ -96,7 +96,18 @@ export class CourseRepository {
                 id: true,
                 allowedCapacity: true,
                 classroom: { select: { capacity: true } },
-                course: { select: { credits: true, id: true , code: true , name: true } },
+                course: {
+                  select: {
+                    credits: true,
+                    id: true,
+                    code: true,
+                    name: true,
+                    learningGroups: {
+                      where: { semesterId },
+                      select: { id: true },
+                    },
+                  },
+                },
               },
             },
           },
