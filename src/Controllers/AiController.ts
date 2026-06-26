@@ -2,6 +2,15 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { AiService } from "../Services/AiService";
+import { BadRequestError } from "../Types/Errors";
+
+function getSingleParam(value: string | string[] | undefined, name: string): string {
+  if (typeof value === "string" && value.trim()) {
+    return value;
+  }
+
+  throw new BadRequestError(`${name} must be a single non-empty string.`);
+}
 
 export class AiController {
   static async Health(_req: Request, res: Response) {
@@ -44,7 +53,8 @@ export class AiController {
   }
 
   static async GetSessionHistory(req: Request, res: Response) {
-    const data = await AiService.GetSessionHistory(req.schema_name!, req.params.sessionId);
+    const sessionId = getSingleParam(req.params.sessionId, "sessionId");
+    const data = await AiService.GetSessionHistory(req.schema_name!, sessionId);
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data });
   }
 
@@ -85,12 +95,14 @@ export class AiController {
   }
 
   static async GetStudyData(req: Request, res: Response) {
-    const data = await AiService.GetStudyData(req.schema_name!, Number(req.params.groupId), req.params.fileId);
+    const fileId = getSingleParam(req.params.fileId, "fileId");
+    const data = await AiService.GetStudyData(req.schema_name!, Number(req.params.groupId), fileId);
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data });
   }
 
   static async SaveStudyData(req: Request, res: Response) {
-    const data = await AiService.SaveStudyData(req.schema_name!, Number(req.params.groupId), req.params.fileId, req.body ?? {});
+    const fileId = getSingleParam(req.params.fileId, "fileId");
+    const data = await AiService.SaveStudyData(req.schema_name!, Number(req.params.groupId), fileId, req.body ?? {});
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data });
   }
 }
