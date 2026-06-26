@@ -16,9 +16,10 @@
     "seed:transcript": "ts-node ./src/scripts/seed-transcript.ts",
     "workers": "concurrently \"npm run worker\" \"npm run transcript-worker\"",
     "server": "ts-node-dev --respawn src/index.ts",
-    "docker": "docker-compose up -d --no-recreate",
-    "infra:wait": "wait-on tcp:127.0.0.1:6379 tcp:127.0.0.1:9000",
+    "docker": "node scripts/ensure-dev-infra.mjs",
+    "infra:wait": "node scripts/wait-dev-infra.mjs",
     "dev": "npm run docker && npm run infra:wait && concurrently \"npm run workers\" \"npm run server\"",
+    "dev:external-infra": "npm run infra:wait && concurrently \"npm run workers\" \"npm run server\"",
     "test": "vitest",
     "test:run": "vitest run"
   },

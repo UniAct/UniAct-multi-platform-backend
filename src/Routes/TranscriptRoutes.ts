@@ -20,6 +20,13 @@ router.post(
   asyncHandler(TranscriptController.GenerateFacultySemesterTranscripts)
 );
 
+router.get(
+  "/me",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  asyncHandler(TranscriptController.GetMyTranscripts)
+);
+
 // add each course with its grade
 router.get(
   "/students/:studentId",

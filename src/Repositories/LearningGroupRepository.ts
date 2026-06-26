@@ -81,7 +81,7 @@ export class LearningGroupRepository {
     return prisma.learningGroupMember.findMany({
       where: {
         userId,
-        group: { semesterId },
+        group: { is: { semesterId } },
       },
       select: {
         role: true,

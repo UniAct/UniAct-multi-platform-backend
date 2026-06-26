@@ -51,7 +51,7 @@ export class ScheduleRepository {
       select: {
         course: { select: { id: true, code: true, name: true, credits: true } },
       },
-      orderBy:{programLevelId:'desc'}
+      orderBy: { programLevelId: 'desc' }
     });
   }
 
@@ -91,21 +91,32 @@ export class ScheduleRepository {
         slot: {
           include: {
             teacher: { select: { user: { select: { firstName: true, lastName: true } } } },
-            course: { select: { id: true, name: true, credits: true } },
+            course: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+                credits: true,
+                learningGroups: {
+                  where: { semesterId },
+                  select: { id: true, groupName: true },
+                  take: 1,
+                },
+              },
+            },
             classroom: true
           }
         },
-learningGroup: { select: { id: true, groupName: true } },
         registrations: studentId
           ? {
-              where: {
-                studentId,
-                semesterId,
-              },
-              select: {
-                status: true,
-              },
-            }
+            where: {
+              studentId,
+              semesterId,
+            },
+            select: {
+              status: true,
+            },
+          }
           : false,
       }
     });

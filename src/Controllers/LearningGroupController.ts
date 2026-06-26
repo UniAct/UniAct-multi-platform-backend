@@ -7,16 +7,23 @@ import { CreatePostDto } from "../Interfaces/LearningGroup/UploadPosts/CreatePos
 import { GetPostsQueryDto } from "../Interfaces/LearningGroup/GetPosts/GetPostsRequest";
 import { UpdatePostDto } from "../Interfaces/LearningGroup/UpdatePost/UpdatePostRequest";
 import { CreateCommentDto } from "../Interfaces/LearningGroup/CreateComment/CreateCommentRequest";
+import { BadRequestError } from "../Types/Errors";
 
 export class LearningGroupController{
   static async GetMyGroups(req: Request, res: Response) {
     const userId = Number(req.user?.id);
-    const semesterId = Number(req.user?.semester?.id);
+    const semesterId = req.query.semesterId === undefined
+      ? Number(req.user?.semester?.id)
+      : Number(req.query.semesterId);
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestError("A valid authenticated user is required.");
+    }
 
     const groups = await LearningGroupService.GetMyGroups(
       req.schema_name!,
       userId,
-      semesterId
+      Number.isInteger(semesterId) && semesterId > 0 ? semesterId : undefined
     );
 
     res.status(StatusCodes.OK).json({

@@ -269,12 +269,13 @@ export class ScheduleService {
   // Fingerprint for DB Data
   private static getFingerprintFromDB(c: any): string {
     const s = c.slot;
-    return `${s.courseId}-${c.learningGroupId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
+    return `${s.courseId}-${s.teacherId}-${s.classroomId}-${s.dayOfWeek}-${this.formatTime(s.startTime)}-${this.formatTime(s.endTime)}-${s.type}`;
   }
 
   // The Mapper: Flattens the nested (Context + Slot) into the UI Response
   private static mapSlotToResponse(context: any): SlotResponse {
     const physical = context.slot; // Corrected: context.slot NOT context.scheduleSlot
+    const learningGroup = physical.course.learningGroups?.[0] ?? null;
 
     return {
       id: context.id,
@@ -286,7 +287,12 @@ export class ScheduleService {
       enrolledSeats: physical.enrolledSeats,
       allowedCapacity: physical.allowedCapacity,
 
-      course: physical.course,
+      course: {
+        id: physical.course.id,
+        code: physical.course.code,
+        name: physical.course.name,
+        credits: physical.course.credits,
+      },
 
       teacher: {
         id: physical.teacherId,
@@ -297,9 +303,9 @@ export class ScheduleService {
         label: `${physical.classroom.building} / ${physical.classroom.classroomNumber}`,
         capacity: physical.classroom.capacity
       },
-      learningGroup: context.learningGroup ? {
-        id: context.learningGroup.id,
-        name: context.learningGroup.groupName // Matching the Prisma model field
+      learningGroup: learningGroup ? {
+        id: learningGroup.id,
+        name: learningGroup.groupName // Matching the Prisma model field
       } : null,
       registrationStatus: context.registrations?.[0]?.status ?? null,
       isCurrentStudentEnrolled: ["Enrolled", "InProgress", "Completed"].includes(context.registrations?.[0]?.status ?? ""),

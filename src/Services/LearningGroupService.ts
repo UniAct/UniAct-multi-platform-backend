@@ -16,6 +16,8 @@ import { MapUpdatedPost } from "../Interfaces/LearningGroup/UpdatePost/Mapper";
 import { MapTogglePinPost } from "../Interfaces/LearningGroup/TogglePinPost/Mapper";
 import { MapPostComments } from "../Interfaces/LearningGroup/GetPostComment/Mapper";
 import { MapCreatedComment } from "../Interfaces/LearningGroup/CreateComment/Mapper";
+import { MapMyLearningGroups } from "../Interfaces/LearningGroup/GetMyGroups/GetMyGroupsMapper";
+import { SemesterRepository } from "../Repositories/SemesterRepository";
 
 export class LearningGroupService {
 
@@ -203,13 +205,20 @@ export class LearningGroupService {
   public static async GetMyGroups(
     schemaName: string,
     userId: number,
-    semesterId: number
+    semesterId?: number
   ) {
     const prisma = GetTenantClient(schemaName);
+    const resolvedSemesterId = Number.isInteger(semesterId) && semesterId! > 0
+      ? semesterId!
+      : (await SemesterRepository.GetCurrentSemester(prisma, { id: true }))?.id;
+
+    if (!resolvedSemesterId) {
+      throw new NotFoundError("No active semester is configured for this university.");
+    }
 
     const groups = await LearningGroupRepository.GetGroupsForUser(
       userId,
-      semesterId,
+      resolvedSemesterId,
       prisma
     );
 
@@ -218,11 +227,11 @@ export class LearningGroupService {
       status: "success",
       schema: schemaName,
       userId,
-      semesterId,
+      semesterId: resolvedSemesterId,
       groupCount: groups.length,
     });
 
-    return groups;
+    return MapMyLearningGroups(groups);
   }
 
   public static async GetGroupDetails(

@@ -2,8 +2,9 @@
 -- PostgreSQL database dump
 --
 
+
 -- Dumped from database version 17.2
--- Dumped by pg_dump version 17.4
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -152,19 +153,6 @@ CREATE TYPE __SCHEMA__."EnrollmentJobStatus" AS ENUM (
     'Pending',
     'Processing',
     'Done'
-);
-
-
---
--- Name: TranscriptJobStatus; Type: TYPE; Schema: template; Owner: -
---
-
-CREATE TYPE __SCHEMA__."TranscriptJobStatus" AS ENUM (
-    'Pending',
-    'Processing',
-    'Completed',
-    'Failed',
-    'Partial failure'
 );
 
 
@@ -644,7 +632,7 @@ CREATE TABLE __SCHEMA__."CourseRegistration" (
     enrollment_date date DEFAULT CURRENT_TIMESTAMP NOT NULL,
     status __SCHEMA__."RegistrationStatus" DEFAULT 'Enrolled'::__SCHEMA__."RegistrationStatus" NOT NULL,
     grade __SCHEMA__."GradeEnum",
-    grade_points numeric(5,4),
+    grade_points integer,
     "slot_context_Id" integer
 );
 
@@ -1644,12 +1632,125 @@ ALTER SEQUENCE __SCHEMA__."User_id_seq" OWNED BY __SCHEMA__."User".id;
 
 
 --
+-- Name: assets; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__.assets (
+    asset_id integer NOT NULL,
+    asset_uuid uuid DEFAULT gen_random_uuid() NOT NULL,
+    asset_type text NOT NULL,
+    asset_name text NOT NULL,
+    asset_size integer NOT NULL,
+    asset_config jsonb,
+    asset_project_id text NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(6) with time zone
+);
+
+
+--
+-- Name: assets_asset_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__.assets_asset_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: assets_asset_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__.assets_asset_id_seq OWNED BY __SCHEMA__.assets.asset_id;
+
+
+--
+-- Name: chat_messages; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__.chat_messages (
+    message_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    session_id uuid NOT NULL,
+    role text NOT NULL,
+    content text NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: chunks; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__.chunks (
+    chunk_id integer NOT NULL,
+    chunk_uuid uuid DEFAULT gen_random_uuid() NOT NULL,
+    chunk_text text NOT NULL,
+    chunk_metadata jsonb,
+    chunk_order integer NOT NULL,
+    chunk_project_id text NOT NULL,
+    chunk_asset_id integer NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(6) with time zone
+);
+
+
+--
+-- Name: chunks_chunk_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__.chunks_chunk_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: chunks_chunk_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__.chunks_chunk_id_seq OWNED BY __SCHEMA__.chunks.chunk_id;
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: template; Owner: -
 --
 
 CREATE TABLE __SCHEMA__.migrations (
     name text NOT NULL,
     applied_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: projects; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__.projects (
+    project_id text NOT NULL,
+    project_uuid uuid DEFAULT gen_random_uuid() NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(6) with time zone
+);
+
+
+--
+-- Name: sessions; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__.sessions (
+    session_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    project_id text NOT NULL,
+    title text,
+    filters jsonb,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp(6) with time zone
 );
 
 
@@ -1875,6 +1976,20 @@ ALTER TABLE ONLY __SCHEMA__."Transcript" ALTER COLUMN id SET DEFAULT nextval('__
 --
 
 ALTER TABLE ONLY __SCHEMA__."User" ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__."User_id_seq"'::regclass);
+
+
+--
+-- Name: assets asset_id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.assets ALTER COLUMN asset_id SET DEFAULT nextval('__SCHEMA__.assets_asset_id_seq'::regclass);
+
+
+--
+-- Name: chunks chunk_id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.chunks ALTER COLUMN chunk_id SET DEFAULT nextval('__SCHEMA__.chunks_chunk_id_seq'::regclass);
 
 
 --
@@ -2206,11 +2321,51 @@ ALTER TABLE ONLY __SCHEMA__."User"
 
 
 --
+-- Name: assets assets_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.assets
+    ADD CONSTRAINT assets_pkey PRIMARY KEY (asset_id);
+
+
+--
+-- Name: chat_messages chat_messages_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.chat_messages
+    ADD CONSTRAINT chat_messages_pkey PRIMARY KEY (message_id);
+
+
+--
+-- Name: chunks chunks_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.chunks
+    ADD CONSTRAINT chunks_pkey PRIMARY KEY (chunk_id);
+
+
+--
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: template; Owner: -
 --
 
 ALTER TABLE ONLY __SCHEMA__.migrations
     ADD CONSTRAINT migrations_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: projects projects_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.projects
+    ADD CONSTRAINT projects_pkey PRIMARY KEY (project_id);
+
+
+--
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (session_id);
 
 
 --
@@ -2858,13 +3013,6 @@ CREATE INDEX "TranscriptJob_status_idx" ON __SCHEMA__."TranscriptJob" USING btre
 
 
 --
--- Name: TranscriptJob_semester_id_faculty_id_idx; Type: INDEX; Schema: template; Owner: -
---
-
-CREATE INDEX "TranscriptJob_semester_id_faculty_id_idx" ON __SCHEMA__."TranscriptJob" USING btree (semester_id, faculty_id);
-
-
---
 -- Name: Transcript_semester_id_idx; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -2939,6 +3087,55 @@ CREATE INDEX "User_username_idx" ON __SCHEMA__."User" USING btree (username);
 --
 
 CREATE UNIQUE INDEX "User_username_key" ON __SCHEMA__."User" USING btree (username);
+
+
+--
+-- Name: assets_asset_uuid_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX assets_asset_uuid_key ON __SCHEMA__.assets USING btree (asset_uuid);
+
+
+--
+-- Name: chunks_chunk_uuid_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX chunks_chunk_uuid_key ON __SCHEMA__.chunks USING btree (chunk_uuid);
+
+
+--
+-- Name: ix_asset_project_id; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX ix_asset_project_id ON __SCHEMA__.assets USING btree (asset_project_id);
+
+
+--
+-- Name: ix_asset_type; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX ix_asset_type ON __SCHEMA__.assets USING btree (asset_type);
+
+
+--
+-- Name: ix_chunk_asset_id; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX ix_chunk_asset_id ON __SCHEMA__.chunks USING btree (chunk_asset_id);
+
+
+--
+-- Name: ix_chunk_project_id; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX ix_chunk_project_id ON __SCHEMA__.chunks USING btree (chunk_project_id);
+
+
+--
+-- Name: projects_project_uuid_key; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE UNIQUE INDEX projects_project_uuid_key ON __SCHEMA__.projects USING btree (project_uuid);
 
 
 --
@@ -3430,14 +3627,6 @@ ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
 
 
 --
--- Name: TranscriptJob TranscriptJob_faculty_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
---
-
-ALTER TABLE ONLY __SCHEMA__."TranscriptJob"
-    ADD CONSTRAINT "TranscriptJob_faculty_id_fkey" FOREIGN KEY (faculty_id) REFERENCES __SCHEMA__."Faculty"(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: Transcript Transcript_semester_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
 --
 
@@ -3470,5 +3659,47 @@ ALTER TABLE ONLY __SCHEMA__."UserRole"
 
 
 --
+-- Name: assets assets_asset_project_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.assets
+    ADD CONSTRAINT assets_asset_project_id_fkey FOREIGN KEY (asset_project_id) REFERENCES __SCHEMA__.projects(project_id);
+
+
+--
+-- Name: chat_messages chat_messages_session_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.chat_messages
+    ADD CONSTRAINT chat_messages_session_id_fkey FOREIGN KEY (session_id) REFERENCES __SCHEMA__.sessions(session_id) ON DELETE CASCADE;
+
+
+--
+-- Name: chunks chunks_chunk_asset_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.chunks
+    ADD CONSTRAINT chunks_chunk_asset_id_fkey FOREIGN KEY (chunk_asset_id) REFERENCES __SCHEMA__.assets(asset_id);
+
+
+--
+-- Name: chunks chunks_chunk_project_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.chunks
+    ADD CONSTRAINT chunks_chunk_project_id_fkey FOREIGN KEY (chunk_project_id) REFERENCES __SCHEMA__.projects(project_id);
+
+
+--
+-- Name: sessions sessions_project_id_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.sessions
+    ADD CONSTRAINT sessions_project_id_fkey FOREIGN KEY (project_id) REFERENCES __SCHEMA__.projects(project_id);
+
+
+--
 -- PostgreSQL database dump complete
 --
+
+
