@@ -10,6 +10,16 @@ import { CourseAccessService } from "./CourseAccessService";
 import { CourseRepository } from "../Repositories/CourseRepository";
 
 export class AttendanceService {
+  private static readonly dayOrder: Record<string, number> = {
+    Saturday: 0,
+    Sunday: 1,
+    Monday: 2,
+    Tuesday: 3,
+    Wednesday: 4,
+    Thursday: 5,
+    Friday: 6,
+  };
+
   private static resolveCurrentDayOfWeek():
     | "Monday"
     | "Tuesday"
@@ -60,6 +70,113 @@ export class AttendanceService {
     } catch {
       throw new BadRequestError("Invalid QR payload.");
     }
+  }
+
+  private static formatTime(value: Date | string | null | undefined) {
+    if (!value) {
+      return "";
+    }
+
+    if (value instanceof Date) {
+      return `${value.getUTCHours().toString().padStart(2, "0")}:${value
+        .getUTCMinutes()
+        .toString()
+        .padStart(2, "0")}`;
+    }
+
+    const raw = value.toString();
+    const match = /(\d{2}:\d{2})/.exec(raw);
+    return match?.[1] ?? raw;
+  }
+
+  private static getPercent(completed: number, required: number) {
+    if (required <= 0) {
+      return 0;
+    }
+
+    return Math.min(100, Number(((completed / required) * 100).toFixed(2)));
+  }
+
+  private static buildProgressSegment(label: string, completed: number, required: number) {
+    return {
+      label,
+      completedCreditHours: Math.min(completed, required),
+      requiredCreditHours: required,
+      remainingCreditHours: Math.max(required - completed, 0),
+      percent: this.getPercent(completed, required),
+    };
+  }
+
+  private static mapStudentTimetableItem(item: Awaited<ReturnType<typeof AttendanceRepository.GetStudentMobileTimetable>>[number]) {
+    const context = item.scheduleSlotContext;
+    const slot = context?.slot;
+    const teacherUser = slot?.teacher?.user;
+
+    return {
+      id: item.id,
+      slotId: slot?.id ?? 0,
+      slotContextId: context?.id ?? null,
+      dayOfWeek: slot?.dayOfWeek ?? "",
+      startTime: this.formatTime(slot?.startTime),
+      endTime: this.formatTime(slot?.endTime),
+      type: slot?.type ?? "",
+      registrationStatus: item.status,
+      course: slot?.course ?? null,
+      classroom: slot?.classroom
+        ? {
+            ...slot.classroom,
+            label: `${slot.classroom.building} / ${slot.classroom.classroomNumber}`,
+          }
+        : null,
+      teacher: teacherUser
+        ? {
+            name: `${teacherUser.firstName ?? ""} ${teacherUser.lastName ?? ""}`.trim(),
+            email: teacherUser.email ?? null,
+          }
+        : null,
+      program: context?.program ?? null,
+      academicLevel: context?.academicLevel ?? null,
+    };
+  }
+
+  private static mapStaffTimetableItem(item: Awaited<ReturnType<typeof AttendanceRepository.GetStaffMobileTimetable>>[number]) {
+    return {
+      id: item.id,
+      slotId: item.id,
+      slotContextId: null,
+      dayOfWeek: item.dayOfWeek,
+      startTime: this.formatTime(item.startTime),
+      endTime: this.formatTime(item.endTime),
+      type: item.type,
+      registrationStatus: null,
+      course: item.course,
+      classroom: item.classroom
+        ? {
+            ...item.classroom,
+            label: `${item.classroom.building} / ${item.classroom.classroomNumber}`,
+          }
+        : null,
+      teacher: null,
+      programContexts: item.slotContext.map((context) => ({
+        id: context.id,
+        academicLevel: context.academicLevel,
+        program: context.program,
+        enrolledStudents: context.registrations.length,
+      })),
+      allowedCapacity: item.allowedCapacity,
+      enrolledSeats: item.enrolledSeats,
+    };
+  }
+
+  private static sortTimetableItems<T extends { dayOfWeek: string; startTime: string }>(items: T[]) {
+    return [...items].sort((a, b) => {
+      const dayDelta = (this.dayOrder[a.dayOfWeek] ?? 99) - (this.dayOrder[b.dayOfWeek] ?? 99);
+      if (dayDelta !== 0) {
+        return dayDelta;
+      }
+
+      return a.startTime.localeCompare(b.startTime);
+    });
   }
 
   public static async GetCourseOptions(
@@ -259,16 +376,56 @@ export class AttendanceService {
     const dayOfWeek = this.resolveCurrentDayOfWeek();
 
     if (user.isStudent) {
-      const [todaySchedule, stats] = await Promise.all([
+      const [todaySchedule, stats, creditProgress] = await Promise.all([
         AttendanceRepository.GetStudentTodaySchedule(prisma, user.id, semesterId, dayOfWeek),
         AttendanceRepository.GetStudentRegistrationStats(prisma, user.id, semesterId),
+        AttendanceRepository.GetStudentCreditProgress(prisma, user.id),
       ]);
+
+      const requiredTotal = creditProgress.requirements.total;
+      const completedTotal = creditProgress.completedCreditHours;
 
       return {
         role: "student",
         semesterId,
         dayOfWeek,
-        stats,
+        stats: {
+          ...stats,
+          completedCourses: creditProgress.completedCourses,
+          completedCreditHours: creditProgress.completedCreditHours,
+        },
+        creditProgress: {
+          completedCourses: creditProgress.completedCourses,
+          completedCreditHours: completedTotal,
+          totalRequiredCreditHours: requiredTotal,
+          remainingCreditHours: Math.max(requiredTotal - completedTotal, 0),
+          percent: this.getPercent(completedTotal, requiredTotal),
+          requirements: creditProgress.requirements,
+          program: creditProgress.program,
+          faculty: creditProgress.faculty,
+          segments: [
+            this.buildProgressSegment(
+              "University",
+              completedTotal,
+              creditProgress.requirements.university,
+            ),
+            this.buildProgressSegment(
+              "Faculty",
+              Math.max(completedTotal - creditProgress.requirements.university, 0),
+              creditProgress.requirements.faculty,
+            ),
+            this.buildProgressSegment(
+              "Program",
+              Math.max(
+                completedTotal -
+                  creditProgress.requirements.university -
+                  creditProgress.requirements.faculty,
+                0,
+              ),
+              creditProgress.requirements.program,
+            ),
+          ],
+        },
         todaySchedule,
       };
     }
@@ -295,6 +452,39 @@ export class AttendanceService {
       stats: {},
       todaySchedule: [],
     };
+  }
+
+  public static async GetMobileTimetable(user: TokenPayload, schemaName: string) {
+    if (!user.id) {
+      throw new BadRequestError("Missing user id in token.");
+    }
+
+    const prisma = GetTenantClient(schemaName);
+    const semesterId = await this.resolveSemesterId(schemaName, user);
+
+    if (user.isStudent) {
+      const items = await AttendanceRepository.GetStudentMobileTimetable(prisma, user.id, semesterId);
+      const timetable = this.sortTimetableItems(items.map((item) => this.mapStudentTimetableItem(item)));
+
+      return {
+        role: "student",
+        semesterId,
+        timetable,
+      };
+    }
+
+    if (user.isStaff) {
+      const items = await AttendanceRepository.GetStaffMobileTimetable(prisma, user.id, semesterId);
+      const timetable = this.sortTimetableItems(items.map((item) => this.mapStaffTimetableItem(item)));
+
+      return {
+        role: "staff",
+        semesterId,
+        timetable,
+      };
+    }
+
+    throw new ForbiddenError("Student or staff account required.");
   }
 
   public static async GetStudentAttendanceStatus(user: TokenPayload, schemaName: string, semesterId?: number) {

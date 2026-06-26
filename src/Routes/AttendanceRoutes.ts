@@ -79,6 +79,13 @@ router.get(
 );
 
 router.get(
+  "/mobile/timetable",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  asyncHandler(AttendanceController.GetMobileTimetable),
+);
+
+router.get(
   "/mobile/student/my-status",
   IsAuthenticated,
   AttachAndValidateTenant,

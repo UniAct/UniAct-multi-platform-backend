@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["public", "template"]
 }
 
 model SuperAdmin {
@@ -18,23 +19,25 @@ model SuperAdmin {
 
   @@index([username], map: "idx_superadmin_username")
   @@index([email], map: "idx_superadmin_email")
+  @@schema("public")
 }
 
 model University {
-  id               Int       @id @default(autoincrement())
-  name             String    @unique
+  id               Int                 @id @default(autoincrement())
+  name             String              @unique
   address          String?
   phone            String?
   email            String?
   website          String?
   established_date DateTime?
   accreditation    String?
-  db_schema        String    @unique
-  is_active        Boolean   @default(false)
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @default(now())
+  db_schema        String              @unique
+  is_active        Boolean             @default(false)
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @default(now())
   settings         UniversitySettings?
 
+  @@schema("public")
 }
 
 model UniversitySettings {
@@ -47,6 +50,8 @@ model UniversitySettings {
   hero_images     String[]   @default([])
   updated_at      DateTime   @updatedAt
   university      University @relation(fields: [university_id], references: [id], onDelete: Cascade)
+
+  @@schema("public")
 }
 
 model RefreshToken {
@@ -61,6 +66,7 @@ model RefreshToken {
 
   @@index([expires_at])
   @@index([super_admin_id])
+  @@schema("public")
 }
 
 model Job {
@@ -77,16 +83,17 @@ model Job {
 
   @@index([status])
   @@index([created_at])
+  @@schema("template")
 }
 
 model EnrollmentJob {
-  id        String          @id @default(uuid()) @db.Uuid
-  studentId Int             @map("student_id")
-  semesterId Int            @map("semester_id")
-  status    EnrollmentJobStatus @default(Pending)
-  result    Json?           // per-slot outcomes written by worker
-  createdAt DateTime        @default(now()) @map("created_at")
-  updatedAt DateTime        @updatedAt @map("updated_at")
+  id         String              @id @default(uuid()) @db.Uuid
+  studentId  Int                 @map("student_id")
+  semesterId Int                 @map("semester_id")
+  status     EnrollmentJobStatus @default(Pending)
+  result     Json? // per-slot outcomes written by worker
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
 
   student  Student  @relation(fields: [studentId], references: [userId])
   semester Semester @relation(fields: [semesterId], references: [id])
@@ -94,6 +101,7 @@ model EnrollmentJob {
   @@index([studentId, semesterId])
   @@index([status])
   @@map("EnrollmentJob")
+  @@schema("template")
 }
 
 model User {
@@ -114,18 +122,45 @@ model User {
   nationalId                String                     @unique @map("national_id") @db.VarChar(50)
   createdAt                 DateTime                   @default(now()) @map("created_at")
   updatedAt                 DateTime                   @updatedAt @map("updated_at")
-  LearningGroups            LearningGroup[]
   LearningGroupMembers      LearningGroupMember[]
   LearningGroupPostsAuthor  LearningGroupPost[]
   LearningGroupPostComments LearningGroupPostComment[]
   staff                     Staff?
   student                   Student?
   userRoles                 UserRole[]
+  announcements             Announcement[]
 
   @@index([email])
   @@index([username])
   @@index([nationalId])
   @@map("User")
+  @@schema("template")
+}
+
+model Announcement {
+  id      Int    @id @default(autoincrement())
+  title   String @db.VarChar(300)
+  content String
+
+  type     AnnouncementType     @default(ANNOUNCEMENT)
+  audience AnnouncementAudience @default(ALL)
+  status   AnnouncementStatus   @default(PUBLISHED)
+
+  eventDate     DateTime? @map("event_date")
+  eventLocation String?   @map("event_location") @db.VarChar(300)
+
+  authorId Int @map("author_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("Announcement")
+  @@schema("template")
 }
 
 model Staff {
@@ -146,6 +181,7 @@ model Staff {
 
   @@index([position])
   @@map("Staff")
+  @@schema("template")
 }
 
 model Faculty {
@@ -166,6 +202,7 @@ model Faculty {
   @@index([name])
   @@index([deanId])
   @@map("Faculty")
+  @@schema("template")
 }
 
 model Program {
@@ -182,9 +219,8 @@ model Program {
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
 
-
-  head                  Staff?   @relation(fields: [headId], references: [userId], name: "ProgramHead")
-  faculty               Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  head    Staff?  @relation(fields: [headId], references: [userId], name: "ProgramHead")
+  faculty Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
 
   programType   ProgramType       @map("program_type")
   resultDisplay ResultDisplayType @default(CourseGrade) @map("result_display")
@@ -203,6 +239,7 @@ model Program {
   @@index([programType])
   @@index([headId])
   @@map("Program")
+  @@schema("template")
 }
 
 model ProgramStaff {
@@ -222,6 +259,7 @@ model ProgramStaff {
   @@unique([staffId, programId])
   @@index([facultyId, staffId]) // Added for "Teacher-in-Faculty" lookups
   @@map("ProgramStaff")
+  @@schema("template")
 }
 
 model Student {
@@ -254,6 +292,7 @@ model Student {
   @@index([status])
   @@index([universityStudentId])
   @@map("Student")
+  @@schema("template")
 }
 
 model Regulation {
@@ -276,6 +315,7 @@ model Regulation {
 
   @@index([facultyId])
   @@map("Regulation")
+  @@schema("template")
 }
 
 model MercyRule {
@@ -289,25 +329,29 @@ model MercyRule {
 
   @@index([regulationId])
   @@map("MercyRule")
+  @@schema("template")
 }
 
 model Semester {
-  id                    Int                    @id @default(autoincrement())
-  year                  Int                    @db.SmallInt
-  term                  Int                    @db.SmallInt
-  startDate             DateTime               @map("start_date") @db.Date
-  endDate               DateTime               @map("end_date") @db.Date
-  type                  SemesterType
-  scheduleSlots         ScheduleSlot[]
-  courseRegistrations   CourseRegistration[]
-  studentFeeReports     StudentFeeReport[]
-  transcripts           Transcript[]
-  courseAssessments     CourseAssessment[]
-  enrollmentJobs        EnrollmentJob[]
+  id                  Int                  @id @default(autoincrement())
+  year                Int                  @db.SmallInt
+  term                Int                  @db.SmallInt
+  startDate           DateTime             @map("start_date") @db.Date
+  endDate             DateTime             @map("end_date") @db.Date
+  type                SemesterType
+  scheduleSlots       ScheduleSlot[]
+  courseRegistrations CourseRegistration[]
+  studentFeeReports   StudentFeeReport[]
+  transcripts         Transcript[]
+  courseAssessments   CourseAssessment[]
+  enrollmentJobs      EnrollmentJob[]
+  learningGroups      LearningGroup[]
+  transcriptJobs      TranscriptJob[]
 
   @@unique([year, term])
   @@index([year])
   @@map("Semester")
+  @@schema("template")
 }
 
 model ProgramLevel {
@@ -329,6 +373,7 @@ model ProgramLevel {
   @@unique([id, programId])
   @@index([programId])
   @@map("ProgramLevel")
+  @@schema("template")
 }
 
 model Fee {
@@ -347,30 +392,32 @@ model Fee {
   @@index([semesterNumber])
   @@index([feeType])
   @@map("Fee")
+  @@schema("template")
 }
 
 model ProgramTranscriptDefinition {
-  id                 Int      @id @default(autoincrement())
-  programId          Int      @map("program_id")
+  id                 Int       @id @default(autoincrement())
+  programId          Int       @map("program_id")
   gradeLetter        GradeEnum @map("grade_letter")
-  minScore           Decimal  @map("min_score") @db.Decimal(5, 2)
-  maxScore           Decimal  @map("max_score") @db.Decimal(5, 2)
-  equivalentEstimate String?  @map("equivalent_estimate") @db.VarChar(20)
-  minGpa             Decimal  @map("min_gpa") @db.Decimal(5, 4)
-  maxGpa             Decimal  @map("max_gpa") @db.Decimal(5, 4)
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
-  program            Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  minScore           Decimal   @map("min_score") @db.Decimal(5, 2)
+  maxScore           Decimal   @map("max_score") @db.Decimal(5, 2)
+  equivalentEstimate String?   @map("equivalent_estimate") @db.VarChar(20)
+  minGpa             Decimal   @map("min_gpa") @db.Decimal(5, 4)
+  maxGpa             Decimal   @map("max_gpa") @db.Decimal(5, 4)
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  program            Program   @relation(fields: [programId], references: [id], onDelete: Cascade)
 
   @@unique([programId, gradeLetter])
   @@index([programId])
   @@map("ProgramTranscriptDefinition")
+  @@schema("template")
 }
 
 model AcademicLoadSemester {
   id             Int          @id @default(autoincrement())
   programId      Int          @map("program_id")
-  semesterNumber Int @map("semester_number") @db.SmallInt
+  semesterNumber Int          @map("semester_number") @db.SmallInt
   programLevelId Int          @map("program_level_id")
   minCredits     Int          @map("min_credits")
   maxCredits     Int          @map("max_credits")
@@ -378,9 +425,11 @@ model AcademicLoadSemester {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   program        Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
   programLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
+
   @@unique([programId, semesterNumber, programLevelId])
   @@index([semesterNumber])
   @@map("AcademicLoadSemester")
+  @@schema("template")
 }
 
 model AcademicLoadGPA {
@@ -396,30 +445,33 @@ model AcademicLoadGPA {
 
   @@index([programId])
   @@map("AcademicLoadGPA")
+  @@schema("template")
 }
 
 model Course {
-  id                        Int                   @id @default(autoincrement())
-  name                      String                @db.VarChar(255)
-  code                      String                @unique @db.VarChar(20)
+  id                        Int                  @id @default(autoincrement())
+  name                      String               @db.VarChar(255)
+  code                      String               @unique @db.VarChar(20)
   description               String?
   credits                   Int
   syllabus                  String?
-  successPercentage         Decimal?              @map("success_percentage") @db.Decimal(5, 2)
-  totalFail                 Boolean               @default(false) @map("total_fail")
-  minFinalSuccessPercentage Decimal?              @map("min_final_success_percentage") @db.Decimal(5, 2)
-  createdAt                 DateTime              @default(now()) @map("created_at")
-  updatedAt                 DateTime              @updatedAt @map("updated_at")
+  successPercentage         Decimal?             @map("success_percentage") @db.Decimal(5, 2)
+  totalFail                 Boolean              @default(false) @map("total_fail")
+  minFinalSuccessPercentage Decimal?             @map("min_final_success_percentage") @db.Decimal(5, 2)
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  updatedAt                 DateTime             @updatedAt @map("updated_at")
   attendanceReports         AttendanceReport[]
-  prerequisites    CoursePrerequisite[]  @relation("course")
-  requiredBy       CoursePrerequisite[]  @relation("prerequisite")
+  prerequisites             CoursePrerequisite[] @relation("course")
+  requiredBy                CoursePrerequisite[] @relation("prerequisite")
   programCourses            ProgramCourse[]
   courseAssessments         CourseAssessment[]
   scheduleSlots             ScheduleSlot[]
+  learningGroups            LearningGroup[]
 
   @@index([name])
-  @@index([code,name])
+  @@index([code, name])
   @@map("Course")
+  @@schema("template")
 }
 
 model Classroom {
@@ -436,22 +488,26 @@ model Classroom {
   @@index([building])
   @@index([underMaintenance])
   @@map("Classroom")
+  @@schema("template")
 }
 
 model LearningGroup {
   id                Int      @id @default(autoincrement())
-  GroupName         String   @map("group_name") @db.VarChar(255)
+  courseId          Int      @map("course_id")
+  semesterId        Int      @map("semester_id")
+  groupName         String   @map("group_name") @db.VarChar(255)
   accessCode        String?  @map("access_code") @db.VarChar(50)
   allowStudentPosts Boolean  @default(false) @map("allow_student_posts")
   createdAt         DateTime @default(now()) @map("created_at")
 
-  posts                LearningGroupPost[]
-  members              LearningGroupMember[]
-  user                 User?                 @relation(fields: [userId], references: [id])
-  userId               Int?
-  scheduleSlotContexts ScheduleSlotContext[]
-
+  course   Course                @relation(fields: [courseId], references: [id])
+  semester Semester              @relation(fields: [semesterId], references: [id])
+  members  LearningGroupMember[]
+  posts    LearningGroupPost[]
+  @@unique([courseId, semesterId]) // one group per course per semester
+  @@index([semesterId])
   @@map("LearningGroup")
+  @@schema("template")
 }
 
 model ScheduleSlot {
@@ -461,11 +517,11 @@ model ScheduleSlot {
   classroomId Int @map("classroom_id")
   semesterId  Int @map("semester_id")
 
-  dayOfWeek DayOfWeek @map("day_of_week")
-  startTime DateTime  @map("start_time") @db.Time(6)
-  endTime   DateTime  @map("end_time") @db.Time(6)
-  type      SlotType  @default(Lecture)
-  allowedCapacity Int @db.SmallInt
+  dayOfWeek       DayOfWeek @map("day_of_week")
+  startTime       DateTime  @map("start_time") @db.Time(6)
+  endTime         DateTime  @map("end_time") @db.Time(6)
+  type            SlotType  @default(Lecture)
+  allowedCapacity Int       @db.SmallInt
 
   // This tracks the total physical people in the room across ALL programs
   enrolledSeats Int @default(0) @map("enrolled_seats") @db.SmallInt
@@ -484,27 +540,26 @@ model ScheduleSlot {
   @@index([classroomId, dayOfWeek])
   @@index([teacherId, semesterId])
   @@map("ScheduleSlot")
+  @@schema("template")
 }
 
 model ScheduleSlotContext {
-  id              Int  @id @default(autoincrement())
-  slotId          Int  @map("slot_id")
-  programId       Int  @map("program_id")
-  academicLevel   Int  @map("academic_level")
-  semesterId      Int  @map("semester_id")
-  learningGroupId Int? @map("learning_group_id")
+  id            Int @id @default(autoincrement())
+  slotId        Int @map("slot_id")
+  programId     Int @map("program_id")
+  academicLevel Int @map("academic_level")
+  semesterId    Int @map("semester_id")
 
   // Relations
-  slot          ScheduleSlot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
-  program       Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
-  learningGroup LearningGroup? @relation(fields: [learningGroupId], references: [id])
-
+  slot          ScheduleSlot         @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  program       Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
   registrations CourseRegistration[]
 
   @@unique([semesterId, slotId, programId])
   @@index([slotId])
   @@index([semesterId, programId, academicLevel])
   @@map("ScheduleSlotContext")
+  @@schema("template")
 }
 
 model CourseAssessment {
@@ -524,6 +579,7 @@ model CourseAssessment {
   @@index([courseId, semesterId])
   @@index([assessmentType])
   @@map("CourseAssessment")
+  @@schema("template")
 }
 
 model ProgramCourse {
@@ -545,6 +601,7 @@ model ProgramCourse {
   @@index([courseId])
   @@index([type])
   @@map("ProgramCourse")
+  @@schema("template")
 }
 
 model CoursePrerequisite {
@@ -553,12 +610,12 @@ model CoursePrerequisite {
   course         Course @relation("course", fields: [courseId], references: [id], onDelete: Cascade)
   prerequisite   Course @relation("prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
 
- // this optimizes what are the prerequisites for this course 
+  // this optimizes what are the prerequisites for this course 
   @@id([courseId, prerequisiteId])
-
   // This allows the DB to find 'requiredBy' courses without a table lookup.
-  @@index([prerequisiteId, courseId]) 
+  @@index([prerequisiteId, courseId])
   @@map("CoursePrerequisite")
+  @@schema("template")
 }
 
 model StudentFeeReport {
@@ -581,6 +638,7 @@ model StudentFeeReport {
   @@index([semesterId])
   @@index([status])
   @@map("StudentFeeReport")
+  @@schema("template")
 }
 
 model Role {
@@ -594,6 +652,7 @@ model Role {
 
   @@index([name])
   @@map("Role")
+  @@schema("template")
 }
 
 model Permission {
@@ -606,6 +665,7 @@ model Permission {
 
   @@index([name])
   @@map("Permission")
+  @@schema("template")
 }
 
 model UserRole {
@@ -618,6 +678,7 @@ model UserRole {
   @@id([userId, roleId])
   @@index([roleId])
   @@map("UserRole")
+  @@schema("template")
 }
 
 model RolePermission {
@@ -629,6 +690,7 @@ model RolePermission {
   @@id([roleId, permissionId])
   @@index([permissionId])
   @@map("RolePermission")
+  @@schema("template")
 }
 
 model CourseRegistration {
@@ -638,7 +700,7 @@ model CourseRegistration {
   enrollmentDate      DateTime             @default(now()) @map("enrollment_date") @db.Date
   status              RegistrationStatus   @default(Enrolled)
   grade               GradeEnum?
-  gradePoints         Int?                 @map("grade_points")
+  gradePoints         Decimal?             @map("grade_points") @db.Decimal(5, 4)
   semester            Semester             @relation(fields: [semesterId], references: [id])
   student             Student              @relation(fields: [studentId], references: [userId], onDelete: Cascade)
   grades              Grade[]
@@ -651,6 +713,7 @@ model CourseRegistration {
   @@index([semesterId])
   @@index([status])
   @@map("CourseRegistration")
+  @@schema("template")
 }
 
 model Grade {
@@ -667,6 +730,7 @@ model Grade {
   @@index([courseRegistrationId])
   @@index([courseAssessmentId])
   @@map("Grade")
+  @@schema("template")
 }
 
 model Transcript {
@@ -686,6 +750,24 @@ model Transcript {
   @@index([semesterId])
   @@index([year])
   @@map("Transcript")
+  @@schema("template")
+}
+
+model TranscriptJob {
+  id         String              @id @default(uuid()) @db.Uuid
+  facultyId  Int                 @map("faculty_id")
+  semesterId Int                 @map("semester_id")
+  status     TranscriptJobStatus @default(Pending)
+  result     Json?
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
+
+  semester Semester @relation(fields: [semesterId], references: [id])
+
+  @@index([semesterId])
+  @@index([status])
+  @@map("TranscriptJob")
+  @@schema("template")
 }
 
 model AttendanceSession {
@@ -708,6 +790,7 @@ model AttendanceSession {
   @@index([scheduleSlotId, sessionDate])
   @@index([sessionDate])
   @@map("AttendanceSession")
+  @@schema("template")
 }
 
 model StudentAttendance {
@@ -730,6 +813,7 @@ model StudentAttendance {
   @@index([status])
   @@index([recordedAt])
   @@map("StudentAttendance")
+  @@schema("template")
 }
 
 model AttendanceReport {
@@ -750,76 +834,185 @@ model AttendanceReport {
   @@index([studentId])
   @@index([reportPeriodStart, reportPeriodEnd])
   @@map("AttendanceReport")
+  @@schema("template")
 }
 
 model LearningGroupMember {
-  id                 Int                 @id @default(autoincrement())
-  learningGroupId    Int                 @map("learning_group_id")
-  userId             Int                 @map("user_id")
-  role               LearningGroupRole   @default(Member)
-  joinedAt           DateTime            @default(now()) @map("joined_at")
-  group              LearningGroup       @relation(fields: [learningGroupId], references: [id], onDelete: Cascade)
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  learningGroupPosts LearningGroupPost[]
+  learningGroupId Int               @map("learning_group_id")
+  userId          Int               @map("user_id")
+  role            LearningGroupRole @default(Member)
+  joinedAt        DateTime          @default(now()) @map("joined_at")
 
-  @@unique([learningGroupId, userId])
-  @@index([learningGroupId])
+  group LearningGroup @relation(fields: [learningGroupId], references: [id], onDelete: Cascade)
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([learningGroupId, userId])
   @@index([userId])
   @@map("LearningGroupMember")
+  @@schema("template")
 }
 
 model LearningGroupPost {
-  id                    Int                           @id @default(autoincrement())
-  learningGroupId       Int                           @map("learning_group_id")
-  authorId              Int                           @map("author_id")
-  content               String?
-  postType              PostType                      @map("post_type")
-  isPinned              Boolean                       @default(false) @map("is_pinned")
-  isEdited              Boolean                       @default(false) @map("is_edited")
-  dueDate               DateTime?                     @map("due_date")
-  createdAt             DateTime                      @default(now()) @map("created_at")
-  updatedAt             DateTime                      @updatedAt @map("updated_at")
-  author                User                          @relation(fields: [authorId], references: [id])
-  attachments           LearningGroupPostAttachment[]
-  comments              LearningGroupPostComment[]
-  learningGroup         LearningGroup                 @relation(fields: [learningGroupId], references: [id])
-  learningGroupMember   LearningGroupMember?          @relation(fields: [learningGroupMemberId], references: [id])
-  learningGroupMemberId Int?
+  id              Int       @id @default(autoincrement())
+  learningGroupId Int       @map("learning_group_id")
+  authorId        Int       @map("author_id")
+  postType        PostType  @map("post_type")
+  content         String?
+  dueDate         DateTime? @map("due_date")
+  isPinned        Boolean   @default(false) @map("is_pinned")
+  isEdited        Boolean   @default(false) @map("is_edited")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  @@index([learningGroupId])
+  learningGroup LearningGroup                 @relation(fields: [learningGroupId], references: [id], onDelete: Cascade)
+  author        User                          @relation(fields: [authorId], references: [id])
+  attachments   LearningGroupPostAttachment[]
+  comments      LearningGroupPostComment[]
+
+  @@index([learningGroupId, postType])
   @@index([authorId])
   @@map("LearningGroupPost")
+  @@schema("template")
 }
 
 model LearningGroupPostAttachment {
-  id              Int               @id @default(autoincrement())
-  postId          Int               @map("post_id")
-  fileName        String            @map("file_name") @db.VarChar(255)
-  fileType        String            @map("file_type") @db.VarChar(50)
-  storageProvider StorageProvider   @map("storage_provider")
-  storagePath     String            @map("storage_path") @db.VarChar(500)
-  fileSize        BigInt?           @map("file_size")
-  uploadedAt      DateTime          @default(now()) @map("uploaded_at")
-  post            LearningGroupPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id              Int             @id @default(autoincrement())
+  postId          Int             @map("post_id")
+  fileName        String          @map("file_name") @db.VarChar(255)
+  fileType        String          @map("file_type") @db.VarChar(50)
+  storageProvider StorageProvider @map("storage_provider")
+  storagePath     String          @map("storage_path") @db.VarChar(500)
+  fileSize        BigInt?         @map("file_size")
+  uploadedAt      DateTime        @default(now()) @map("uploaded_at")
+
+  post LearningGroupPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@map("LearningGroupPostAttachment")
+  @@schema("template")
 }
 
 model LearningGroupPostComment {
-  id        Int               @id @default(autoincrement())
-  postId    Int               @map("post_id")
-  authorId  Int               @map("author_id")
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  authorId  Int      @map("author_id")
   content   String
-  createdAt DateTime          @default(now()) @map("created_at")
-  updatedAt DateTime          @updatedAt @map("updated_at")
-  author    User              @relation(fields: [authorId], references: [id])
-  post      LearningGroupPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  isEdited  Boolean  @default(false) @map("is_edited") // added for consistency with posts
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  post   LearningGroupPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User              @relation(fields: [authorId], references: [id])
 
   @@index([postId])
   @@index([authorId])
-  @@index([createdAt])
   @@map("LearningGroupPostComment")
+  @@schema("template")
+}
+
+model AiProject {
+  projectId   String   @id @map("project_id")
+  projectUuid String   @unique @default(uuid()) @map("project_uuid") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  assets   AiAsset[]
+  chunks   AiChunk[]
+  sessions AiSession[]
+
+  @@map("projects")
+  @@schema("template")
+}
+
+model AiAsset {
+  assetId        Int      @id @default(autoincrement()) @map("asset_id")
+  assetUuid      String   @unique @default(uuid()) @map("asset_uuid") @db.Uuid
+  assetType      String   @map("asset_type")
+  assetName      String   @map("asset_name")
+  assetSize      Int      @map("asset_size")
+  assetConfig    Json?    @map("asset_config") @db.JsonB
+  assetProjectId String   @map("asset_project_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  project AiProject @relation(fields: [assetProjectId], references: [projectId])
+  chunks   AiChunk[]
+
+  @@index([assetProjectId], map: "ix_asset_project_id")
+  @@index([assetType], map: "ix_asset_type")
+  @@map("assets")
+  @@schema("template")
+}
+
+model AiChunk {
+  chunkId        Int      @id @default(autoincrement()) @map("chunk_id")
+  chunkUuid      String   @unique @default(uuid()) @map("chunk_uuid") @db.Uuid
+  chunkText      String   @map("chunk_text")
+  chunkMetadata  Json?    @map("chunk_metadata") @db.JsonB
+  chunkOrder     Int      @map("chunk_order")
+  chunkProjectId String   @map("chunk_project_id")
+  chunkAssetId   Int      @map("chunk_asset_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  project AiProject @relation(fields: [chunkProjectId], references: [projectId])
+  asset   AiAsset   @relation(fields: [chunkAssetId], references: [assetId])
+
+  @@index([chunkProjectId], map: "ix_chunk_project_id")
+  @@index([chunkAssetId], map: "ix_chunk_asset_id")
+  @@map("chunks")
+  @@schema("template")
+}
+
+model AiSession {
+  sessionId String   @id @default(uuid()) @map("session_id") @db.Uuid
+  projectId String   @map("project_id")
+  title     String?
+  filters   Json?    @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  project      AiProject       @relation(fields: [projectId], references: [projectId])
+  chatMessages AiChatMessage[]
+
+  @@map("sessions")
+  @@schema("template")
+}
+
+model AiChatMessage {
+  messageId String   @id @default(uuid()) @map("message_id") @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  role      String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  session AiSession @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@map("chat_messages")
+  @@schema("template")
+}
+
+enum AnnouncementType {
+  ANNOUNCEMENT
+  EVENT
+
+  @@schema("template")
+}
+
+enum AnnouncementAudience {
+  ALL
+  STUDENTS
+  STAFF
+  FACULTY
+
+  @@schema("template")
+}
+
+enum AnnouncementStatus {
+  DRAFT
+  PUBLISHED
+
+  @@schema("template")
 }
 
 enum EnrollmentJobStatus {
@@ -827,6 +1020,7 @@ enum EnrollmentJobStatus {
   Processing
   Done
 
+  @@schema("template")
 }
 
 enum ProgramType {
@@ -835,18 +1029,21 @@ enum ProgramType {
   Diploma
   PhD
 
+  @@schema("template")
 }
 
 enum ResultDisplayType {
   CourseGrade
   DetailedEstimate
 
+  @@schema("template")
 }
 
 enum BlockReasonType {
   NonPaymentCurrent
   NonPaymentOld
 
+  @@schema("template")
 }
 
 enum StudentStatus {
@@ -856,6 +1053,7 @@ enum StudentStatus {
   ExternalReenrollment
   Deactivate
 
+  @@schema("template")
 }
 
 enum SemesterType {
@@ -864,6 +1062,7 @@ enum SemesterType {
   Summer
   Winter
 
+  @@schema("template")
 }
 
 enum FeeType {
@@ -874,6 +1073,7 @@ enum FeeType {
   Administrative
   Other
 
+  @@schema("template")
 }
 
 enum CourseAssessmentType {
@@ -883,6 +1083,7 @@ enum CourseAssessmentType {
   Final
   Project
 
+  @@schema("template")
 }
 
 enum CourseType {
@@ -890,12 +1091,14 @@ enum CourseType {
   Elective
   Project
 
+  @@schema("template")
 }
 
 enum FeeStatus {
   Pending
   Paid
 
+  @@schema("template")
 }
 
 enum ClassroomType {
@@ -904,6 +1107,7 @@ enum ClassroomType {
   Auditorium
   Other
 
+  @@schema("template")
 }
 
 enum DayOfWeek {
@@ -915,6 +1119,7 @@ enum DayOfWeek {
   Saturday
   Sunday
 
+  @@schema("template")
 }
 
 enum SlotType {
@@ -922,6 +1127,7 @@ enum SlotType {
   Lab
   Tutorial
 
+  @@schema("template")
 }
 
 enum RegistrationStatus {
@@ -931,6 +1137,7 @@ enum RegistrationStatus {
   Failed
   InProgress
 
+  @@schema("template")
 }
 
 enum GradeEnum {
@@ -947,6 +1154,7 @@ enum GradeEnum {
   D
   F
 
+  @@schema("template")
 }
 
 enum AttendanceMode {
@@ -957,6 +1165,7 @@ enum AttendanceMode {
   Hotspot
   Online
 
+  @@schema("template")
 }
 
 enum AttendanceStatus {
@@ -966,12 +1175,14 @@ enum AttendanceStatus {
   Excused
   Medical
 
+  @@schema("template")
 }
 
 enum LearningGroupRole {
   Owner
   Member
 
+  @@schema("template")
 }
 
 enum PostType {
@@ -979,6 +1190,7 @@ enum PostType {
   ASSIGNMENT
   MATERIAL
 
+  @@schema("template")
 }
 
 enum StorageProvider {
@@ -986,7 +1198,9 @@ enum StorageProvider {
   S3
   Azure_Blob_Storage   @map("Azure Blob Storage")
   Google_Cloud_Storage @map("Google Cloud Storage")
+  Cloudinary
 
+  @@schema("template")
 }
 
 enum JobStatus {
@@ -996,6 +1210,16 @@ enum JobStatus {
   Failed
   CompletedWithErrors
 
+  @@schema("template")
+}
+
+enum TranscriptJobStatus {
+  Pending
+  Processing
+  Completed
+  Failed
+  Partial_failure
+  @@schema("template")
 }
 
 model Migrations {
@@ -1003,4 +1227,5 @@ model Migrations {
   applied_at DateTime @default(now())
 
   @@map("migrations")
+  @@schema("template")
 }

@@ -1,4 +1,5 @@
-export enum Queues{
+export enum Queues {
   StudentBulkData = "StudentBulkData",
-  StudentEnrollment = "StudentEnrollment"
+  StudentEnrollment = "StudentEnrollment",
+  TranscriptGeneration = "TranscriptGeneration",
 }

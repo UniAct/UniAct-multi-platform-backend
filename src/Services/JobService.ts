@@ -3,6 +3,7 @@ import { JobRepository } from "../Repositories/JobRepository";
 import { NotFoundError } from "../Types/Errors";
 import { FormatStudentImportJobResponse } from "../Interfaces/Jobs/GetStudentImportStatus/Mapper";
 import { FormatStudentEnrollmentJobResponse } from "../Interfaces/Jobs/StudentEnrollment/Mapper";
+import { FormatStudentTranscriptJobResponse } from "../Interfaces/Jobs/StudentTranscript/Mapper";
 
 export class JobService {
 
@@ -26,5 +27,16 @@ export class JobService {
     }
 
     return FormatStudentEnrollmentJobResponse(job);
+  }
+
+  static async CheckStudentTranscriptStatus(jobId: string, schemaName: string) {
+    const prisma = GetTenantClient(schemaName);
+    const job = await JobRepository.CheckStudentTranscriptStatus(jobId, prisma);
+
+    if (!job) {
+      throw new NotFoundError("Job not found");
+    }
+
+    return FormatStudentTranscriptJobResponse(job);
   }
 }

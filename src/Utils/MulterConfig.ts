@@ -14,7 +14,8 @@ export const MAX_FILE_SIZE_MB = 5;
 // and will be processed immediately (no need to persist it).
 // So using memoryStorage is more efficient and simpler.
 const storage = multer.memoryStorage();
-
+export const MAX_POST_FILE_SIZE_MB = 25;
+export const MAX_POST_FILES = 5;
 
 const fileFilter = (
   _req: Request,
@@ -62,3 +63,31 @@ export const uploadImage = multer({
     files: 1,
   },
 }).single("image");
+
+const allowedPostFileExtensions = [
+  ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",
+  ".zip", ".rar", ".txt", ".jpg", ".jpeg", ".png", ".webp",
+];
+
+const postFilesFilter = (
+  _req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  if (allowedPostFileExtensions.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`File type ${ext} is not allowed`));
+  }
+};
+
+export const uploadPostAttachments = multer({
+  storage,
+  fileFilter: postFilesFilter,
+  limits: {
+    fileSize: MAX_POST_FILE_SIZE_MB * 1024 * 1024,
+    files: MAX_POST_FILES,
+  },
+}).array("files", MAX_POST_FILES);

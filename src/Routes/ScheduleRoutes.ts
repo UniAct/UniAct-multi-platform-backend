@@ -45,6 +45,7 @@ router.put(
  * - The selected schedule slots are passed in the request body as an array.
  */
 router.post(
+  
   "/enroll",
   IsAuthenticated,
   AttachAndValidateTenant,

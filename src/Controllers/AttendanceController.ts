@@ -91,6 +91,11 @@ export class AttendanceController {
     res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data });
   }
 
+  static async GetMobileTimetable(req: Request, res: Response) {
+    const data = await AttendanceService.GetMobileTimetable(req.user!, req.schema_name!);
+    res.status(StatusCodes.OK).json({ status: JSendStatus.SUCCESS, data });
+  }
+
   static async GetStudentAttendanceStatus(req: Request, res: Response) {
     const semesterId = req.query.semesterId ? Number(req.query.semesterId) : undefined;
     const data = await AttendanceService.GetStudentAttendanceStatus(

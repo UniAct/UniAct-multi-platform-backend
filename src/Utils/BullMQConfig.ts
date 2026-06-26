@@ -94,9 +94,36 @@ dotenv.config();
 const queues: Record<string, Queue> = {};
 const workers: Record<string, Worker> = {};
 
+function getRedisPort(): number {
+  const port = Number(process.env.REDIS_PORT || 6379);
+
+  if (!Number.isInteger(port) || port <= 0) {
+    throw new Error("REDIS_PORT must be a valid positive integer");
+  }
+
+  return port;
+}
+
+function getRedisHost(): string {
+  const host = process.env.REDIS_HOST || "127.0.0.1";
+
+  if (host === "localhost") {
+    return "127.0.0.1";
+  }
+
+  return host;
+}
+
 export const RedisConnection = {
-  host: process.env.REDIS_HOST!,
-  port: parseInt(process.env.REDIS_PORT!),
+  host: getRedisHost(),
+  port: getRedisPort(),
+  family: 4,
+  connectTimeout: 10000,
+  keepAlive: 30000,
+  maxRetriesPerRequest: null,
+  retryStrategy(times: number) {
+    return Math.min(times * 100, 3000);
+  },
 };
 
 // ─────────────────────────────────────────────
@@ -106,6 +133,16 @@ export function GetQueue(queueName: string): Queue {
   if (!queues[queueName]) {
     queues[queueName] = new Queue(queueName, {
       connection: RedisConnection,
+    });
+
+    queues[queueName].on("error", (err) => {
+      logger.error({
+        action: "Queue",
+        status: "Error",
+        queue: queueName,
+        reason: err.message,
+        code: (err as NodeJS.ErrnoException).code,
+      });
     });
   }
   return queues[queueName];
@@ -149,6 +186,16 @@ export function GetWorkerSingleton<T>(
       jobId: job?.id,
       queue: queueName,
       reason: err.message,
+    });
+  });
+
+  worker.on("error", (err) => {
+    logger.error({
+      action: "Worker",
+      status: "Error",
+      queue: queueName,
+      reason: err.message,
+      code: (err as NodeJS.ErrnoException).code,
     });
   });
 

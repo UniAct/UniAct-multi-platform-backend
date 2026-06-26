@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, AttendanceStatus } from "@prisma/client";
+import { PrismaClient, Prisma, AttendanceStatus, RegistrationStatus } from "@prisma/client";
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
 
@@ -385,6 +385,237 @@ export class AttendanceRepository {
       registeredCourses,
       registeredCreditHours,
     };
+  }
+
+  public static async GetStudentCreditProgress(prisma: DbClient, studentId: number) {
+    const [student, completedRegistrations] = await Promise.all([
+      prisma.student.findUnique({
+        where: { userId: studentId },
+        select: {
+          program: {
+            select: {
+              id: true,
+              name: true,
+              universityCreditHours: true,
+              facultyCreditHours: true,
+              programCreditHours: true,
+              faculty: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.courseRegistration.findMany({
+        where: {
+          studentId,
+          status: RegistrationStatus.Completed,
+          grade: { not: null },
+          gradePoints: { not: null },
+          slotContextId: { not: null },
+        },
+        select: {
+          scheduleSlotContext: {
+            select: {
+              slot: {
+                select: {
+                  course: {
+                    select: {
+                      id: true,
+                      credits: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const completedCourseIds = new Set<number>();
+    let completedCreditHours = 0;
+
+    for (const registration of completedRegistrations) {
+      const course = registration.scheduleSlotContext?.slot.course;
+      if (!course || completedCourseIds.has(course.id)) {
+        continue;
+      }
+
+      completedCourseIds.add(course.id);
+      completedCreditHours += course.credits;
+    }
+
+    const requirements = student?.program
+      ? {
+          university: student.program.universityCreditHours,
+          faculty: student.program.facultyCreditHours,
+          program: student.program.programCreditHours,
+          total:
+            student.program.universityCreditHours +
+            student.program.facultyCreditHours +
+            student.program.programCreditHours,
+        }
+      : {
+          university: 0,
+          faculty: 0,
+          program: 0,
+          total: 0,
+        };
+
+    return {
+      completedCourses: completedCourseIds.size,
+      completedCreditHours,
+      requirements,
+      program: student?.program
+        ? {
+            id: student.program.id,
+            name: student.program.name,
+          }
+        : null,
+      faculty: student?.program?.faculty ?? null,
+    };
+  }
+
+  public static async GetStudentMobileTimetable(
+    prisma: DbClient,
+    studentId: number,
+    semesterId: number,
+  ) {
+    return prisma.courseRegistration.findMany({
+      where: {
+        studentId,
+        semesterId,
+        slotContextId: { not: null },
+      },
+      orderBy: [
+        {
+          scheduleSlotContext: {
+            slot: {
+              dayOfWeek: "asc",
+            },
+          },
+        },
+        {
+          scheduleSlotContext: {
+            slot: {
+              startTime: "asc",
+            },
+          },
+        },
+      ],
+      select: {
+        id: true,
+        status: true,
+        scheduleSlotContext: {
+          select: {
+            id: true,
+            academicLevel: true,
+            program: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            slot: {
+              select: {
+                id: true,
+                dayOfWeek: true,
+                startTime: true,
+                endTime: true,
+                type: true,
+                course: {
+                  select: {
+                    id: true,
+                    code: true,
+                    name: true,
+                    credits: true,
+                  },
+                },
+                classroom: {
+                  select: {
+                    id: true,
+                    building: true,
+                    classroomNumber: true,
+                    capacity: true,
+                  },
+                },
+                teacher: {
+                  select: {
+                    user: {
+                      select: {
+                        firstName: true,
+                        lastName: true,
+                        email: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  public static async GetStaffMobileTimetable(
+    prisma: DbClient,
+    staffId: number,
+    semesterId: number,
+  ) {
+    return prisma.scheduleSlot.findMany({
+      where: {
+        teacherId: staffId,
+        semesterId,
+      },
+      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+      select: {
+        id: true,
+        dayOfWeek: true,
+        startTime: true,
+        endTime: true,
+        type: true,
+        allowedCapacity: true,
+        enrolledSeats: true,
+        course: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            credits: true,
+          },
+        },
+        classroom: {
+          select: {
+            id: true,
+            building: true,
+            classroomNumber: true,
+            capacity: true,
+          },
+        },
+        slotContext: {
+          select: {
+            id: true,
+            academicLevel: true,
+            program: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            registrations: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   public static async GetStaffTeachingStats(

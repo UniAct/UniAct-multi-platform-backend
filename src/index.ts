@@ -7,6 +7,7 @@ import { httpLogger, logger } from "./Utils/Logger";
 import { GracefulShutdown } from "./Utils/Shutdown";
 import { corsOptions } from "./Utils/CorsConfig";
 import { Environment } from "./Utils/Environment";
+import { StartAiRuntime } from "./Utils/AiRuntime";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ if (Environment.IsDevelopment()) {
 
 async function Bootstrap(): Promise<void> {
     process.title = "UniAct Backend System";
+    StartAiRuntime();
     const server = app.listen(PORT, "0.0.0.0", () => {
         logger.info({
             process_name: process.title,
