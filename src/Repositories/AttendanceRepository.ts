@@ -176,22 +176,40 @@ export class AttendanceRepository {
     records: Array<{ studentId: number; status: string; deviceIp?: string | null; deviceMac?: string | null; notes?: string | null }>,
     prisma: DbClient,
   ) {
-    // Simpler approach: delete existing for session and recreate (keeps logic straightforward)
     return prisma.$transaction(async (tx) => {
-      await tx.studentAttendance.deleteMany({ where: { attendanceSessionId } });
-
       if (records.length === 0) return [];
 
-      const createData = records.map((r) => ({
-        attendanceSessionId,
-        studentId: r.studentId,
-        status: toAttendanceStatus(r.status),
-        deviceIp: r.deviceIp ?? null,
-        deviceMac: r.deviceMac ?? null,
-        notes: r.notes ?? null,
-      }));
+      const recordsByStudentId = new Map<number, typeof records[number]>();
+      records.forEach((record) => {
+        recordsByStudentId.set(record.studentId, record);
+      });
 
-      return tx.studentAttendance.createMany({ data: createData });
+      return Promise.all(
+        Array.from(recordsByStudentId.values()).map((record) => {
+          const data = {
+            status: toAttendanceStatus(record.status),
+            deviceIp: record.deviceIp ?? null,
+            deviceMac: record.deviceMac ?? null,
+            notes: record.notes ?? null,
+            recordedAt: new Date(),
+          };
+
+          return tx.studentAttendance.upsert({
+            where: {
+              attendanceSessionId_studentId: {
+                attendanceSessionId,
+                studentId: record.studentId,
+              },
+            },
+            update: data,
+            create: {
+              attendanceSessionId,
+              studentId: record.studentId,
+              ...data,
+            },
+          });
+        }),
+      );
     });
   }
 
