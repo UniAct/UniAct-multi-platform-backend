@@ -2,7 +2,7 @@
 import { NotFoundError } from "../Types/Errors";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { logger } from "../Utils/Logger";
-import { CreateEnrollmentWindowInput, UpdateEnrollmentWindowInput } from "../Interfaces/Enrollment-Window/EnrollmentWindow";
+import { CreateEnrollmentWindowInput, FindEnrollmentWindowQuery, UpdateEnrollmentWindowInput } from "../Interfaces/Enrollment-Window/EnrollmentWindow";
 import { EnrollmentWindowRepository } from "../Repositories/EnrollmentWindowRepository";
 
 
@@ -33,6 +33,19 @@ export class EnrollmentWindowService {
     }
 
     return window;
+  }
+
+  static async FindConfiguredEnrollmentWindow(query: FindEnrollmentWindowQuery, schema_name: string) {
+    const prisma = GetTenantClient(schema_name);
+    return EnrollmentWindowRepository.FindConfiguredWindow(
+      {
+        facultyId: query.facultyId,
+        semesterId: query.semesterId,
+        programLevelId: query.programLevelId,
+        programId: query.programId ?? null,
+      },
+      prisma,
+    );
   }
 
   // 3. Update an existing Enrollment Window Rule

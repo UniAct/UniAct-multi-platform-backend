@@ -74,6 +74,14 @@ export const idParamSchema = z.object({
   id: z.coerce.number().int().positive("Invalid ID parameter"),
 });
 
+export const findEnrollmentWindowQuerySchema = z.object({
+  facultyId: z.coerce.number().int().positive("Faculty ID must be a valid positive integer"),
+  semesterId: z.coerce.number().int().positive("Semester ID must be a valid positive integer"),
+  programLevelId: z.coerce.number().int().positive("Program level Id is required"),
+  programId: z.coerce.number().int().positive("Program ID must be a valid positive integer").optional(),
+});
+
 // TypeScript Inference Types
 export type CreateEnrollmentWindowInput = z.infer<typeof createEnrollmentWindowSchema>;
 export type UpdateEnrollmentWindowInput = z.infer<typeof updateEnrollmentWindowSchema>;
+export type FindEnrollmentWindowQuery = z.infer<typeof findEnrollmentWindowQuerySchema>;

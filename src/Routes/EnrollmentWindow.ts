@@ -7,11 +7,20 @@ import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant
 import IsAuthenticated from "../Middlewares/AuthMiddleware";
 import ValidateRequest from "../Middlewares/ModelValidationMiddleware";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
-import { createEnrollmentWindowSchema, idParamSchema, updateEnrollmentWindowSchema } from "../Interfaces/Enrollment-Window/EnrollmentWindow";
+import { createEnrollmentWindowSchema, findEnrollmentWindowQuerySchema, idParamSchema, updateEnrollmentWindowSchema } from "../Interfaces/Enrollment-Window/EnrollmentWindow";
 import { FacultyIdParamSchema } from "../Interfaces/Faculty/FacultySchema";
 import { EnrollmentWindowController } from "../Controllers/EnrollmentWindow";
 
 const router = Router();
+
+router.get(
+  "/configured",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ZodValidator({ query: findEnrollmentWindowQuerySchema }),
+  ValidateRequest,
+  asyncHandler(EnrollmentWindowController.FindConfiguredEnrollmentWindow),
+);
 
 // 1. Create an Enrollment Window (Admin)
 router.post(

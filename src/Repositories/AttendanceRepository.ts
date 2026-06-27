@@ -788,23 +788,12 @@ export class AttendanceRepository {
     status: string,
     notes?: string | null,
   ) {
-    return prisma.studentAttendance.upsert({
-      where: {
-        attendanceSessionId_studentId: {
-          attendanceSessionId,
-          studentId,
-        },
-      },
-      update: {
-        status: toAttendanceStatus(status),
-        notes: notes ?? null,
-      },
-      create: {
-        attendanceSessionId,
-        studentId,
-        status: toAttendanceStatus(status),
-        notes: notes ?? null,
-      },
-    });
+    const [attendance] = await this.UpsertStudentAttendances(
+      attendanceSessionId,
+      [{ studentId, status, notes }],
+      prisma,
+    );
+
+    return attendance;
   }
 }

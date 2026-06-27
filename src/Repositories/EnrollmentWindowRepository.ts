@@ -32,6 +32,31 @@ export class EnrollmentWindowRepository {
     });
   }
 
+  static async FindConfiguredWindow(
+    criteria: {
+      facultyId: number;
+      semesterId: number;
+      programLevelId: number;
+      programId?: number | null;
+    },
+    prisma: DbClient
+  ) {
+    const { facultyId, semesterId, programLevelId, programId } = criteria;
+
+    return await prisma.enrollmentWindow.findFirst({
+      where: {
+        facultyId,
+        semesterId,
+        programLevelId,
+        programId: programId ?? null,
+      },
+      orderBy: [
+        { updatedAt: "desc" },
+        { createdAt: "desc" },
+      ],
+    });
+  }
+
   // 3. Update execution block
   static async UpdateEnrollmentWindow(id: number, windowData: UpdateEnrollmentWindowInput, prisma: DbClient) {
 

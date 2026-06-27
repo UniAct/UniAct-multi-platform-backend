@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { CreateEnrollmentWindowInput, UpdateEnrollmentWindowInput } from "../Interfaces/Enrollment-Window/EnrollmentWindow";
+import { CreateEnrollmentWindowInput, FindEnrollmentWindowQuery, UpdateEnrollmentWindowInput } from "../Interfaces/Enrollment-Window/EnrollmentWindow";
 import { Request, Response } from "express";
 import JSendStatus from "../Enums/Jsend";
 import { EnrollmentWindowService } from "../Services/EnrollmentWindow";
@@ -20,6 +20,21 @@ export class EnrollmentWindowController {
       status: JSendStatus.SUCCESS,
       data: result,
       message: "Enrollment window created successfully",
+    });
+  }
+
+  static async FindConfiguredEnrollmentWindow(req: Request, res: Response) {
+    const query = req.query as unknown as FindEnrollmentWindowQuery;
+
+    const result = await EnrollmentWindowService.FindConfiguredEnrollmentWindow(
+      query,
+      req.schema_name!
+    );
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+      message: result ? "Enrollment window loaded successfully" : "No enrollment window configured",
     });
   }
 
