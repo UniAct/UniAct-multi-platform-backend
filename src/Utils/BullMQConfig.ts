@@ -112,7 +112,9 @@ function getRedisConnection(): RedisOptions {
   return getRedisConnectionOptions(common);
 }
 
-export const RedisConnection = getRedisConnection();
+export const RedisConnection = UseMemoryQueue()
+  ? undefined as unknown as RedisOptions
+  : getRedisConnection();
 
 // ─────────────────────────────────────────────
 // Queue
