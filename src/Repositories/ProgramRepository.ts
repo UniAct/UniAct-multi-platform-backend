@@ -137,7 +137,26 @@ export class ProgramRepository {
   static async GetProgramById(id: number, prisma: DbClient) {
     return prisma.program.findUnique({
       where: { id },
-      select: { id: true, name: true, phone: true, programType: true, description: true }
+      select: {
+        id: true,
+        name: true,
+        facultyId: true,
+        phone: true,
+        programType: true,
+        description: true,
+        programLevels: {
+          select: {
+            id: true,
+            level: true,
+            minCredits: true,
+            maxCredits: true,
+            fees: {
+              omit: { updatedAt: true, createdAt: true, programLevelId: true },
+            },
+          },
+          orderBy: { level: "asc" },
+        },
+      }
     });
   }
 
