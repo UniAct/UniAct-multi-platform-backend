@@ -13,6 +13,7 @@ import { BuildRawData } from "./Helpers/BulkRawData";
 import { hashNationalIds } from "./Helpers/HashNationalId";
 import SystemRoles from "../../Enums/SystemRoles";
 import { SemesterRepository } from "../../Repositories/SemesterRepository";
+import type { PrismaClient } from "@prisma/client";
 // ─── Prerequisites ────────────────────────────────────────────────────────────
 //
 //  This worker connects to Redis (BullMQ) and MinIO (file storage) on startup.
@@ -33,6 +34,126 @@ import { SemesterRepository } from "../../Repositories/SemesterRepository";
 
 /** Number of student rows inserted in parallel per batch. */
 const CONCURRENCY = 10;
+
+type ValidImportRow = { rowNumber: number; data: Record<string, any> };
+
+const UNIQUE_IMPORT_FIELDS = [
+  { key: "username", label: "Username" },
+  { key: "email", label: "Email" },
+  { key: "nationalId", label: "National ID" },
+  { key: "universityStudentId", label: "University Student ID" },
+] as const;
+
+function getImportFieldValue(row: Record<string, any>, key: string): string {
+  return String(row[key] ?? "").trim();
+}
+
+function buildFailedRow(row: ValidImportRow, reasons: string[]): FailedRow {
+  return {
+    row: row.rowNumber,
+    data: row.data,
+    reason: reasons.join("; "),
+  };
+}
+
+function rejectDuplicateRowsInUpload(rows: ValidImportRow[]): {
+  acceptedRows: ValidImportRow[];
+  failedRows: FailedRow[];
+} {
+  const reasonsByRow = new Map<number, string[]>();
+
+  for (const field of UNIQUE_IMPORT_FIELDS) {
+    const firstRowByValue = new Map<string, number>();
+
+    for (const row of rows) {
+      const value = getImportFieldValue(row.data, field.key);
+      if (!value) continue;
+
+      const firstRow = firstRowByValue.get(value);
+      if (firstRow !== undefined) {
+        const reasons = reasonsByRow.get(row.rowNumber) ?? [];
+        reasons.push(`${field.label} '${value}' is duplicated in this Excel file; first seen on row ${firstRow}`);
+        reasonsByRow.set(row.rowNumber, reasons);
+      } else {
+        firstRowByValue.set(value, row.rowNumber);
+      }
+    }
+  }
+
+  return {
+    acceptedRows: rows.filter((row) => !reasonsByRow.has(row.rowNumber)),
+    failedRows: rows
+      .filter((row) => reasonsByRow.has(row.rowNumber))
+      .map((row) => buildFailedRow(row, reasonsByRow.get(row.rowNumber)!)),
+  };
+}
+
+async function rejectExistingStudentRows(
+  rows: ValidImportRow[],
+  prisma: PrismaClient
+): Promise<{
+  acceptedRows: ValidImportRow[];
+  failedRows: FailedRow[];
+}> {
+  const reasonsByRow = new Map<number, string[]>();
+
+  const usernames = rows.map((row) => getImportFieldValue(row.data, "username")).filter(Boolean);
+  const emails = rows.map((row) => getImportFieldValue(row.data, "email")).filter(Boolean);
+  const nationalIds = rows.map((row) => getImportFieldValue(row.data, "nationalId")).filter(Boolean);
+  const universityStudentIds = rows
+    .map((row) => Number(row.data.universityStudentId))
+    .filter((value) => Number.isInteger(value));
+
+  const [existingUsers, existingStudents] = await Promise.all([
+    usernames.length > 0 || emails.length > 0 || nationalIds.length > 0
+      ? prisma.user.findMany({
+          where: {
+            OR: [
+              ...(usernames.length > 0 ? [{ username: { in: usernames } }] : []),
+              ...(emails.length > 0 ? [{ email: { in: emails } }] : []),
+              ...(nationalIds.length > 0 ? [{ nationalId: { in: nationalIds } }] : []),
+            ],
+          },
+          select: { username: true, email: true, nationalId: true },
+        })
+      : Promise.resolve([]),
+    universityStudentIds.length > 0
+      ? prisma.student.findMany({
+          where: { universityStudentId: { in: universityStudentIds } },
+          select: { universityStudentId: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const existingUsernames = new Set(existingUsers.map((user) => user.username));
+  const existingEmails = new Set(existingUsers.map((user) => user.email));
+  const existingNationalIds = new Set(existingUsers.map((user) => user.nationalId));
+  const existingUniversityStudentIds = new Set(existingStudents.map((student) => student.universityStudentId));
+
+  for (const row of rows) {
+    const reasons: string[] = [];
+    const username = getImportFieldValue(row.data, "username");
+    const email = getImportFieldValue(row.data, "email");
+    const nationalId = getImportFieldValue(row.data, "nationalId");
+    const universityStudentId = Number(row.data.universityStudentId);
+
+    if (existingUsernames.has(username)) reasons.push(`Username '${username}' already exists`);
+    if (existingEmails.has(email)) reasons.push(`Email '${email}' already exists`);
+    if (existingNationalIds.has(nationalId)) reasons.push(`National ID '${nationalId}' is already registered`);
+    if (existingUniversityStudentIds.has(universityStudentId)) {
+      reasons.push(`University Student ID '${universityStudentId}' is already registered`);
+    }
+
+    if (reasons.length > 0) reasonsByRow.set(row.rowNumber, reasons);
+  }
+
+  return {
+    acceptedRows: rows.filter((row) => !reasonsByRow.has(row.rowNumber)),
+    failedRows: rows
+      .filter((row) => reasonsByRow.has(row.rowNumber))
+      .map((row) => buildFailedRow(row, reasonsByRow.get(row.rowNumber)!)),
+  };
+}
 
 
 // ─── Worker Handler ───────────────────────────────────────────────────────────
@@ -82,7 +203,7 @@ async function handler(job: Job<BulkCreateResult>) {
     // ── Step 3: Validate all data rows (skip header row 1) ───────────────────
     const validationStart = Date.now();
 
-    const validRows:  { rowNumber: number; data: Record<string, any> }[] = [];
+    let validRows: ValidImportRow[] = [];
     const failedRows: FailedRow[] = [];
 
     worksheet.eachRow((row, rowNumber) => {
@@ -120,6 +241,48 @@ async function handler(job: Job<BulkCreateResult>) {
     });
 
     // ── Step 4 & 5: Hash national IDs and verify fee exist — run in parallel ──
+    const uploadDuplicateCheck = rejectDuplicateRowsInUpload(validRows);
+    validRows = uploadDuplicateCheck.acceptedRows;
+    failedRows.push(...uploadDuplicateCheck.failedRows);
+
+    const existingDuplicateCheck = await rejectExistingStudentRows(validRows, prisma);
+    validRows = existingDuplicateCheck.acceptedRows;
+    failedRows.push(...existingDuplicateCheck.failedRows);
+
+    logger.info({
+      action: "StudentImportWorker",
+      phase: "DuplicatePrecheck",
+      jobId,
+      valid_rows: validRows.length,
+      duplicate_rows: uploadDuplicateCheck.failedRows.length + existingDuplicateCheck.failedRows.length,
+    });
+
+    if (validRows.length === 0) {
+      await prisma.job.update({
+        where: { id: jobId },
+        data: {
+          status: "Failed",
+          completed_at: new Date(),
+          inserted_rows: 0,
+          failed_rows: failedRows.length,
+          error_log: failedRows.map(({ row, data, reason }) => ({
+            row,
+            username: data.username,
+            reason,
+          })),
+        },
+      });
+
+      logger.warn({
+        action: "StudentImportWorker",
+        phase: "DuplicatePrecheck",
+        jobId,
+        reason: "No valid rows remain after validation and duplicate checks",
+      });
+
+      return;
+    }
+
     const hashStart = Date.now();
     const semester = await SemesterRepository.GetSemesterById(Number (semesterId),prisma)
 
