@@ -1,21 +1,16 @@
-import { transporter } from "../../Utils/EmailTransporter";
+import { SendEmail } from "../../Utils/EmailClient";
 import { EmailTemplate } from "./MailTemplate";
 import dotenv from 'dotenv';
 dotenv.config();
 
 export class MailService {
   private static async SendMail(to: string, subject: string, html: string) {
-    try {
-      await transporter.sendMail({
-        from: `UniAct <${process.env.APPLICATION_EMAIL}>`,
-        to,
-        subject,
-        text: "Please click the link to verify your email",
-        html,
-      });
-    } catch (err) {
-      console.error("Failed to send email:", err);
-    }
+    await SendEmail({
+      to,
+      subject,
+      text: "Please click the link to verify your email",
+      html,
+    });
   }
 
   public static async SendVerificationSuperAdminMail(email: string) {

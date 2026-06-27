@@ -15,6 +15,7 @@ import announcementRoutes from "./AnnouncementRoutes";
 import LearningGroupRoutes from "./LearningGroupRoutes";
 import transcriptRoutes from "./TranscriptRoutes";
 import aiRoutes from "./AiRoutes";
+import storageRoutes from "./StorageRoutes";
 import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 
@@ -48,6 +49,8 @@ router.use('/schedule', classSessionRoutes);
 router.use('/attendance', attendanceRoutes);
 
 router.use('/announcement', announcementRoutes);
+
+router.use('/storage', storageRoutes);
 
 // global health check
 router.get('/', (req, res) => {

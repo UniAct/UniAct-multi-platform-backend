@@ -21,6 +21,7 @@ import { CreateStudentBulkRequestDto } from "../Interfaces/Student/CreateStudent
 import { DeleteStudentResponseDto, MapDeleteStudent } from "../Interfaces/Student/DeleteStudent/DeleteMapper";
 import { StudentQueryDto } from "../Interfaces/Student/GetStudentPage/QuerySchema";
 import { GetStudentItemResponseDto, MapGetStudentPage } from "../Interfaces/Student/GetStudentPage/GetMapper";
+import { GetStoragePublicUrl } from "../Utils/PublicUrls";
 dotenv.config();
 
 export class StudentService {
@@ -253,6 +254,6 @@ export class StudentService {
 
   
   static ConstructFileUrl(schema_name: string, objectName: string): string {
-    return `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/${schema_name}/${objectName}`;
+    return GetStoragePublicUrl(schema_name, objectName);
   }
 }
