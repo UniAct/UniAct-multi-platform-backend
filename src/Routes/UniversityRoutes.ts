@@ -37,6 +37,13 @@ router.get(
   asyncHandler(UniversityController.GetSettings)
 );
 
+router.get(
+  "/analytics",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  asyncHandler(UniversityController.GetAnalytics)
+);
+
 router.patch(
   "/settings",
   IsAuthenticated,

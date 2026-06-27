@@ -230,6 +230,15 @@ class UniversityController {
     });
   }
 
+  public static async GetAnalytics(req: Request, res: Response) {
+    const analytics = await UniversityService.GetTenantAnalytics(req.schema_name!);
+
+    return res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: analytics,
+    });
+  }
+
   public static async UpdateSettings(req: Request, res: Response) {
     const { primary_color, secondary_color, tab_name, logo_url } = req.body;
     const university = await UniversityService.GetUniversityBySchemaName(req.schema_name!);

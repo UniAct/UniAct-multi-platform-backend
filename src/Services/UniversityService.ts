@@ -86,6 +86,106 @@ export class UniversityService {
     };
   }
 
+  public static async GetTenantAnalytics(db_schema: string) {
+    const schema = db_schema.trim().toLowerCase();
+    const prisma = GetTenantClient(schema);
+
+    const todayAbsencesQuery = `
+      SELECT
+        p.id AS "programId",
+        p.name AS "programName",
+        pl.id AS "levelId",
+        pl.level AS "level",
+        COUNT(sa.id)::int AS "absences"
+      FROM "${schema}"."StudentAttendance" sa
+      INNER JOIN "${schema}"."AttendanceSession" ats ON ats.id = sa.attendance_session_id
+      INNER JOIN "${schema}"."Student" s ON s.user_id = sa.student_id
+      INNER JOIN "${schema}"."Program" p ON p.id = s.program_id
+      INNER JOIN "${schema}"."ProgramLevel" pl ON pl.id = s.program_level_id
+      WHERE sa.status = 'Absent'::"${schema}"."AttendanceStatus"
+        AND ats.session_date = CURRENT_DATE
+      GROUP BY p.id, p.name, pl.id, pl.level
+      ORDER BY p.name ASC, pl.level ASC
+    `;
+
+    const upcomingItemsQuery = `
+      SELECT
+        id,
+        title,
+        content AS description,
+        type,
+        COALESCE(event_date, created_at)::date AS date,
+        event_location AS "location"
+      FROM "${schema}"."Announcement"
+      WHERE status = 'PUBLISHED'::"${schema}"."AnnouncementStatus"
+        AND COALESCE(event_date, created_at)::date >= CURRENT_DATE
+      ORDER BY COALESCE(event_date, created_at) ASC, created_at DESC
+      LIMIT 40
+    `;
+
+    const [studentCount, staffCount, adminCount, learningGroupCount, absenceRows, upcomingItems] =
+      await Promise.all([
+        prisma.student.count(),
+        prisma.staff.count(),
+        prisma.userRole.count({
+          where: {
+            role: {
+              name: { in: ["Admin", "Root"] },
+            },
+          },
+        }),
+        prisma.learningGroup.count(),
+        (prisma as any).$queryRawUnsafe(todayAbsencesQuery),
+        (prisma as any).$queryRawUnsafe(upcomingItemsQuery),
+      ]);
+
+    const programMap = new Map<
+      number,
+      {
+        id: number;
+        name: string;
+        absences: number;
+        levels: { id: number; name: string; absences: number }[];
+      }
+    >();
+
+    for (const row of absenceRows as Array<{
+      programId: number;
+      programName: string;
+      levelId: number;
+      level: number;
+      absences: number;
+    }>) {
+      const existing = programMap.get(row.programId) ?? {
+        id: row.programId,
+        name: row.programName,
+        absences: 0,
+        levels: [],
+      };
+
+      existing.absences += Number(row.absences);
+      existing.levels.push({
+        id: row.levelId,
+        name: `Level ${row.level}`,
+        absences: Number(row.absences),
+      });
+
+      programMap.set(row.programId, existing);
+    }
+
+    return {
+      summary: {
+        students: studentCount,
+        staff: staffCount,
+        admins: adminCount,
+        activeTeams: learningGroupCount,
+      },
+      todayAbsences: Array.from(programMap.values()).sort((a, b) => b.absences - a.absences),
+      upcomingItems,
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
   public static async ListNames(): Promise<string[]> {
 
     const prisma = GetTenantClient("public");
