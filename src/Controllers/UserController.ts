@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { IStaffAccount } from "../Interfaces/StaffAccount";
 import { UserLoginRequest } from "../Interfaces/User";
+import { GetFrontendPublicUrl } from "../Utils/PublicUrls";
 
 
 export class UserController {
@@ -59,7 +60,7 @@ export class UserController {
 
       await UserService.ActivateStaffAccount(email, schema_name);
 
-      const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendBaseUrl = GetFrontendPublicUrl(university_name);
       const encodedTenant = encodeURIComponent(university_name);
       return res.redirect(`${frontendBaseUrl}/verify-staff-account?status=success&tenant=${encodedTenant}`);
     } catch (err: any) {

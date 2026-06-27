@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
 import { NotFoundError } from "../Types/Errors";
+import { GetFrontendPublicUrl } from "../Utils/PublicUrls";
 //since all queries here are for super admin so they all belong to the public schema EXCEPT if i am controlling RootAccounts
 const schema_name = "public";
 
@@ -64,7 +65,7 @@ class SuperAdminController {
     await SuperAdminService.ActivateRootAccount(email, schema);
 
     // Redirect to frontend verification page with success
-    const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendBaseUrl = GetFrontendPublicUrl(schema);
     return res.redirect(`${frontendBaseUrl}/verify-root-account?token=${token}&status=success&university=${encodeURIComponent(schema)}`);
   }
 

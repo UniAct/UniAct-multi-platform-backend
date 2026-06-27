@@ -1,6 +1,7 @@
 import { JwtPayload } from "jsonwebtoken";
 import JwtService from "../../Utils/JwtService";
 import { TokenPayload } from "../../Interfaces/TokenPayload";
+import { GetBackendPublicUrl } from "../../Utils/PublicUrls";
 export class EmailTemplate {
     private static Template(url: string): string {
         return `
@@ -225,14 +226,14 @@ export class EmailTemplate {
     }
 
     private static GenerateUrl(route: string, payload: TokenPayload): string {
-        const port = process.env.PORT;
-        if (!port)
-            throw new Error("PORT is not defined in environment variables");
-
         const token = JwtService.SignWithExpiry(payload, "24h");
         const encodedToken = encodeURIComponent(token);
-        console.log(`http://localhost:${port}/${route}/${encodedToken}`);
-        return `http://localhost:${port}/${route}/${encodedToken}`;
+        const baseUrl = this.GetBackendPublicUrl();
+        return `${baseUrl}/${route}/${encodedToken}`;
+    }
+
+    private static GetBackendPublicUrl(): string {
+        return GetBackendPublicUrl();
     }
 
     public static SuperAdminTemplate(email: string): string {
