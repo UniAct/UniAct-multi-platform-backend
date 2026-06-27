@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "start:prod": "concurrently --kill-others-on-fail \"npm run start\" \"npm run workers:dist\"",
+    "start:prod": "cross-env QUEUE_DRIVER=memory node dist/standalone.js",
     "prepare-start": "npm run build",
     "db:generate:snapshot": "node scripts/generate-template-snapshot.mjs",
     "db:migrate:allTenants": "npm run db:generate:snapshot && npx ts-node ./scripts/runMigrationsForAllTenants.ts",
