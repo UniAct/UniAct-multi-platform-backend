@@ -9,6 +9,13 @@ import { ScheduleController } from "../Controllers/ScheduleController";
 import { RequireSemesterHeader } from "../Middlewares/RequireSemesterHeader";
 import { GetScheduleQuerySchema, SaveScheduleSchema } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { EnrollInScheduleSchema } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
+import {
+  AdminEnrollmentCreateSchema,
+  AdminEnrollmentParamsSchema,
+  AdminEnrollmentQuerySchema,
+  AdminEnrollmentStudentParamsSchema,
+  AdminEnrollmentUpdateSchema,
+} from "../Interfaces/Enrollment/AdminEnrollmentSchema";
 
 const router = Router();
 
@@ -30,6 +37,66 @@ router.put(
   RequireSemesterHeader,
   ZodValidator({ body: SaveScheduleSchema }),
   asyncHandler(ScheduleController.SaveSchedule)
+);
+
+router.get(
+  "/admin/enrollments",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.read.name),
+  ZodValidator({ query: AdminEnrollmentQuerySchema }),
+  asyncHandler(ScheduleController.ListAdminEnrollments)
+);
+
+router.get(
+  "/admin/enrollments/options",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.read.name),
+  ZodValidator({ query: AdminEnrollmentQuerySchema }),
+  asyncHandler(ScheduleController.GetAdminEnrollmentOptions)
+);
+
+router.get(
+  "/admin/enrollments/students/:studentId",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.read.name),
+  ZodValidator({
+    params: AdminEnrollmentStudentParamsSchema,
+    query: AdminEnrollmentQuerySchema,
+  }),
+  asyncHandler(ScheduleController.GetAdminStudentEnrollmentTrack)
+);
+
+router.post(
+  "/admin/enrollments",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.update.name),
+  ZodValidator({ body: AdminEnrollmentCreateSchema }),
+  asyncHandler(ScheduleController.CreateAdminEnrollment)
+);
+
+router.patch(
+  "/admin/enrollments/:id",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.update.name),
+  ZodValidator({
+    params: AdminEnrollmentParamsSchema,
+    body: AdminEnrollmentUpdateSchema,
+  }),
+  asyncHandler(ScheduleController.UpdateAdminEnrollment)
+);
+
+router.delete(
+  "/admin/enrollments/:id",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.program.delete.name),
+  ZodValidator({ params: AdminEnrollmentParamsSchema }),
+  asyncHandler(ScheduleController.DeleteAdminEnrollment)
 );
 
 

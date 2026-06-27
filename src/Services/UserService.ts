@@ -9,12 +9,119 @@ import JwtService from "../Utils/JwtService";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { MailService } from "./MailService/MailService";
 import { UniversityRepository } from "../Repositories/UniversityRepository";
-import { NotFoundError } from "../Types/Errors";
+import { BadRequestError, ForbiddenError, NotFoundError } from "../Types/Errors";
 import { logger } from "../Utils/Logger";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
 import { TokenPayload } from "../Interfaces/TokenPayload";
 
 export class UserService {
+
+  private static MapCurrentUserProfile(user: Awaited<ReturnType<typeof UserRepository.GetUserWithProfileById>>) {
+    if (!user) {
+      throw new NotFoundError("User account not found");
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      fullName: [user.firstName, user.lastName].filter(Boolean).join(" ").trim(),
+      email: user.email,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      address: user.address,
+      city: user.city,
+      country: user.country,
+      nationalId: user.nationalId,
+      isVerified: user.isVerified,
+      isBlocked: user.isBlocked,
+      roles: user.userRoles.map((userRole) => userRole.role.name),
+      isStaff: !!user.staff,
+      isStudent: !!user.student,
+      staff: user.staff
+        ? {
+          position: user.staff.position,
+          hireDate: user.staff.hireDate,
+        }
+        : null,
+      student: user.student
+        ? {
+          fullname: user.student.fullname,
+          universityStudentId: user.student.universityStudentId,
+          cgpa: user.student.cgpa,
+          gender: user.student.gender,
+          religion: user.student.religion,
+          homePhone: user.student.homePhone,
+          status: user.student.status,
+          program: {
+            id: user.student.program.id,
+            name: user.student.program.name,
+          },
+          programLevel: {
+            id: user.student.programLevel.id,
+            level: user.student.programLevel.level,
+          },
+        }
+        : null,
+    };
+  }
+
+  public static async GetCurrentUserProfile(userId: number, schema_name: string) {
+    const prisma = GetTenantClient(schema_name);
+    return this.MapCurrentUserProfile(await UserRepository.GetUserWithProfileById(userId, prisma));
+  }
+
+  public static async UpdateCurrentUserProfile(
+    userId: number,
+    data: {
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      phone?: string;
+      dateOfBirth?: string;
+      address?: string;
+      city?: string;
+      country?: string;
+      nationalId?: string;
+      fullname?: string;
+      homePhone?: string | null;
+      position?: string;
+    },
+    schema_name: string,
+  ) {
+    const prisma = GetTenantClient(schema_name);
+    const updatedUser = await UserRepository.UpdateSelfProfile(userId, data, prisma);
+    return this.MapCurrentUserProfile(updatedUser);
+  }
+
+  public static async ChangeCurrentUserPassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+    schema_name: string,
+  ) {
+    const prisma = GetTenantClient(schema_name);
+    const user = await UserRepository.GetUserById(userId, prisma);
+
+    if (!user) {
+      throw new NotFoundError("User account not found");
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      throw new ForbiddenError("Current password is incorrect");
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      throw new BadRequestError("New password must be different from the current password");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await UserRepository.UpdateUser(userId, { password: hashedPassword }, prisma);
+  }
 
   public static async GetAllStaffAccounts(schema_name: string) {
     const prisma = GetTenantClient(schema_name);

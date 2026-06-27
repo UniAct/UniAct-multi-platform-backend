@@ -33,6 +33,31 @@ router.post(
   asyncHandler(UserController.Login)
 );
 
+router.get(
+  "/me",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  asyncHandler(UserController.GetCurrentUserProfile)
+);
+
+router.patch(
+  "/me",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ...UserValidator.UpdateCurrentUserProfile(),
+  ValidateRequest,
+  asyncHandler(UserController.UpdateCurrentUserProfile)
+);
+
+router.patch(
+  "/me/password",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  ...UserValidator.ChangeCurrentUserPassword(),
+  ValidateRequest,
+  asyncHandler(UserController.ChangeCurrentUserPassword)
+);
+
 router.post(
   "/assign-root-account",
   IsAuthenticated,
@@ -121,6 +146,7 @@ router.post(
 router.get(
   "/verify-staff-account/:token",
   ValidateToken,
+  AttachAndValidateTenant,
   asyncHandler(UserController.ActivateStaffAccount)
 );
 
