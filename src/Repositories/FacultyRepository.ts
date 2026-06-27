@@ -29,8 +29,24 @@ export class FacultyRepository {
    }
 
    static async GetProgramsByFacultyId(facultyId: number, prisma: PrismaClient){
-      return await prisma.program.findMany({where:{facultyId},
-          select:{id: true, name: true, programLevels :{select:{level: true,}}}})
+      return await prisma.program.findMany({
+         where:{facultyId},
+         select:{
+            id: true,
+            name: true,
+            facultyId: true,
+            programLevels: {
+               select: {
+                  id: true,
+                  level: true,
+                  minCredits: true,
+                  maxCredits: true,
+               },
+               orderBy: { level: "asc" },
+            },
+         },
+         orderBy: { name: "asc" },
+      })
    }
 
    static async UpdateFaculty(id:number, FacultyData: Prisma.FacultyUpdateInput, prisma:PrismaClient){
