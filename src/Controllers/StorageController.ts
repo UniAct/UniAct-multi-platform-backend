@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
 import { MinioRepository } from "../Repositories/MinioRepository";
+import { BadRequestError } from "../Types/Errors";
+
+function getSingleParam(value: string | string[] | undefined, name: string): string {
+  if (typeof value === "string" && value.trim()) {
+    return value;
+  }
+
+  throw new BadRequestError(`${name} must be a single non-empty string.`);
+}
 
 export class StorageController {
   static async GetObject(req: Request, res: Response) {
-    const bucketName = req.params.bucketName;
-    const objectName = req.params.objectName;
-
-    if (!bucketName || !objectName) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: "fail",
-        data: { message: "bucketName and objectName are required" },
-      });
-    }
+    const bucketName = getSingleParam(req.params.bucketName, "bucketName");
+    const objectName = getSingleParam(req.params.objectName, "objectName");
 
     const stream = await MinioRepository.GetObject(bucketName, objectName);
     res.setHeader("Content-Disposition", `attachment; filename="${objectName.replace(/"/g, "")}"`);
