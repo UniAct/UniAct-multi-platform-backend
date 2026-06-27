@@ -2,11 +2,8 @@ import Redis from "ioredis";
 import { RedisOptions } from "ioredis";
 import { logger } from "./Logger";
 import dotenv from 'dotenv';
+import { getRedisLogTarget, getRedisUrlOrOptions } from "./RedisConfig";
 dotenv.config();
-
-const REDIS_HOST = process.env.REDIS_HOST || "127.0.0.1";
-const REDIS_PORT = Number(process.env.REDIS_PORT || 6379);
-const REDIS_URL = process.env.REDIS_URL;
 
 const sharedOptions: RedisOptions = {
   lazyConnect: true,
@@ -18,18 +15,16 @@ const sharedOptions: RedisOptions = {
 };
 
 function createRedisClient(): Redis {
-  if (REDIS_URL) {
-    return new Redis(REDIS_URL, sharedOptions);
+  const redisConfig = getRedisUrlOrOptions(sharedOptions);
+
+  if (typeof redisConfig === "string") {
+    return new Redis(redisConfig, sharedOptions);
   }
 
-  return new Redis({
-    ...sharedOptions,
-    host: REDIS_HOST,
-    port: REDIS_PORT,
-  });
+  return new Redis(redisConfig);
 }
 
-const REDIS_LOG_TARGET = REDIS_URL ? new URL(REDIS_URL).host : `${REDIS_HOST}:${REDIS_PORT}`;
+const REDIS_LOG_TARGET = getRedisLogTarget();
 
 export const RedisPublisher = createRedisClient();
 
