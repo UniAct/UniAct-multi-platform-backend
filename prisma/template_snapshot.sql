@@ -378,12 +378,12 @@ ALTER SEQUENCE __SCHEMA__."AcademicLoadGPA_id_seq" OWNED BY __SCHEMA__."Academic
 CREATE TABLE __SCHEMA__."AcademicLoadSemester" (
     id integer NOT NULL,
     program_id integer NOT NULL,
+    semester_number smallint NOT NULL,
     program_level_id integer NOT NULL,
     min_credits integer NOT NULL,
     max_credits integer NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL,
-    semester_number smallint NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -489,6 +489,7 @@ ALTER SEQUENCE __SCHEMA__."AttendanceReport_id_seq" OWNED BY __SCHEMA__."Attenda
 
 CREATE TABLE __SCHEMA__."AttendanceSession" (
     id integer NOT NULL,
+    schedule_slot_id integer NOT NULL,
     faculty_member_id integer NOT NULL,
     session_date date NOT NULL,
     start_time time(6) without time zone NOT NULL,
@@ -497,8 +498,7 @@ CREATE TABLE __SCHEMA__."AttendanceSession" (
     hotspot_ssid character varying(255),
     qr_code character varying(500),
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    session_notes text,
-    schedule_slot_id integer NOT NULL
+    session_notes text
 );
 
 
@@ -528,10 +528,10 @@ ALTER SEQUENCE __SCHEMA__."AttendanceSession_id_seq" OWNED BY __SCHEMA__."Attend
 
 CREATE TABLE __SCHEMA__."Classroom" (
     id integer NOT NULL,
+    classroom_number character varying(50) NOT NULL,
     building character varying(100) NOT NULL,
     capacity integer NOT NULL,
     type __SCHEMA__."ClassroomType" NOT NULL,
-    classroom_number character varying(50) NOT NULL,
     "underMaintenance" boolean DEFAULT false NOT NULL
 );
 
@@ -581,13 +581,13 @@ CREATE TABLE __SCHEMA__."Course" (
 
 CREATE TABLE __SCHEMA__."CourseAssessment" (
     id integer NOT NULL,
+    course_id integer NOT NULL,
+    semester_id integer NOT NULL,
     label character varying(100) NOT NULL,
-    assessment_type __SCHEMA__."CourseAssessmentType" NOT NULL,
-    marks numeric(5,2) NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp(3) without time zone NOT NULL,
-    course_id integer NOT NULL,
-    semester_id integer NOT NULL
+    assessment_type __SCHEMA__."CourseAssessmentType" NOT NULL,
+    marks numeric(5,2) NOT NULL
 );
 
 
@@ -632,7 +632,7 @@ CREATE TABLE __SCHEMA__."CourseRegistration" (
     enrollment_date date DEFAULT CURRENT_TIMESTAMP NOT NULL,
     status __SCHEMA__."RegistrationStatus" DEFAULT 'Enrolled'::__SCHEMA__."RegistrationStatus" NOT NULL,
     grade __SCHEMA__."GradeEnum",
-    grade_points integer,
+    grade_points numeric(5,4),
     "slot_context_Id" integer
 );
 
@@ -735,12 +735,12 @@ ALTER SEQUENCE __SCHEMA__."Faculty_id_seq" OWNED BY __SCHEMA__."Faculty".id;
 CREATE TABLE __SCHEMA__."Fee" (
     id integer NOT NULL,
     program_level_id integer NOT NULL,
+    semester_number smallint NOT NULL,
     fee_type __SCHEMA__."FeeType" NOT NULL,
     amount numeric(12,2) NOT NULL,
     description text,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL,
-    semester_number smallint NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -823,12 +823,12 @@ CREATE TABLE __SCHEMA__."Job" (
 
 CREATE TABLE __SCHEMA__."LearningGroup" (
     id integer NOT NULL,
+    course_id integer NOT NULL,
+    semester_id integer NOT NULL,
     group_name character varying(255) NOT NULL,
     access_code character varying(50),
     allow_student_posts boolean DEFAULT false NOT NULL,
-    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    course_id integer NOT NULL,
-    semester_id integer NOT NULL
+    created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -852,11 +852,11 @@ CREATE TABLE __SCHEMA__."LearningGroupPost" (
     id integer NOT NULL,
     learning_group_id integer NOT NULL,
     author_id integer NOT NULL,
-    content text,
     post_type __SCHEMA__."PostType" NOT NULL,
+    content text,
+    due_date timestamp(3) without time zone,
     is_pinned boolean DEFAULT false NOT NULL,
     is_edited boolean DEFAULT false NOT NULL,
-    due_date timestamp(3) without time zone,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp(3) without time zone NOT NULL
 );
@@ -907,9 +907,9 @@ CREATE TABLE __SCHEMA__."LearningGroupPostComment" (
     post_id integer NOT NULL,
     author_id integer NOT NULL,
     content text NOT NULL,
+    is_edited boolean DEFAULT false NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL,
-    is_edited boolean DEFAULT false NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -1054,11 +1054,11 @@ CREATE TABLE __SCHEMA__."Program" (
     university_credit_hours integer DEFAULT 0 NOT NULL,
     faculty_credit_hours integer DEFAULT 0 NOT NULL,
     program_credit_hours integer DEFAULT 0 NOT NULL,
-    program_type __SCHEMA__."ProgramType" NOT NULL,
-    result_display __SCHEMA__."ResultDisplayType" DEFAULT 'CourseGrade'::__SCHEMA__."ResultDisplayType" NOT NULL,
+    duration_years integer,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp(3) without time zone NOT NULL,
-    duration_years integer
+    program_type __SCHEMA__."ProgramType" NOT NULL,
+    result_display __SCHEMA__."ResultDisplayType" DEFAULT 'CourseGrade'::__SCHEMA__."ResultDisplayType" NOT NULL
 );
 
 
@@ -1067,11 +1067,11 @@ CREATE TABLE __SCHEMA__."Program" (
 --
 
 CREATE TABLE __SCHEMA__."ProgramCourse" (
-    course_id integer NOT NULL,
-    type __SCHEMA__."CourseType" NOT NULL,
     id integer NOT NULL,
     "programId" integer NOT NULL,
-    program_level_id integer NOT NULL
+    program_level_id integer NOT NULL,
+    course_id integer NOT NULL,
+    type __SCHEMA__."CourseType" NOT NULL
 );
 
 
@@ -1169,14 +1169,14 @@ ALTER SEQUENCE __SCHEMA__."ProgramStaff_id_seq" OWNED BY __SCHEMA__."ProgramStaf
 CREATE TABLE __SCHEMA__."ProgramTranscriptDefinition" (
     id integer NOT NULL,
     program_id integer NOT NULL,
+    grade_letter __SCHEMA__."GradeEnum" NOT NULL,
     min_score numeric(5,2) NOT NULL,
     max_score numeric(5,2) NOT NULL,
     equivalent_estimate character varying(20),
     min_gpa numeric(5,4) NOT NULL,
     max_gpa numeric(5,4) NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL,
-    grade_letter __SCHEMA__."GradeEnum" NOT NULL
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -1312,16 +1312,15 @@ ALTER SEQUENCE __SCHEMA__."Role_id_seq" OWNED BY __SCHEMA__."Role".id;
 CREATE TABLE __SCHEMA__."ScheduleSlot" (
     id integer NOT NULL,
     teacher_id integer NOT NULL,
+    course_id integer NOT NULL,
     classroom_id integer NOT NULL,
     semester_id integer NOT NULL,
     day_of_week __SCHEMA__."DayOfWeek" NOT NULL,
     start_time time(6) without time zone NOT NULL,
     end_time time(6) without time zone NOT NULL,
     type __SCHEMA__."SlotType" DEFAULT 'Lecture'::__SCHEMA__."SlotType" NOT NULL,
-    enrolled_seats smallint DEFAULT 0 NOT NULL,
-    course_id integer NOT NULL,
     "allowedCapacity" smallint NOT NULL,
-    CONSTRAINT valid_time_range CHECK ((start_time < end_time))
+    enrolled_seats smallint DEFAULT 0 NOT NULL
 );
 
 
@@ -1588,6 +1587,7 @@ CREATE TABLE __SCHEMA__."User" (
     password character varying(60) NOT NULL,
     is_verified boolean DEFAULT false NOT NULL,
     is_blocked boolean DEFAULT false NOT NULL,
+    "blockReason" __SCHEMA__."BlockReasonType",
     phone character varying(15) NOT NULL,
     date_of_birth date NOT NULL,
     address text NOT NULL,
@@ -1595,8 +1595,7 @@ CREATE TABLE __SCHEMA__."User" (
     country character varying(100) NOT NULL,
     national_id character varying(50) NOT NULL,
     created_at timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp(3) without time zone NOT NULL,
-    "blockReason" __SCHEMA__."BlockReasonType"
+    updated_at timestamp(3) without time zone NOT NULL
 );
 
 
@@ -1716,6 +1715,45 @@ CREATE SEQUENCE __SCHEMA__.chunks_chunk_id_seq
 --
 
 ALTER SEQUENCE __SCHEMA__.chunks_chunk_id_seq OWNED BY __SCHEMA__.chunks.chunk_id;
+
+
+--
+-- Name: enrollment_windows; Type: TABLE; Schema: template; Owner: -
+--
+
+CREATE TABLE __SCHEMA__.enrollment_windows (
+    id integer NOT NULL,
+    name text,
+    "facultyId" integer NOT NULL,
+    "programId" integer,
+    "semesterId" integer NOT NULL,
+    "programLevelId" integer NOT NULL,
+    "startTime" timestamp(3) without time zone NOT NULL,
+    "endTime" timestamp(3) without time zone NOT NULL,
+    "isActive" boolean DEFAULT true NOT NULL,
+    "createdAt" timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updatedAt" timestamp(3) without time zone NOT NULL
+);
+
+
+--
+-- Name: enrollment_windows_id_seq; Type: SEQUENCE; Schema: template; Owner: -
+--
+
+CREATE SEQUENCE __SCHEMA__.enrollment_windows_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: enrollment_windows_id_seq; Type: SEQUENCE OWNED BY; Schema: template; Owner: -
+--
+
+ALTER SEQUENCE __SCHEMA__.enrollment_windows_id_seq OWNED BY __SCHEMA__.enrollment_windows.id;
 
 
 --
@@ -1990,6 +2028,13 @@ ALTER TABLE ONLY __SCHEMA__.assets ALTER COLUMN asset_id SET DEFAULT nextval('__
 --
 
 ALTER TABLE ONLY __SCHEMA__.chunks ALTER COLUMN chunk_id SET DEFAULT nextval('__SCHEMA__.chunks_chunk_id_seq'::regclass);
+
+
+--
+-- Name: enrollment_windows id; Type: DEFAULT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.enrollment_windows ALTER COLUMN id SET DEFAULT nextval('__SCHEMA__.enrollment_windows_id_seq'::regclass);
 
 
 --
@@ -2342,6 +2387,14 @@ ALTER TABLE ONLY __SCHEMA__.chat_messages
 
 ALTER TABLE ONLY __SCHEMA__.chunks
     ADD CONSTRAINT chunks_pkey PRIMARY KEY (chunk_id);
+
+
+--
+-- Name: enrollment_windows enrollment_windows_pkey; Type: CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.enrollment_windows
+    ADD CONSTRAINT enrollment_windows_pkey PRIMARY KEY (id);
 
 
 --
@@ -3104,6 +3157,13 @@ CREATE UNIQUE INDEX chunks_chunk_uuid_key ON __SCHEMA__.chunks USING btree (chun
 
 
 --
+-- Name: enrollment_windows_facultyId_semesterId_programLevelId_isAc_idx; Type: INDEX; Schema: template; Owner: -
+--
+
+CREATE INDEX "enrollment_windows_facultyId_semesterId_programLevelId_isAc_idx" ON __SCHEMA__.enrollment_windows USING btree ("facultyId", "semesterId", "programLevelId", "isActive", "programId");
+
+
+--
 -- Name: ix_asset_project_id; Type: INDEX; Schema: template; Owner: -
 --
 
@@ -3688,6 +3748,38 @@ ALTER TABLE ONLY __SCHEMA__.chunks
 
 ALTER TABLE ONLY __SCHEMA__.chunks
     ADD CONSTRAINT chunks_chunk_project_id_fkey FOREIGN KEY (chunk_project_id) REFERENCES __SCHEMA__.projects(project_id);
+
+
+--
+-- Name: enrollment_windows enrollment_windows_facultyId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.enrollment_windows
+    ADD CONSTRAINT "enrollment_windows_facultyId_fkey" FOREIGN KEY ("facultyId") REFERENCES __SCHEMA__."Faculty"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: enrollment_windows enrollment_windows_programId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.enrollment_windows
+    ADD CONSTRAINT "enrollment_windows_programId_fkey" FOREIGN KEY ("programId") REFERENCES __SCHEMA__."Program"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: enrollment_windows enrollment_windows_programLevelId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.enrollment_windows
+    ADD CONSTRAINT "enrollment_windows_programLevelId_fkey" FOREIGN KEY ("programLevelId") REFERENCES __SCHEMA__."ProgramLevel"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: enrollment_windows enrollment_windows_semesterId_fkey; Type: FK CONSTRAINT; Schema: template; Owner: -
+--
+
+ALTER TABLE ONLY __SCHEMA__.enrollment_windows
+    ADD CONSTRAINT "enrollment_windows_semesterId_fkey" FOREIGN KEY ("semesterId") REFERENCES __SCHEMA__."Semester"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

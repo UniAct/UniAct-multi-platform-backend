@@ -104,6 +104,37 @@ model EnrollmentJob {
   @@schema("template")
 }
 
+model EnrollmentWindow {
+  id   Int     @id @default(autoincrement())
+  name String?
+
+  // Faculty is mandatory: every window must belong to a faculty
+  facultyId Int
+  faculty   Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  // Program is optional: NULL means "all programs within this faculty"
+  programId Int?
+  program   Program? @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  semesterId Int
+  semester   Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+
+  programLevelId Int
+  ProgramLevel   ProgramLevel @relation(fields: [programLevelId], references: [id], onDelete: Cascade)
+
+  startTime DateTime
+  endTime   DateTime
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Composite index optimized for the fallback lookup logic
+  @@index([facultyId, semesterId, programLevelId, isActive, programId])
+  @@map("enrollment_windows")
+  @@schema("template")
+}
+
 model User {
   id                        Int                        @id @default(autoincrement())
   username                  String                     @unique @db.VarChar(100)
@@ -185,18 +216,19 @@ model Staff {
 }
 
 model Faculty {
-  id              Int            @id @default(autoincrement())
-  universityId    Int            @map("university_id")
-  name            String         @db.VarChar(255)
-  description     String?
-  deanId          Int?           @map("dean_id")
-  establishedDate DateTime?      @map("established_date") @db.Date
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
-  dean            Staff?         @relation(fields: [deanId], references: [userId])
-  programs        Program[]
-  regulations     Regulation[]
-  programStaffs   ProgramStaff[]
+  id                Int                @id @default(autoincrement())
+  universityId      Int                @map("university_id")
+  name              String             @db.VarChar(255)
+  description       String?
+  deanId            Int?               @map("dean_id")
+  establishedDate   DateTime?          @map("established_date") @db.Date
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  dean              Staff?             @relation(fields: [deanId], references: [userId])
+  programs          Program[]
+  regulations       Regulation[]
+  programStaffs     ProgramStaff[]
+  enrollmentWindows EnrollmentWindow[]
 
   @@index([universityId])
   @@index([name])
@@ -233,6 +265,7 @@ model Program {
   students              Student[]
   programStaffs         ProgramStaff[]
   scheduleSlotContexts  ScheduleSlotContext[]
+  enrollmentWindows     EnrollmentWindow[]
 
   @@unique([name])
   @@index([facultyId])
@@ -347,6 +380,7 @@ model Semester {
   enrollmentJobs      EnrollmentJob[]
   learningGroups      LearningGroup[]
   transcriptJobs      TranscriptJob[]
+  enrollmentWindows   EnrollmentWindow[]
 
   @@unique([year, term])
   @@index([year])
@@ -368,6 +402,7 @@ model ProgramLevel {
   student               Student[]
   studentFeeReports     StudentFeeReport[]
   programCourses        ProgramCourse[]
+  enrollmentWindows     EnrollmentWindow[]
 
   @@unique([programId, level])
   @@unique([id, programId])
@@ -504,6 +539,7 @@ model LearningGroup {
   semester Semester              @relation(fields: [semesterId], references: [id])
   members  LearningGroupMember[]
   posts    LearningGroupPost[]
+
   @@unique([courseId, semesterId]) // one group per course per semester
   @@index([semesterId])
   @@map("LearningGroup")
@@ -910,88 +946,6 @@ model LearningGroupPostComment {
   @@schema("template")
 }
 
-model AiProject {
-  projectId   String   @id @map("project_id")
-  projectUuid String   @unique @default(uuid()) @map("project_uuid") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime? @map("updated_at") @db.Timestamptz(6)
-
-  assets   AiAsset[]
-  chunks   AiChunk[]
-  sessions AiSession[]
-
-  @@map("projects")
-  @@schema("template")
-}
-
-model AiAsset {
-  assetId        Int      @id @default(autoincrement()) @map("asset_id")
-  assetUuid      String   @unique @default(uuid()) @map("asset_uuid") @db.Uuid
-  assetType      String   @map("asset_type")
-  assetName      String   @map("asset_name")
-  assetSize      Int      @map("asset_size")
-  assetConfig    Json?    @map("asset_config") @db.JsonB
-  assetProjectId String   @map("asset_project_id")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime? @map("updated_at") @db.Timestamptz(6)
-
-  project AiProject @relation(fields: [assetProjectId], references: [projectId])
-  chunks   AiChunk[]
-
-  @@index([assetProjectId], map: "ix_asset_project_id")
-  @@index([assetType], map: "ix_asset_type")
-  @@map("assets")
-  @@schema("template")
-}
-
-model AiChunk {
-  chunkId        Int      @id @default(autoincrement()) @map("chunk_id")
-  chunkUuid      String   @unique @default(uuid()) @map("chunk_uuid") @db.Uuid
-  chunkText      String   @map("chunk_text")
-  chunkMetadata  Json?    @map("chunk_metadata") @db.JsonB
-  chunkOrder     Int      @map("chunk_order")
-  chunkProjectId String   @map("chunk_project_id")
-  chunkAssetId   Int      @map("chunk_asset_id")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime? @map("updated_at") @db.Timestamptz(6)
-
-  project AiProject @relation(fields: [chunkProjectId], references: [projectId])
-  asset   AiAsset   @relation(fields: [chunkAssetId], references: [assetId])
-
-  @@index([chunkProjectId], map: "ix_chunk_project_id")
-  @@index([chunkAssetId], map: "ix_chunk_asset_id")
-  @@map("chunks")
-  @@schema("template")
-}
-
-model AiSession {
-  sessionId String   @id @default(uuid()) @map("session_id") @db.Uuid
-  projectId String   @map("project_id")
-  title     String?
-  filters   Json?    @db.JsonB
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
-
-  project      AiProject       @relation(fields: [projectId], references: [projectId])
-  chatMessages AiChatMessage[]
-
-  @@map("sessions")
-  @@schema("template")
-}
-
-model AiChatMessage {
-  messageId String   @id @default(uuid()) @map("message_id") @db.Uuid
-  sessionId String   @map("session_id") @db.Uuid
-  role      String
-  content   String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  session AiSession @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
-
-  @@map("chat_messages")
-  @@schema("template")
-}
-
 enum AnnouncementType {
   ANNOUNCEMENT
   EVENT
@@ -1219,6 +1173,7 @@ enum TranscriptJobStatus {
   Completed
   Failed
   Partial_failure
+
   @@schema("template")
 }
 

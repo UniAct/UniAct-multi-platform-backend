@@ -1,6 +1,6 @@
 import { DayOfWeek, LearningGroupRole, Prisma, PrismaClient } from "@prisma/client";
 import { ScheduleRepository } from "../Repositories/ScheduleRepository";
-import { ConflictError, NotFoundError } from "../Types/Errors";
+import { ConflictError, ForbiddenError, NotFoundError } from "../Types/Errors";
 import { SlotResponse, SaveScheduleInput, SlotInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { JobRepository } from "../Repositories/JobRepository";
@@ -11,6 +11,8 @@ import { logger } from "../Utils/Logger";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
 import { LearningGroupService } from "./LearningGroupService";
+import { EnrollmentWindowRepository } from "../Repositories/EnrollmentWindowRepository";
+import { configDotenv } from "dotenv";
 
 
 
@@ -27,10 +29,22 @@ export class ScheduleService {
     params: { programId: number; academicLevel: number; facultyId: number },
     semesterId: number,
     schemaName: string,
-    studentId?: number
+    studentId?: number,
+    studentLevelId?: number
   ) {
     const { programId, academicLevel, facultyId } = params;
     const prisma = GetTenantClient(schemaName);
+
+    //if he is a student then we check the enrollment window if he can access the schedule at this time or not 
+    if (typeof (studentId) === "number") {
+      const now = new Date();
+
+      const activeWindow = await EnrollmentWindowRepository.FindActiveWindow({ facultyId, programLevelId: studentLevelId!, semesterId, programId }, prisma)
+      if (!activeWindow) {
+        throw new ForbiddenError("Your registration window is not currently open.")
+      }
+
+    }
 
 
 
@@ -40,6 +54,7 @@ export class ScheduleService {
       ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, prisma, studentId)
     ];
 
+    //if he is an admin get extra lookups
     if (typeof (studentId) != "number") {
       tasks.push(
         ScheduleRepository.GetCoursesByLevel(academicLevel, prisma),
@@ -79,6 +94,7 @@ export class ScheduleService {
       scheduleSlots: slotsContexts.map(context => this.mapSlotToResponse(context))
     };
   }
+
 
 
   public static async SaveSchedule(
@@ -253,7 +269,7 @@ export class ScheduleService {
 
     const refreshed = await ScheduleRepository.GetScheduleSlotsWithContext(programId, academicLevel, semesterId, tx);
     return {
-      metrics: { deleted: slotIdsToDelete.length , ...stats },
+      metrics: { deleted: slotIdsToDelete.length, ...stats },
       scheduleSlots: refreshed.map(context => this.mapSlotToResponse(context))
     };
   }
@@ -361,7 +377,7 @@ export class ScheduleService {
     }
   }
 
-  
+
 
   private static formatFullName(first?: string, last?: string): string {
     return `${first || ''} ${last || ''}`.trim();

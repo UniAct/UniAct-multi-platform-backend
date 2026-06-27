@@ -21,12 +21,14 @@ export class ScheduleController {
     // will be needed to determine filtering and shape of the response 
   const isStudent = !!req.user?.isStudent;
   const studentId = isStudent ? req.user?.id : undefined;
+  const studentLevelId = isStudent? req.user?.programLevel?.id : undefined;
 
     const Timetable = await ScheduleService.GetSchedule(
       {programId, academicLevel, facultyId},
       req.semester_id!,
       req.schema_name!,
-      studentId
+      studentId,
+      studentLevelId
     );
 
     res.status(StatusCodes.OK).json({

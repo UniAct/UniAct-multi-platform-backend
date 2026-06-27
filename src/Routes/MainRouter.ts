@@ -14,6 +14,7 @@ import attendanceRoutes from "./AttendanceRoutes";
 import announcementRoutes from "./AnnouncementRoutes";
 import LearningGroupRoutes from "./LearningGroupRoutes";
 import transcriptRoutes from "./TranscriptRoutes";
+import EnrollmentWindowRouter from "./EnrollmentWindow";
 import aiRoutes from "./AiRoutes";
 import storageRoutes from "./StorageRoutes";
 import { StatusCodes } from "http-status-codes";
@@ -45,6 +46,8 @@ router.use('/classroom', classroomRoutes);
 router.use('/semester', semesterRoutes);
 
 router.use('/schedule', classSessionRoutes);
+
+router.use('/enrollment-window', EnrollmentWindowRouter)
 
 router.use('/attendance', attendanceRoutes);
 
