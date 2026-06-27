@@ -28,7 +28,7 @@ export function ParseSubscribeMessage(raw: string): SubscribeMessage | null {
 
 export function Authenticate(req: IncomingMessage): number | null {
   const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1];
+  const token = authHeader?.split(" ")[1] ?? getTokenFromQuery(req);
 
   if (!token) return null;
 
@@ -37,6 +37,17 @@ export function Authenticate(req: IncomingMessage): number | null {
     return decoded.id!;
   } catch {
     return null;
+  }
+}
+
+function getTokenFromQuery(req: IncomingMessage): string | undefined {
+  if (!req.url) return undefined;
+
+  try {
+    const url = new URL(req.url, "http://localhost");
+    return url.searchParams.get("access_token") ?? undefined;
+  } catch {
+    return undefined;
   }
 }
 
