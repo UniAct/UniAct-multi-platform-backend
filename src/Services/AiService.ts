@@ -58,6 +58,18 @@ function hasIndexedFile(existingFileNames: Set<string>, originalFileName: string
   });
 }
 
+function getChapterAssetIds(chaptersResponse: unknown): Set<string> {
+  const chapters = (chaptersResponse as any)?.chapters;
+  if (!Array.isArray(chapters)) return new Set();
+
+  return new Set(
+    chapters
+      .map((chapter: any) => chapter?.asset_id ?? chapter?.file_id)
+      .filter((assetId: unknown): assetId is string | number => typeof assetId === "string" || typeof assetId === "number")
+      .map(String)
+  );
+}
+
 async function downloadAttachmentBytes(attachment: AiAttachment): Promise<ArrayBuffer> {
   const response = await fetch(attachment.url);
   if (response.ok) return response.arrayBuffer();
@@ -180,20 +192,26 @@ export class AiService {
       }))
     ).filter(isSupportedAttachment);
 
-    let existingFileNames = new Set<string>();
+    let indexedFileNames = new Set<string>();
     try {
-      const existing = await this.GetProjectFiles(schemaName, groupId) as any;
-      existingFileNames = new Set(
-        (existing.assets ?? []).map((asset: any) => String(asset.asset_name ?? asset.file_name ?? asset.name ?? ""))
+      const [existing, chapters] = await Promise.all([
+        this.GetProjectFiles(schemaName, groupId) as Promise<any>,
+        this.GetProjectChapters(schemaName, groupId).catch(() => undefined),
+      ]);
+      const chunkedAssetIds = getChapterAssetIds(chapters);
+      indexedFileNames = new Set(
+        (existing.assets ?? [])
+          .filter((asset: any) => chunkedAssetIds.has(String(asset.asset_id)))
+          .map((asset: any) => String(asset.asset_name ?? asset.file_name ?? asset.name ?? ""))
       );
     } catch {
-      existingFileNames = new Set();
+      indexedFileNames = new Set();
     }
 
     const results: Array<{ attachmentId: number; fileName: string; status: string; detail?: string }> = [];
 
     for (const attachment of attachments) {
-      if (hasIndexedFile(existingFileNames, attachment.fileName)) {
+      if (hasIndexedFile(indexedFileNames, attachment.fileName)) {
         results.push({ attachmentId: attachment.attachmentId, fileName: attachment.fileName, status: "skipped" });
         continue;
       }
@@ -216,6 +234,7 @@ export class AiService {
         }
 
         results.push({ attachmentId: attachment.attachmentId, fileName: attachment.fileName, status: "indexed" });
+        indexedFileNames.add(attachment.fileName);
       } catch (error) {
         results.push({
           attachmentId: attachment.attachmentId,

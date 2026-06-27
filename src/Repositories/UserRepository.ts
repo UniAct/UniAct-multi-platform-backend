@@ -216,6 +216,120 @@ export class UserRepository {
       },
     });
   }
+
+  public static async GetUserWithProfileById(
+    id: number,
+    prisma: PrismaClient
+  ) {
+    return prisma.user.findUnique({
+      where: { id },
+      include: {
+        staff: true,
+        student: {
+          include: {
+            program: true,
+            programLevel: true,
+          },
+        },
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
+  public static async UpdateSelfProfile(
+    userId: number,
+    data: {
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      phone?: string;
+      dateOfBirth?: string;
+      address?: string;
+      city?: string;
+      country?: string;
+      nationalId?: string;
+      fullname?: string;
+      homePhone?: string | null;
+      position?: string;
+    },
+    prisma: PrismaClient
+  ) {
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.user.findUnique({
+        where: { id: userId },
+        include: {
+          staff: true,
+          student: true,
+        },
+      });
+
+      if (!existing) {
+        throw new Error(`User with ID ${userId} was not found`);
+      }
+
+      const userData = omitUndefined<Prisma.UserUpdateInput>({
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+        address: data.address,
+        city: data.city,
+        country: data.country,
+        nationalId: data.nationalId,
+      });
+
+      if (Object.keys(userData).length > 0) {
+        await tx.user.update({
+          where: { id: userId },
+          data: userData,
+        });
+      }
+
+      if (existing.student && (data.fullname !== undefined || data.homePhone !== undefined)) {
+        await tx.student.update({
+          where: { userId },
+          data: omitUndefined<Prisma.StudentUpdateInput>({
+            fullname: data.fullname,
+            homePhone: data.homePhone,
+          }),
+        });
+      }
+
+      if (existing.staff && data.position !== undefined) {
+        await tx.staff.update({
+          where: { userId },
+          data: {
+            position: data.position,
+          },
+        });
+      }
+
+      return tx.user.findUnique({
+        where: { id: userId },
+        include: {
+          staff: true,
+          student: {
+            include: {
+              program: true,
+              programLevel: true,
+            },
+          },
+          userRoles: {
+            include: {
+              role: true,
+            },
+          },
+        },
+      });
+    });
+  }
 }
 
 

@@ -116,7 +116,11 @@ export class AttendanceRepository {
   public static async GetAttendanceSessionById(id: number, prisma: DbClient) {
     return prisma.attendanceSession.findUnique({
       where: { id },
-      include: { attendance: true, facultyMember: true, scheduleSlot: true },
+      include: {
+        attendance: { orderBy: { studentId: "asc" } },
+        facultyMember: true,
+        scheduleSlot: true,
+      },
     });
   }
 
@@ -137,7 +141,7 @@ export class AttendanceRepository {
     const nextDay = new Date(startOfDay);
     nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
-    return prisma.attendanceSession.findFirst({
+    const sessions = await prisma.attendanceSession.findMany({
       where: {
         scheduleSlotId,
         sessionDate: {
@@ -145,18 +149,28 @@ export class AttendanceRepository {
           lt: nextDay,
         },
       },
+      orderBy: { id: "desc" },
       include: {
-        attendance: true,
+        attendance: { orderBy: { studentId: "asc" } },
         facultyMember: true,
         scheduleSlot: true,
       },
     });
+
+    return sessions.sort((left, right) => {
+      const attendanceDelta = right.attendance.length - left.attendance.length;
+      return attendanceDelta !== 0 ? attendanceDelta : right.id - left.id;
+    })[0] ?? null;
   }
 
   public static async GetEnrolledStudentsBySlotContext(slotContextId: number, prisma: DbClient) {
     // Find course registrations for the given slot context and include student info
     return prisma.courseRegistration.findMany({
-      where: { slotContextId },
+      where: {
+        slotContextId,
+        status: RegistrationStatus.Enrolled,
+      },
+      distinct: ["studentId"],
       select: {
         id: true,
         studentId: true,
@@ -167,7 +181,8 @@ export class AttendanceRepository {
             }
           }
         }
-      }
+      },
+      orderBy: { studentId: "asc" },
     });
   }
 
@@ -184,32 +199,57 @@ export class AttendanceRepository {
         recordsByStudentId.set(record.studentId, record);
       });
 
-      return Promise.all(
-        Array.from(recordsByStudentId.values()).map((record) => {
-          const data = {
-            status: toAttendanceStatus(record.status),
-            deviceIp: record.deviceIp ?? null,
-            deviceMac: record.deviceMac ?? null,
-            notes: record.notes ?? null,
-            recordedAt: new Date(),
-          };
+      const savedAttendances = [];
 
-          return tx.studentAttendance.upsert({
-            where: {
-              attendanceSessionId_studentId: {
-                attendanceSessionId,
-                studentId: record.studentId,
+      for (const record of recordsByStudentId.values()) {
+        const data = {
+          status: toAttendanceStatus(record.status),
+          deviceIp: record.deviceIp ?? null,
+          deviceMac: record.deviceMac ?? null,
+          notes: record.notes ?? null,
+          recordedAt: new Date(),
+        };
+
+        const existingRecords = await tx.studentAttendance.findMany({
+          where: {
+            attendanceSessionId,
+            studentId: record.studentId,
+          },
+          orderBy: { id: "desc" },
+        });
+
+        if (existingRecords.length > 0) {
+          const [recordToKeep, ...duplicates] = existingRecords;
+
+          if (duplicates.length > 0) {
+            await tx.studentAttendance.deleteMany({
+              where: {
+                id: { in: duplicates.map((duplicate) => duplicate.id) },
               },
-            },
-            update: data,
-            create: {
+            });
+          }
+
+          savedAttendances.push(
+            await tx.studentAttendance.update({
+              where: { id: recordToKeep.id },
+              data,
+            }),
+          );
+          continue;
+        }
+
+        savedAttendances.push(
+          await tx.studentAttendance.create({
+            data: {
               attendanceSessionId,
               studentId: record.studentId,
               ...data,
             },
-          });
-        }),
-      );
+          }),
+        );
+      }
+
+      return savedAttendances.sort((left, right) => left.studentId - right.studentId);
     });
   }
 

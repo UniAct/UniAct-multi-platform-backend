@@ -5,6 +5,12 @@ import { ScheduleService } from "../Services/ScheduleService";
 import { GetScheduleQuery, SaveScheduleInput } from "../Interfaces/ScheduleSlot/ScheduleSlotSchema";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { EnrollInScheduleRequestDto } from "../Interfaces/Enrollment/EnrollInScheduleSchema";
+import { AdminEnrollmentService } from "../Services/AdminEnrollmentService";
+import {
+  AdminEnrollmentCreateDto,
+  AdminEnrollmentQuery,
+  AdminEnrollmentUpdateDto,
+} from "../Interfaces/Enrollment/AdminEnrollmentSchema";
 
 
 export class ScheduleController {
@@ -67,6 +73,71 @@ export class ScheduleController {
       status: JSendStatus.SUCCESS,
       data: result,
       message: "Your enrollment request has been received and is being processed.",
+    });
+  }
+
+  static async ListAdminEnrollments(req: Request, res: Response) {
+    const query = req.query as unknown as AdminEnrollmentQuery;
+    const result = await AdminEnrollmentService.List(req.schema_name!, query);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+    });
+  }
+
+  static async GetAdminEnrollmentOptions(req: Request, res: Response) {
+    const query = req.query as unknown as AdminEnrollmentQuery;
+    const result = await AdminEnrollmentService.GetOptions(req.schema_name!, query);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+    });
+  }
+
+  static async GetAdminStudentEnrollmentTrack(req: Request, res: Response) {
+    const { studentId } = req.params as unknown as { studentId: number };
+    const query = req.query as unknown as AdminEnrollmentQuery;
+    const result = await AdminEnrollmentService.GetStudentTrack(req.schema_name!, studentId, query);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+    });
+  }
+
+  static async CreateAdminEnrollment(req: Request, res: Response) {
+    const payload = req.body as AdminEnrollmentCreateDto;
+    const result = await AdminEnrollmentService.Create(req.schema_name!, payload);
+
+    res.status(StatusCodes.CREATED).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+      message: "Enrollment created successfully",
+    });
+  }
+
+  static async UpdateAdminEnrollment(req: Request, res: Response) {
+    const { id } = req.params as unknown as { id: number };
+    const payload = req.body as AdminEnrollmentUpdateDto;
+    const result = await AdminEnrollmentService.Update(req.schema_name!, id, payload);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+      message: "Enrollment updated successfully",
+    });
+  }
+
+  static async DeleteAdminEnrollment(req: Request, res: Response) {
+    const { id } = req.params as unknown as { id: number };
+    const result = await AdminEnrollmentService.Delete(req.schema_name!, id);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: result,
+      message: "Enrollment deleted successfully",
     });
   }
 }

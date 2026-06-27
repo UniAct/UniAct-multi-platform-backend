@@ -110,6 +110,129 @@ export default class UserValidator {
     ];
   }
 
+  public static UpdateCurrentUserProfile() {
+    const updatableFields = [
+      "username",
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "dateOfBirth",
+      "address",
+      "city",
+      "country",
+      "nationalId",
+      "fullname",
+      "homePhone",
+      "position",
+    ];
+
+    return [
+      body()
+        .custom((value) => {
+          const hasAnyField =
+            value &&
+            typeof value === "object" &&
+            updatableFields.some((field) => value[field] !== undefined);
+
+          if (!hasAnyField) {
+            throw new Error("At least one profile field is required");
+          }
+
+          return true;
+        }),
+
+      body("username")
+        .optional()
+        .isLength({ min: 3, max: 100 }).withMessage("Username must be between 3 and 100 characters")
+        .matches(/^[a-zA-Z0-9_.-]+$/).withMessage("Username can only contain letters, numbers, dots, underscores, and hyphens")
+        .trim(),
+
+      body("firstName")
+        .optional()
+        .isLength({ min: 2, max: 100 }).withMessage("First name must be between 2 and 100 characters")
+        .trim(),
+
+      body("lastName")
+        .optional()
+        .isLength({ min: 2, max: 100 }).withMessage("Last name must be between 2 and 100 characters")
+        .trim(),
+
+      body("email")
+        .optional()
+        .isEmail().withMessage("Invalid email format")
+        .isLength({ max: 320 }).withMessage("Email must not exceed 320 characters")
+        .normalizeEmail(),
+
+      body("phone")
+        .optional()
+        .isMobilePhone("any").withMessage("Invalid phone number"),
+
+      body("dateOfBirth")
+        .optional()
+        .isISO8601().withMessage("Invalid date format, must be YYYY-MM-DD"),
+
+      body("address")
+        .optional()
+        .isLength({ min: 5, max: 255 }).withMessage("Address must be between 5 and 255 characters"),
+
+      body("city")
+        .optional()
+        .isLength({ min: 2, max: 100 }).withMessage("City must be between 2 and 100 characters"),
+
+      body("country")
+        .optional()
+        .isLength({ min: 2, max: 100 }).withMessage("Country must be between 2 and 100 characters"),
+
+      body("nationalId")
+        .optional()
+        .isLength({ min: 14, max: 14 }).withMessage("National ID must be 14 digits")
+        .matches(/^[0-9]+$/).withMessage("National ID must contain only numbers"),
+
+      body("fullname")
+        .optional()
+        .isLength({ min: 2, max: 100 }).withMessage("Full name must be between 2 and 100 characters")
+        .trim(),
+
+      body("homePhone")
+        .optional({ nullable: true, checkFalsy: true })
+        .isLength({ max: 20 }).withMessage("Home phone must not exceed 20 characters"),
+
+      body("position")
+        .optional()
+        .isLength({ min: 2, max: 100 }).withMessage("Position must be between 2 and 100 characters")
+        .trim(),
+    ];
+  }
+
+  public static ChangeCurrentUserPassword() {
+    return [
+      body("currentPassword")
+        .notEmpty()
+        .withMessage("Current password is required"),
+
+      body("newPassword")
+        .notEmpty()
+        .withMessage("New password is required")
+        .custom((value) => {
+          const error = ValidatePassword(value);
+          if (error)
+            throw new Error(error);
+          return true;
+        }),
+
+      body("confirmPassword")
+        .notEmpty()
+        .withMessage("Confirm password is required")
+        .custom((value, { req }) => {
+          if (value !== req.body.newPassword) {
+            throw new Error("Confirm password must match the new password");
+          }
+          return true;
+        }),
+    ];
+  }
+
   public static UpdateStaffAccount() {
     const updatableFields = [
       "username",
