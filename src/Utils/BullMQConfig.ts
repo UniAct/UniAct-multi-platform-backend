@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { RedisOptions } from 'ioredis';
 import { logger } from './Logger';
 import { getRedisConnectionOptions } from './RedisConfig';
+import { RegisterMemoryWorker } from './InMemoryQueue';
+import { UseMemoryQueue } from './QueueDriver';
 dotenv.config();
 
 /**
@@ -116,6 +118,10 @@ export const RedisConnection = getRedisConnection();
 // Queue
 // ─────────────────────────────────────────────
 export function GetQueue(queueName: string): Queue {
+  if (UseMemoryQueue()) {
+    throw new Error("GetQueue is not available when QUEUE_DRIVER=memory. Use QueueRepository.Publish instead.");
+  }
+
   if (!queues[queueName]) {
     queues[queueName] = new Queue(queueName, {
       connection: RedisConnection,
@@ -140,7 +146,11 @@ export function GetQueue(queueName: string): Queue {
 export function GetWorkerSingleton<T>(
   queueName: string,
   handler: (job: Job<T>) => Promise<void>
-): Worker {
+): Worker | { close(): Promise<void> } {
+  if (UseMemoryQueue()) {
+    return RegisterMemoryWorker<T>(queueName, handler as any);
+  }
+
   if (workers[queueName]) {
     throw new Error(`Worker for queue "${queueName}" is already registered`);
   }

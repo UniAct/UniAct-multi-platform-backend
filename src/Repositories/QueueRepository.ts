@@ -1,8 +1,14 @@
 import { Job } from 'bullmq';
 import { GetQueue, GetWorkerSingleton } from '../Utils/BullMQConfig';
+import { PublishMemoryJob } from '../Utils/InMemoryQueue';
+import { UseMemoryQueue } from '../Utils/QueueDriver';
 
 export class QueueRepository {
   static async Publish<T>(queueName: string, payload: T): Promise<string> {
+    if (UseMemoryQueue()) {
+      return PublishMemoryJob(queueName, payload);
+    }
+
     const queue = GetQueue(queueName);
     const job = await queue.add(queueName, payload, {
       attempts: 3,

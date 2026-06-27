@@ -1,9 +1,39 @@
 import Redis from "ioredis";
 import { RedisOptions } from "ioredis";
+import { EventEmitter } from "events";
 import { logger } from "./Logger";
 import dotenv from 'dotenv';
 import { getRedisLogTarget, getRedisUrlOrOptions } from "./RedisConfig";
+import { UseMemoryQueue } from "./QueueDriver";
 dotenv.config();
+
+const MemoryPubSub = new EventEmitter();
+
+class MemoryRedisPubSub extends EventEmitter {
+  async publish(channel: string, message: string): Promise<number> {
+    queueMicrotask(() => MemoryPubSub.emit("message", channel, message));
+    return MemoryPubSub.listenerCount("message");
+  }
+
+  async subscribe(_channel: string): Promise<number> {
+    return 1;
+  }
+
+  async quit(): Promise<"OK"> {
+    this.removeAllListeners();
+    return "OK";
+  }
+
+  override on(event: "message", listener: (channel: string, message: string) => void): this;
+  override on(event: string | symbol, listener: (...args: any[]) => void): this {
+    if (event === "message") {
+      MemoryPubSub.on("message", listener);
+      return super.on(event, listener);
+    }
+
+    return super.on(event, listener);
+  }
+}
 
 const sharedOptions: RedisOptions = {
   lazyConnect: true,
@@ -24,24 +54,28 @@ function createRedisClient(): Redis {
   return new Redis(redisConfig);
 }
 
-const REDIS_LOG_TARGET = getRedisLogTarget();
+const REDIS_LOG_TARGET = UseMemoryQueue() ? "memory" : getRedisLogTarget();
 
-export const RedisPublisher = createRedisClient();
+export const RedisPublisher = UseMemoryQueue()
+  ? new MemoryRedisPubSub()
+  : createRedisClient();
 
-export const RedisSubscriber = createRedisClient();
+export const RedisSubscriber = UseMemoryQueue()
+  ? new MemoryRedisPubSub()
+  : createRedisClient();
 
-RedisPublisher.on("connect", () =>
+(RedisPublisher as any).on("connect", () =>
   logger.info({ message: "Redis Publisher connected", target: REDIS_LOG_TARGET })
 );
 
-RedisPublisher.on("error", (err) =>
+(RedisPublisher as any).on("error", (err: Error) =>
   logger.error({ message: "Redis Publisher error", err })
 );
 
-RedisSubscriber.on("connect", () =>
+(RedisSubscriber as any).on("connect", () =>
   logger.info({ message: "Redis Subscriber connected", target: REDIS_LOG_TARGET })
 );
 
-RedisSubscriber.on("error", (err) =>
+(RedisSubscriber as any).on("error", (err: Error) =>
   logger.error({ message: "Redis Subscriber error", err })
 );
