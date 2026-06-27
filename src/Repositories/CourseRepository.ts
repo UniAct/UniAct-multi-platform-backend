@@ -317,41 +317,126 @@ export class CourseRepository {
   }
 
   public static async GetCourseStudents(courseId: number, semesterId: number, prisma: DbClient) {
-    return await prisma.courseRegistration.findMany({
-      where: {
-        status: RegistrationStatus.Enrolled,
-        scheduleSlotContext: {
-          slot: { courseId, semesterId },
-        },
-      },
-      select: {
-        grades: {
+    return prisma.$transaction(async (tx) => {
+      const [assessments, registrations] = await Promise.all([
+        tx.courseAssessment.findMany({
+          where: { courseId, semesterId },
+          select: { id: true, marks: true },
+        }),
+        tx.courseRegistration.findMany({
+          where: {
+            status: RegistrationStatus.Enrolled,
+            scheduleSlotContext: {
+              slot: { courseId, semesterId },
+            },
+          },
           select: {
-            id:    true,  
-            marks: true,
-            courseAssessment: {
+            id: true,
+            grades: {
+              where: {
+                courseAssessment: {
+                  courseId,
+                  semesterId,
+                },
+              },
               select: {
-                label: true,
-                marks: true,
+                courseAssessmentId: true,
+              },
+            },
+          },
+        }),
+      ]);
+
+      if (assessments.length > 0 && registrations.length > 0) {
+        const missingGrades = registrations.flatMap((registration) => {
+          const existingAssessmentIds = new Set(
+            registration.grades.map((grade) => grade.courseAssessmentId),
+          );
+
+          return assessments
+            .filter((assessment) => !existingAssessmentIds.has(assessment.id))
+            .map((assessment) => ({
+              courseRegistrationId: registration.id,
+              courseAssessmentId: assessment.id,
+              marks: 0,
+              maxMarks: Number(assessment.marks),
+            }));
+        });
+
+        if (missingGrades.length > 0) {
+          await tx.grade.createMany({ data: missingGrades });
+        }
+      }
+
+      const registrationsWithGrades = await tx.courseRegistration.findMany({
+        where: {
+          status: RegistrationStatus.Enrolled,
+          scheduleSlotContext: {
+            slot: { courseId, semesterId },
+          },
+        },
+        orderBy: {
+          student: {
+            universityStudentId: "asc",
+          },
+        },
+        select: {
+          grades: {
+            where: {
+              courseAssessment: {
+                courseId,
+                semesterId,
+              },
+            },
+            orderBy: [
+              { courseAssessmentId: "asc" },
+              { id: "desc" },
+            ],
+            select: {
+              id: true,
+              courseAssessmentId: true,
+              marks: true,
+              courseAssessment: {
+                select: {
+                  id: true,
+                  label: true,
+                  marks: true,
+                },
+              },
+            },
+          },
+          student: {
+            select: {
+              universityStudentId: true,
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
               },
             },
           },
         },
-        student: {
-          select: {
-            universityStudentId: true,
-            user: {
-              select: {
-                firstName: true,
-                lastName:  true,
-              },
-            },
-          },
-        },
-      },
+      });
+
+      return registrationsWithGrades.map((registration) => {
+        const uniqueGrades = new Map<number, typeof registration.grades[number]>();
+
+        registration.grades.forEach((grade) => {
+          if (!uniqueGrades.has(grade.courseAssessmentId)) {
+            uniqueGrades.set(grade.courseAssessmentId, grade);
+          }
+        });
+
+        return {
+          ...registration,
+          grades: Array.from(uniqueGrades.values()).sort(
+            (left, right) => left.courseAssessmentId - right.courseAssessmentId,
+          ),
+        };
+      });
     });
   }
-
   public static async GetStudentGradeById(gradeId: number, prisma: DbClient) {
     return await prisma.grade.findUnique({
       where:  { id: gradeId },
@@ -360,6 +445,7 @@ export class CourseRepository {
         maxMarks: true,
         courseAssessment: {
           select: {
+            id: true,
             courseId: true,
             semesterId: true,
           },
@@ -390,6 +476,7 @@ export class CourseRepository {
         maxMarks: true,
         courseAssessment: {
           select: {
+            id: true,
             label:          true,
             assessmentType: true,
           },

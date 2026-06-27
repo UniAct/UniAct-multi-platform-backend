@@ -8,6 +8,7 @@ export function MapGetCourseStudents(raw: GetCourseStudents) {
     universityStudentId: cr.student.universityStudentId,
     grades: cr.grades.map((g) => ({
       gradeId:       g.id,
+      assessmentId:  g.courseAssessment.id,
       label:         g.courseAssessment.label,
       maxMarks:      Number(g.courseAssessment.marks),
       obtainedMarks: Number(g.marks),
