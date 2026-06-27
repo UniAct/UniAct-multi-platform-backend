@@ -25,7 +25,7 @@ export class EnrollmentWindowRepository {
     });
   }
 
-  
+
   static async GetEnrollmentWindowById(id: number, prisma: DbClient) {
     return await prisma.enrollmentWindow.findUnique({
       where: { id },
@@ -33,37 +33,23 @@ export class EnrollmentWindowRepository {
   }
 
   // 3. Update execution block
-  static async UpdateEnrollmentWindow( id: number, windowData: UpdateEnrollmentWindowInput, prisma: DbClient) {
-    try {
-      return await prisma.enrollmentWindow.update({
-        where: { id },
-        data: windowData,
-      });
-    } catch (error) {
-      // Prisma error code for target record not found during update operations
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-        return null;
-      }
-      throw error;
-    }
+  static async UpdateEnrollmentWindow(id: number, windowData: UpdateEnrollmentWindowInput, prisma: DbClient) {
+
+    return await prisma.enrollmentWindow.update({
+      where: { id },
+      data: windowData,
+    });
   }
 
   // 4. Safe deletion block
   static async DeleteEnrollmentWindow(
-    id: number, 
+    id: number,
     prisma: DbClient
   ) {
-    try {
-      return await prisma.enrollmentWindow.delete({
-        where: { id },
-      });
-    } catch (error) {
-      // Prisma error code for target record not found during delete operations
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-        return null;
-      }
-      throw error;
-    }
+    return await prisma.enrollmentWindow.delete({
+      where: { id },
+    });
+
   }
 
   // --- NEW: FALLBACK LOOKUP METHOD ---
@@ -72,7 +58,7 @@ export class EnrollmentWindowRepository {
    * Prioritizes program-specific rules, falling back to faculty-wide rules if needed.
    */
   static async FindActiveWindow(
-criteria: {
+    criteria: {
       facultyId: number;
       semesterId: number;
       programLevelId: number;
@@ -110,7 +96,7 @@ criteria: {
         { programId: 'desc' },
         { createdAt: 'desc' }
       ],
-      
+
       take: 1, // We only care about the single highest-priority matching window
     });
 
