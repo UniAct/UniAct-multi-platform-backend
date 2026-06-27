@@ -1,5 +1,5 @@
 import { CourseRepository } from "../Repositories/CourseRepository";
-import { BadRequestError, ConflictError, NotFoundError } from "../Types/Errors";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../Types/Errors";
 import { GetTenantClient } from "../Utils/prismaClient";
 import { CreateCourse, UpdateCourse } from "../Validators/CourseValidator";
 import { SemesterRepository } from "../Repositories/SemesterRepository";
@@ -59,8 +59,13 @@ export class CourseService {
     return CourseRepository.DeleteCourse(id, prisma);
   };
 
-  public static async GetAllStaffCourses(staffId: number, schema_name: string) {
+  public static async GetAllStaffCourses(staffId: number, schema_name: string, user: TokenPayload) {
     const prisma = GetTenantClient(schema_name);
+    const hasAdminAccess = CourseAccessService.HasAdminRole(user);
+
+    if (!hasAdminAccess && (!user.isStaff || user.id !== staffId)) {
+      throw new ForbiddenError("You can only access your assigned courses.");
+    }
 
     const currentSemester = await SemesterRepository.GetCurrentSemester(prisma, { id: true });
 

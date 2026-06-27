@@ -75,7 +75,6 @@ router.get(
   "/staff/:staffId",
   IsAuthenticated,
   AttachAndValidateTenant,
-  RequirePermission(permissions.course.read.name),
   ZodValidator({ params: GetAllStaffCoursesParams }),
   asyncHandler(CourseController.GetAllStaffCourses)
 );

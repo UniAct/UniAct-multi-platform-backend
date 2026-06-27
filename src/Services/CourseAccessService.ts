@@ -24,6 +24,10 @@ export class CourseAccessService {
     }) ?? false;
   }
 
+  public static HasAdminRole(user: TokenPayload) {
+    return this.isAdminRole(user);
+  }
+
   private static async hasPermission(user: TokenPayload, permission: string, prisma: DbClient) {
     if (user.permissions?.includes(permission)) {
       return true;
@@ -40,7 +44,15 @@ export class CourseAccessService {
   }
 
   private static async hasAdminAccess(user: TokenPayload, permission: string, prisma: DbClient) {
-    return this.isAdminRole(user) || this.hasPermission(user, permission, prisma);
+    if (this.HasAdminRole(user)) {
+      return true;
+    }
+
+    if (user.isStaff) {
+      return false;
+    }
+
+    return this.hasPermission(user, permission, prisma);
   }
 
   public static async HasAdminAccess(user: TokenPayload, prisma: DbClient, adminPermission: string) {
