@@ -36,7 +36,7 @@
     "@aws-sdk/client-s3": "^3.958.0",
     "@getbrevo/brevo": "^5.0.4",
     "@prisma/adapter-pg": "^7.4.2",
-    "@prisma/client": "^7.6.0",
+    "@prisma/client": "^7.8.0",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "amqplib": "^0.10.9",
@@ -54,10 +54,7 @@
     "jsonwebtoken": "^9.0.2",
     "minio": "^8.0.7",
     "multer": "^2.1.1",
-<<<<<<< Updated upstream
-=======
     "nodemailer": "^9.0.1",
->>>>>>> Stashed changes
     "pg": "^8.16.3",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
@@ -84,7 +81,7 @@
     "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
     "knip": "^6.0.0",
-    "prisma": "^6.19.3",
+    "prisma": "^7.8.0",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",

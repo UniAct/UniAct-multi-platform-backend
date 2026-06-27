@@ -12,6 +12,7 @@ import {  ResolveDbError } from "./Helpers/ResolvePrismaErrors";
 import { BuildRawData } from "./Helpers/BulkRawData";
 import { hashNationalIds } from "./Helpers/HashNationalId";
 import SystemRoles from "../../Enums/SystemRoles";
+import { SemesterRepository } from "../../Repositories/SemesterRepository";
 // ─── Prerequisites ────────────────────────────────────────────────────────────
 //
 //  This worker connects to Redis (BullMQ) and MinIO (file storage) on startup.
@@ -120,12 +121,38 @@ async function handler(job: Job<BulkCreateResult>) {
 
     // ── Step 4 & 5: Hash national IDs and verify fee exist — run in parallel ──
     const hashStart = Date.now();
+    const semester = await SemesterRepository.GetSemesterById(Number (semesterId),prisma)
+
+    if(!semester){
+
+      await prisma.job.update({
+        where: { id: jobId },
+        data: {
+          status:        "Failed",
+          completed_at:  new Date(),
+          inserted_rows: 0,
+          failed_rows:   totalRows,
+          error_log:     [{ row: 0, username: "N/A", reason: "No semester found" }],
+        },
+      });
+
+      logger.warn({
+        action:         "StudentImportWorker",
+        phase:          "FeePrefetch",
+        jobId,
+        reason:         "No semester found — job terminated early",
+        programLevelId,
+        semesterId,
+      });
+
+      return;
+    }
     const [hashMap , fee , role] = await Promise.all([
       await hashNationalIds(validRows.map(r => r.data.nationalId as string)),
       await prisma.fee.findFirst({
         where: {
           programLevelId: Number(programLevelId),
-          semesterNumber:     Number(semesterId),
+          semesterNumber:     Number(semester.term),
         },
       }),
       await prisma.role.findFirst({where : {name: SystemRoles.Student} , select: {id : true}})
