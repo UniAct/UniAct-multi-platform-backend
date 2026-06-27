@@ -65,7 +65,7 @@ export class CourseController {
   static async GetAllStaffCourses(req: Request, res: Response) {
     const staffId = parseInt(req.params.staffId as string);
 
-    const dto = await CourseService.GetAllStaffCourses(staffId, req.schema_name!);
+    const dto = await CourseService.GetAllStaffCourses(staffId, req.schema_name!, req.user!);
 
     res.status(StatusCodes.OK).json({
       status: JSendStatus.SUCCESS,
