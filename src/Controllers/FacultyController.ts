@@ -4,19 +4,21 @@ import { StatusCodes } from "http-status-codes";
 import JSendStatus from "../Enums/Jsend";
 import { FacultyService } from "../Services/FacultyService";
 import { GetTenantClient } from "../Utils/prismaClient";
+import { CreateFacultyInput } from "../Interfaces/Faculty/FacultySchema";
 
 export class FacultyController {
 
     static async CreateFaculty(req: Request, res: Response) {
-        const FacultyData: Prisma.FacultyCreateInput = req.body;
+        // Cast the body to your Zod inferred type for compile-time safety
+        const ValidatedFacultyData = req.body as CreateFacultyInput;
 
-            const newFaculty = await FacultyService.CreateFaculty(FacultyData,req.schema_name!);
-            
-            res.status(StatusCodes.CREATED).json({
-                status: JSendStatus.SUCCESS,
-                data: newFaculty,
-                message: "Faculty created successfully!",
-            });
+        const newFaculty = await FacultyService.CreateFaculty(ValidatedFacultyData, req.schema_name!);
+        
+        res.status(StatusCodes.CREATED).json({
+            status: JSendStatus.SUCCESS,
+            data: newFaculty,
+            message: "Faculty created successfully!",
+        });
     }
 
     static async GetAllFaculties(req: Request, res: Response) {

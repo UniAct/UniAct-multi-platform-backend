@@ -1,19 +1,31 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import { CreateFacultyInput } from "../Interfaces/Faculty/FacultySchema";
 
 export class FacultyRepository {
 
-   static async CreateFaculty(FacultyData: Prisma.FacultyCreateInput,prisma:PrismaClient){
+   static async CreateFaculty(inputData: CreateFacultyInput, prisma: PrismaClient) {
+    const { regulations, ...facultyData } = inputData;
 
-      return await prisma.faculty.create({data:FacultyData});
-   }
+    return await prisma.faculty.create({
+      data: {
+        ...facultyData,
+        regulations: {
+          create: regulations, // Prisma creates this inside an atomic database transaction automatically
+        },
+      },
+      include: {
+        regulations: true, // Returns the generated regulation along with the new faculty object
+      },
+    });
+  }
 
    static async GetAllFaculties(prisma:PrismaClient){
-      return await prisma.faculty.findMany({select:{id:true, name: true, description:true, deanId:true}});
+      return await prisma.faculty.findMany({select:{id:true, name: true, description:true, deanId:true, regulations:true}});
    }
 
    static async GetFacultyById(id:number, prisma:PrismaClient){
 
-     return await prisma.faculty.findUnique({ where: { id }, select:{id:true, name:true, deanId: true} });
+     return await prisma.faculty.findUnique({ where: { id }, select:{id:true, name:true, deanId: true, programStaffs:true, regulations:true} });
    }
 
    static async GetProgramsByFacultyId(facultyId: number, prisma: PrismaClient){

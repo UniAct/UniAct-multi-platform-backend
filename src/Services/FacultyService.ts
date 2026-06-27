@@ -4,11 +4,12 @@ import { GetTenantClient } from "../Utils/prismaClient";
 import { FacultyRepository } from "../Repositories/FacultyRepository";
 import { logger } from "../Utils/Logger";
 import { levels } from "pino";
+import { CreateFacultyInput } from "../Interfaces/Faculty/FacultySchema";
 
 
 export class FacultyService {
 
-    static async CreateFaculty(FacultyData: Prisma.FacultyCreateInput, schema_name:string) {
+    static async CreateFaculty(FacultyData: CreateFacultyInput, schema_name:string) {
         
         const prisma =GetTenantClient(schema_name);
         const newFaculty = await FacultyRepository.CreateFaculty(FacultyData,prisma);

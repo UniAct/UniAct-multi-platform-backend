@@ -7,23 +7,21 @@ import { RequirePermission } from "../Middlewares/Authorization/RequirePermissio
 import { AttachAndValidateTenant } from "../Middlewares/attatchAndValidateTenant";
 import { asyncHandler } from "../Middlewares/ErrorHandler";
 import permissions from "../Utils/Permissions.json";
+import { ZodValidator } from "../Middlewares/ZodValidation";
+import { CreateFacultyBodySchema } from "../Interfaces/Faculty/FacultySchema";
 
 const router = Router();
 
 router.get("/public/:schema/faculties", asyncHandler(FacultyController.GetPublicFaculties));
 
-//Create Faculty
+// --- Create Faculty ---
 router.post(
-    "/",
-    IsAuthenticated,
-    AttachAndValidateTenant,
-    RequirePermission(permissions.faculty.create.name),
-
-    //Request validation
-    ...FacultyValidator.Create(),
-    ValidateRequest,
-    //
-    asyncHandler(FacultyController.CreateFaculty)
+  "/",
+  IsAuthenticated,
+  AttachAndValidateTenant,
+  RequirePermission(permissions.faculty.create.name),
+  ZodValidator({ body: CreateFacultyBodySchema }),
+  asyncHandler(FacultyController.CreateFaculty)
 );
 
 //Get All Faculties
