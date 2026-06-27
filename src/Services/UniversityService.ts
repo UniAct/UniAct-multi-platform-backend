@@ -90,6 +90,42 @@ export class UniversityService {
     const schema = db_schema.trim().toLowerCase();
     const prisma = GetTenantClient(schema);
 
+    const facultyBreakdownQuery = `
+      SELECT
+        f.id,
+        f.name,
+        COUNT(DISTINCT p.id)::int AS "programs",
+        COUNT(DISTINCT s.user_id)::int AS "students",
+        COUNT(DISTINCT ps.staff_id)::int AS "staff",
+        COUNT(DISTINCT pc.course_id)::int AS "courses"
+      FROM "${schema}"."Faculty" f
+      LEFT JOIN "${schema}"."Program" p ON p.faculty_id = f.id
+      LEFT JOIN "${schema}"."Student" s ON s.program_id = p.id
+      LEFT JOIN "${schema}"."ProgramStaff" ps ON ps.faculty_id = f.id
+      LEFT JOIN "${schema}"."ProgramCourse" pc ON pc."programId" = p.id
+      GROUP BY f.id, f.name
+      ORDER BY "students" DESC, f.name ASC
+    `;
+
+    const programBreakdownQuery = `
+      SELECT
+        p.id,
+        p.name,
+        f.name AS "facultyName",
+        p.program_type AS "programType",
+        COUNT(DISTINCT s.user_id)::int AS "students",
+        COUNT(DISTINCT pl.id)::int AS "levels",
+        COUNT(DISTINCT pc.course_id)::int AS "courses",
+        COALESCE(AVG(s.cgpa)::float, 0)::float AS "averageCgpa"
+      FROM "${schema}"."Program" p
+      INNER JOIN "${schema}"."Faculty" f ON f.id = p.faculty_id
+      LEFT JOIN "${schema}"."Student" s ON s.program_id = p.id
+      LEFT JOIN "${schema}"."ProgramLevel" pl ON pl.program_id = p.id
+      LEFT JOIN "${schema}"."ProgramCourse" pc ON pc."programId" = p.id
+      GROUP BY p.id, p.name, f.name, p.program_type
+      ORDER BY "students" DESC, p.name ASC
+    `;
+
     const todayAbsencesQuery = `
       SELECT
         p.id AS "programId",
@@ -108,6 +144,16 @@ export class UniversityService {
       ORDER BY p.name ASC, pl.level ASC
     `;
 
+    const attendanceStatusQuery = `
+      SELECT
+        sa.status::text AS "status",
+        COUNT(sa.id)::int AS "count"
+      FROM "${schema}"."StudentAttendance" sa
+      INNER JOIN "${schema}"."AttendanceSession" ats ON ats.id = sa.attendance_session_id
+      WHERE ats.session_date >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY sa.status
+    `;
+
     const upcomingItemsQuery = `
       SELECT
         id,
@@ -123,8 +169,27 @@ export class UniversityService {
       LIMIT 40
     `;
 
-    const [studentCount, staffCount, adminCount, learningGroupCount, absenceRows, upcomingItems] =
-      await Promise.all([
+    const [
+      studentCount,
+      staffCount,
+      adminCount,
+      facultyCount,
+      programCount,
+      courseCount,
+      classroomCount,
+      maintenanceClassrooms,
+      totalClassroomCapacity,
+      learningGroupCount,
+      activeRegistrations,
+      attendanceSessionCount,
+      announcementCount,
+      eventCount,
+      facultyBreakdown,
+      programBreakdown,
+      absenceRows,
+      attendanceRows,
+      upcomingItems,
+    ] = await Promise.all([
         prisma.student.count(),
         prisma.staff.count(),
         prisma.userRole.count({
@@ -134,8 +199,21 @@ export class UniversityService {
             },
           },
         }),
+        prisma.faculty.count(),
+        prisma.program.count(),
+        prisma.course.count(),
+        prisma.classroom.count(),
+        prisma.classroom.count({ where: { underMaintenance: true } }),
+        prisma.classroom.aggregate({ _sum: { capacity: true } }),
         prisma.learningGroup.count(),
+        prisma.courseRegistration.count({ where: { status: "Enrolled" } }),
+        prisma.attendanceSession.count(),
+        prisma.announcement.count({ where: { type: "ANNOUNCEMENT", status: "PUBLISHED" } }),
+        prisma.announcement.count({ where: { type: "EVENT", status: "PUBLISHED" } }),
+        (prisma as any).$queryRawUnsafe(facultyBreakdownQuery),
+        (prisma as any).$queryRawUnsafe(programBreakdownQuery),
         (prisma as any).$queryRawUnsafe(todayAbsencesQuery),
+        (prisma as any).$queryRawUnsafe(attendanceStatusQuery),
         (prisma as any).$queryRawUnsafe(upcomingItemsQuery),
       ]);
 
@@ -173,13 +251,57 @@ export class UniversityService {
       programMap.set(row.programId, existing);
     }
 
+    const attendanceByStatus = {
+      present: 0,
+      absent: 0,
+      late: 0,
+      excused: 0,
+      medical: 0,
+    };
+
+    for (const row of attendanceRows as Array<{ status: string; count: number }>) {
+      const key = row.status.toLowerCase() as keyof typeof attendanceByStatus;
+      if (key in attendanceByStatus) {
+        attendanceByStatus[key] = Number(row.count);
+      }
+    }
+
+    const totalAttendanceRecords = Object.values(attendanceByStatus).reduce((total, count) => total + count, 0);
+    const attendedRecords = attendanceByStatus.present + attendanceByStatus.late;
+    const attendanceRate =
+      totalAttendanceRecords > 0 ? Math.round((attendedRecords / totalAttendanceRecords) * 100) : 0;
+
     return {
       summary: {
         students: studentCount,
         staff: staffCount,
         admins: adminCount,
-        activeTeams: learningGroupCount,
+        faculties: facultyCount,
+        programs: programCount,
+        courses: courseCount,
+        classrooms: classroomCount,
+        learningGroups: learningGroupCount,
+        activeRegistrations,
+        attendanceSessions: attendanceSessionCount,
       },
+      resources: {
+        classrooms: classroomCount,
+        totalCapacity: totalClassroomCapacity._sum.capacity ?? 0,
+        maintenanceClassrooms,
+      },
+      communications: {
+        announcements: announcementCount,
+        events: eventCount,
+      },
+      attendance: {
+        last30Days: {
+          ...attendanceByStatus,
+          total: totalAttendanceRecords,
+          attendanceRate,
+        },
+      },
+      facultyBreakdown,
+      programBreakdown,
       todayAbsences: Array.from(programMap.values()).sort((a, b) => b.absences - a.absences),
       upcomingItems,
       generatedAt: new Date().toISOString(),
