@@ -148,14 +148,14 @@ async function handler(job: Job<BulkCreateResult>) {
       return;
     }
     const [hashMap , fee , role] = await Promise.all([
-      await hashNationalIds(validRows.map(r => r.data.nationalId as string)),
-      await prisma.fee.findFirst({
+      hashNationalIds(validRows.map(r => r.data.nationalId as string)),
+      prisma.fee.findFirst({
         where: {
           programLevelId: Number(programLevelId),
           semesterNumber:     Number(semester.term),
         },
       }),
-      await prisma.role.findFirst({where : {name: SystemRoles.Student} , select: {id : true}})
+      prisma.role.findFirst({where : {name: SystemRoles.Student} , select: {id : true}})
     ]);
     
     logger.info({
@@ -334,10 +334,38 @@ async function handler(job: Job<BulkCreateResult>) {
     });
 
   } catch (err: any) {
+    const { jobId, schemaName } = job.data;
+
+    try {
+      const prisma = GetTenantClient(schemaName);
+      await prisma.job.update({
+        where: { id: jobId },
+        data: {
+          status: "Failed",
+          completed_at: new Date(),
+          error_log: [
+            {
+              row: 0,
+              username: "N/A",
+              reason: err.message || "Student import worker failed",
+            },
+          ],
+        },
+      });
+    } catch (statusErr: any) {
+      logger.error({
+        action: "StudentImportWorker",
+        status: "Failed",
+        phase: "PersistFailure",
+        jobId,
+        reason: statusErr.message,
+      });
+    }
+
     logger.error({
       action:      "StudentImportWorker",
       status:      "Failed",
-      jobId:       job.id,
+      jobId,
       reason:      err.message,
       duration_ms: Date.now() - jobStart,
     });

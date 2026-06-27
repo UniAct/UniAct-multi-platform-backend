@@ -123,8 +123,8 @@ export class UserController {
 
       await UserService.ActivateStaffAccount(email, schema_name);
 
-      const frontendBaseUrl = GetFrontendPublicUrl(university_name);
-      const encodedTenant = encodeURIComponent(university_name);
+      const frontendBaseUrl = GetFrontendPublicUrl(schema_name);
+      const encodedTenant = encodeURIComponent(schema_name);
       return res.redirect(`${frontendBaseUrl}/verify-staff-account?status=success&tenant=${encodedTenant}`);
     } catch (err: any) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

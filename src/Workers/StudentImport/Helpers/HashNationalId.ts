@@ -1,6 +1,11 @@
 import { Worker as NodeWorker } from "worker_threads";
 import path from "path";
 
+function getHashWorkerPath(): string {
+  const workerExtension = path.extname(__filename) || ".js";
+  return path.resolve(__dirname, `HashWorker${workerExtension}`);
+}
+
 /**
  * Hashes an array of national IDs using a worker thread.
  * @param nationalIds Array of national IDs to hash.
@@ -11,9 +16,13 @@ export function hashNationalIds(
   nationalIds: string[],
   saltRounds = 10
 ): Promise<Map<string, string>> {
+  if (nationalIds.length === 0) {
+    return Promise.resolve(new Map());
+  }
+
   return new Promise((resolve, reject) => {
     const worker = new NodeWorker(
-      path.resolve(__dirname, "HashWorker.ts"),
+      getHashWorkerPath(),
       { workerData: { nationalIds, saltRounds } }
     );
 
