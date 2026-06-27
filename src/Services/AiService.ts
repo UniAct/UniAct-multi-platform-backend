@@ -201,7 +201,7 @@ export class AiService {
       const chunkedAssetIds = getChapterAssetIds(chapters);
       indexedFileNames = new Set(
         (existing.assets ?? [])
-          .filter((asset: any) => chunkedAssetIds.has(String(asset.asset_id)))
+          .filter((asset: any) => Number(asset.chunk_count ?? 0) > 0 || chunkedAssetIds.has(String(asset.asset_id)))
           .map((asset: any) => String(asset.asset_name ?? asset.file_name ?? asset.name ?? ""))
       );
     } catch {
@@ -225,6 +225,8 @@ export class AiService {
           method: "POST",
           headers: {
             "x-tenant-schema": schemaName,
+            "x-source-file-name": attachment.fileName,
+            "x-source-attachment-id": String(attachment.attachmentId),
           },
           body: formData,
         });

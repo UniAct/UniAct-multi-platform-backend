@@ -52,7 +52,7 @@ const registrationInclude = {
   },
   grades: {
     include: {
-      courseAssessment: { select: { id: true, label: true, maxMarks: true } },
+      courseAssessment: { select: { id: true, label: true, marks: true } },
     },
   },
 } as const;
@@ -552,7 +552,7 @@ export class AdminEnrollmentService {
         maxMarks: Number(grade.maxMarks),
         assessmentDate: grade.assessmentDate ? this.formatDate(grade.assessmentDate) : null,
         label: grade.courseAssessment.label,
-        assessmentMaxMarks: Number(grade.courseAssessment.maxMarks),
+        assessmentMaxMarks: Number(grade.courseAssessment.marks),
         comments: grade.comments,
       })),
     };

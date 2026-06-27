@@ -204,9 +204,10 @@ class UniversityController {
 
     const prisma = GetTenantClient(schema);
 
-    const [studentCount, staffCount, programCount] = await Promise.all([
+    const [studentCount, staffCount, facultyCount, programCount] = await Promise.all([
       prisma.student.count(),
       prisma.staff.count(),
+      prisma.faculty.count(),
       prisma.program.count(),
     ]);
 
@@ -215,6 +216,7 @@ class UniversityController {
       data: {
         students: studentCount,
         staff: staffCount,
+        faculties: facultyCount,
         programs: programCount,
       },
     });
