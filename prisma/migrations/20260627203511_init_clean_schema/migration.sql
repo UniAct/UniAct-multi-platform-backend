@@ -2,6 +2,18 @@
 CREATE SCHEMA IF NOT EXISTS "template";
 
 -- CreateEnum
+CREATE TYPE "template"."AnnouncementType" AS ENUM ('ANNOUNCEMENT', 'EVENT');
+
+-- CreateEnum
+CREATE TYPE "template"."AnnouncementAudience" AS ENUM ('ALL', 'STUDENTS', 'STAFF', 'FACULTY');
+
+-- CreateEnum
+CREATE TYPE "template"."AnnouncementStatus" AS ENUM ('DRAFT', 'PUBLISHED');
+
+-- CreateEnum
+CREATE TYPE "template"."EnrollmentJobStatus" AS ENUM ('Pending', 'Processing', 'Done');
+
+-- CreateEnum
 CREATE TYPE "template"."ProgramType" AS ENUM ('Bachelor', 'Master', 'Diploma', 'PhD');
 
 -- CreateEnum
@@ -29,10 +41,13 @@ CREATE TYPE "template"."CourseType" AS ENUM ('Mandatory', 'Elective', 'Project')
 CREATE TYPE "template"."FeeStatus" AS ENUM ('Pending', 'Paid');
 
 -- CreateEnum
-CREATE TYPE "template"."ClassroomType" AS ENUM ('Lecture', 'Lab', 'Auditorium', 'Other');
+CREATE TYPE "template"."ClassroomType" AS ENUM ('Hall', 'Lab', 'Auditorium', 'Other');
 
 -- CreateEnum
 CREATE TYPE "template"."DayOfWeek" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+
+-- CreateEnum
+CREATE TYPE "template"."SlotType" AS ENUM ('Lecture', 'Lab', 'Tutorial');
 
 -- CreateEnum
 CREATE TYPE "template"."RegistrationStatus" AS ENUM ('Enrolled', 'Withdrawn', 'Completed', 'Failed', 'InProgress');
@@ -47,19 +62,22 @@ CREATE TYPE "template"."AttendanceMode" AS ENUM ('Manual', 'QRCode', 'Biometric'
 CREATE TYPE "template"."AttendanceStatus" AS ENUM ('Present', 'Absent', 'Late', 'Excused', 'Medical');
 
 -- CreateEnum
-CREATE TYPE "template"."RoomRole" AS ENUM ('Owner', 'Member');
+CREATE TYPE "template"."LearningGroupRole" AS ENUM ('Owner', 'Member');
 
 -- CreateEnum
 CREATE TYPE "template"."PostType" AS ENUM ('ANNOUNCEMENT', 'ASSIGNMENT', 'MATERIAL');
 
 -- CreateEnum
-CREATE TYPE "template"."StorageProvider" AS ENUM ('LOCAL', 'S3', 'Azure Blob Storage', 'Google Cloud Storage');
+CREATE TYPE "template"."StorageProvider" AS ENUM ('LOCAL', 'S3', 'Azure Blob Storage', 'Google Cloud Storage', 'Cloudinary');
 
 -- CreateEnum
 CREATE TYPE "template"."JobStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed', 'CompletedWithErrors');
 
+-- CreateEnum
+CREATE TYPE "template"."TranscriptJobStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed', 'Partial_failure');
+
 -- CreateTable
-CREATE TABLE IF Not EXISTS "SuperAdmin" (
+CREATE TABLE "SuperAdmin" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -71,7 +89,7 @@ CREATE TABLE IF Not EXISTS "SuperAdmin" (
 );
 
 -- CreateTable
-CREATE TABLE IF NOT EXISTS "University" (
+CREATE TABLE "University" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "address" TEXT,
@@ -86,6 +104,33 @@ CREATE TABLE IF NOT EXISTS "University" (
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "University_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UniversitySettings" (
+    "id" SERIAL NOT NULL,
+    "university_id" INTEGER NOT NULL,
+    "primary_color" TEXT NOT NULL DEFAULT '#2563eb',
+    "secondary_color" TEXT NOT NULL DEFAULT '#7c3aed',
+    "tab_name" TEXT,
+    "logo_url" TEXT,
+    "hero_images" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UniversitySettings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RefreshToken" (
+    "id" SERIAL NOT NULL,
+    "super_admin_id" INTEGER NOT NULL,
+    "token" TEXT NOT NULL,
+    "expires_at" TIMESTAMP(3) NOT NULL,
+    "is_revoked" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RefreshToken_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -105,6 +150,36 @@ CREATE TABLE "template"."Job" (
 );
 
 -- CreateTable
+CREATE TABLE "template"."EnrollmentJob" (
+    "id" UUID NOT NULL,
+    "student_id" INTEGER NOT NULL,
+    "semester_id" INTEGER NOT NULL,
+    "status" "template"."EnrollmentJobStatus" NOT NULL DEFAULT 'Pending',
+    "result" JSONB,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "EnrollmentJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "template"."enrollment_windows" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT,
+    "facultyId" INTEGER NOT NULL,
+    "programId" INTEGER,
+    "semesterId" INTEGER NOT NULL,
+    "programLevelId" INTEGER NOT NULL,
+    "startTime" TIMESTAMP(3) NOT NULL,
+    "endTime" TIMESTAMP(3) NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "enrollment_windows_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "template"."User" (
     "id" SERIAL NOT NULL,
     "username" VARCHAR(100) NOT NULL,
@@ -114,6 +189,7 @@ CREATE TABLE "template"."User" (
     "password" VARCHAR(60) NOT NULL,
     "is_verified" BOOLEAN NOT NULL DEFAULT false,
     "is_blocked" BOOLEAN NOT NULL DEFAULT false,
+    "blockReason" "template"."BlockReasonType",
     "phone" VARCHAR(15) NOT NULL,
     "date_of_birth" DATE NOT NULL,
     "address" TEXT NOT NULL,
@@ -124,6 +200,23 @@ CREATE TABLE "template"."User" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "template"."Announcement" (
+    "id" SERIAL NOT NULL,
+    "title" VARCHAR(300) NOT NULL,
+    "content" TEXT NOT NULL,
+    "type" "template"."AnnouncementType" NOT NULL DEFAULT 'ANNOUNCEMENT',
+    "audience" "template"."AnnouncementAudience" NOT NULL DEFAULT 'ALL',
+    "status" "template"."AnnouncementStatus" NOT NULL DEFAULT 'PUBLISHED',
+    "event_date" TIMESTAMP(3),
+    "event_location" VARCHAR(300),
+    "author_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Announcement_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -162,13 +255,23 @@ CREATE TABLE "template"."Program" (
     "university_credit_hours" INTEGER NOT NULL DEFAULT 0,
     "faculty_credit_hours" INTEGER NOT NULL DEFAULT 0,
     "program_credit_hours" INTEGER NOT NULL DEFAULT 0,
-    "program_type" "template"."ProgramType" NOT NULL,
-    "result_display" "template"."ResultDisplayType" NOT NULL DEFAULT 'CourseGrade',
-    "block_reason" "template"."BlockReasonType",
+    "duration_years" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "program_type" "template"."ProgramType" NOT NULL,
+    "result_display" "template"."ResultDisplayType" NOT NULL DEFAULT 'CourseGrade',
 
     CONSTRAINT "Program_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "template"."ProgramStaff" (
+    "id" SERIAL NOT NULL,
+    "staff_id" INTEGER NOT NULL,
+    "program_id" INTEGER NOT NULL,
+    "faculty_id" INTEGER NOT NULL,
+
+    CONSTRAINT "ProgramStaff_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -253,7 +356,7 @@ CREATE TABLE "template"."ProgramLevel" (
 CREATE TABLE "template"."Fee" (
     "id" SERIAL NOT NULL,
     "program_level_id" INTEGER NOT NULL,
-    "semester_id" INTEGER NOT NULL,
+    "semester_number" SMALLINT NOT NULL,
     "fee_type" "template"."FeeType" NOT NULL,
     "amount" DECIMAL(12,2) NOT NULL,
     "description" TEXT,
@@ -267,7 +370,7 @@ CREATE TABLE "template"."Fee" (
 CREATE TABLE "template"."ProgramTranscriptDefinition" (
     "id" SERIAL NOT NULL,
     "program_id" INTEGER NOT NULL,
-    "grade_letter" VARCHAR(10) NOT NULL,
+    "grade_letter" "template"."GradeEnum" NOT NULL,
     "min_score" DECIMAL(5,2) NOT NULL,
     "max_score" DECIMAL(5,2) NOT NULL,
     "equivalent_estimate" VARCHAR(20),
@@ -283,7 +386,7 @@ CREATE TABLE "template"."ProgramTranscriptDefinition" (
 CREATE TABLE "template"."AcademicLoadSemester" (
     "id" SERIAL NOT NULL,
     "program_id" INTEGER NOT NULL,
-    "semester_id" INTEGER NOT NULL,
+    "semester_number" SMALLINT NOT NULL,
     "program_level_id" INTEGER NOT NULL,
     "min_credits" INTEGER NOT NULL,
     "max_credits" INTEGER NOT NULL,
@@ -327,67 +430,79 @@ CREATE TABLE "template"."Course" (
 -- CreateTable
 CREATE TABLE "template"."Classroom" (
     "id" SERIAL NOT NULL,
-    "room_number" VARCHAR(50) NOT NULL,
+    "classroom_number" VARCHAR(50) NOT NULL,
     "building" VARCHAR(100) NOT NULL,
     "capacity" INTEGER NOT NULL,
     "type" "template"."ClassroomType" NOT NULL,
-    "is_available" BOOLEAN NOT NULL DEFAULT true,
+    "underMaintenance" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Classroom_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "template"."Room" (
+CREATE TABLE "template"."LearningGroup" (
     "id" SERIAL NOT NULL,
-    "room_name" VARCHAR(255) NOT NULL,
-    "description" TEXT,
-    "created_by" INTEGER NOT NULL,
-    "max_members" INTEGER,
+    "course_id" INTEGER NOT NULL,
+    "semester_id" INTEGER NOT NULL,
+    "group_name" VARCHAR(255) NOT NULL,
     "access_code" VARCHAR(50),
     "allow_student_posts" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LearningGroup_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "template"."ClassSession" (
+CREATE TABLE "template"."ScheduleSlot" (
     "id" SERIAL NOT NULL,
-    "course_id" INTEGER NOT NULL,
     "teacher_id" INTEGER NOT NULL,
-    "program_id" INTEGER NOT NULL,
+    "course_id" INTEGER NOT NULL,
     "classroom_id" INTEGER NOT NULL,
     "semester_id" INTEGER NOT NULL,
-    "room_id" INTEGER NOT NULL,
-    "academic_level" INTEGER NOT NULL,
     "day_of_week" "template"."DayOfWeek" NOT NULL,
     "start_time" TIME(6) NOT NULL,
     "end_time" TIME(6) NOT NULL,
+    "type" "template"."SlotType" NOT NULL DEFAULT 'Lecture',
+    "allowedCapacity" SMALLINT NOT NULL,
+    "enrolled_seats" SMALLINT NOT NULL DEFAULT 0,
 
-    CONSTRAINT "ClassSession_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ScheduleSlot_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "template"."ScheduleSlotContext" (
+    "id" SERIAL NOT NULL,
+    "slot_id" INTEGER NOT NULL,
+    "program_id" INTEGER NOT NULL,
+    "academic_level" INTEGER NOT NULL,
+    "semester_id" INTEGER NOT NULL,
+
+    CONSTRAINT "ScheduleSlotContext_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "template"."CourseAssessment" (
     "id" SERIAL NOT NULL,
-    "class_session_id" INTEGER NOT NULL,
+    "course_id" INTEGER NOT NULL,
+    "semester_id" INTEGER NOT NULL,
     "label" VARCHAR(100) NOT NULL,
-    "assessment_type" "template"."CourseAssessmentType" NOT NULL,
-    "marks" DECIMAL(5,2) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "assessment_type" "template"."CourseAssessmentType" NOT NULL,
+    "marks" DECIMAL(5,2) NOT NULL,
 
     CONSTRAINT "CourseAssessment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "template"."ProgramCourse" (
-    "program_id" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
+    "programId" INTEGER NOT NULL,
+    "program_level_id" INTEGER NOT NULL,
     "course_id" INTEGER NOT NULL,
     "type" "template"."CourseType" NOT NULL,
 
-    CONSTRAINT "ProgramCourse_pkey" PRIMARY KEY ("program_id","course_id")
+    CONSTRAINT "ProgramCourse_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -457,12 +572,12 @@ CREATE TABLE "template"."RolePermission" (
 CREATE TABLE "template"."CourseRegistration" (
     "id" SERIAL NOT NULL,
     "student_id" INTEGER NOT NULL,
-    "session_id" INTEGER NOT NULL,
     "semester_id" INTEGER NOT NULL,
     "enrollment_date" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "template"."RegistrationStatus" NOT NULL DEFAULT 'Enrolled',
     "grade" "template"."GradeEnum",
-    "grade_points" INTEGER,
+    "grade_points" DECIMAL(5,4),
+    "slot_context_Id" INTEGER,
 
     CONSTRAINT "CourseRegistration_pkey" PRIMARY KEY ("id")
 );
@@ -495,9 +610,22 @@ CREATE TABLE "template"."Transcript" (
 );
 
 -- CreateTable
+CREATE TABLE "template"."TranscriptJob" (
+    "id" UUID NOT NULL,
+    "faculty_id" INTEGER NOT NULL,
+    "semester_id" INTEGER NOT NULL,
+    "status" "template"."TranscriptJobStatus" NOT NULL DEFAULT 'Pending',
+    "result" JSONB,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TranscriptJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "template"."AttendanceSession" (
     "id" SERIAL NOT NULL,
-    "class_session_id" INTEGER NOT NULL,
+    "schedule_slot_id" INTEGER NOT NULL,
     "faculty_member_id" INTEGER NOT NULL,
     "session_date" DATE NOT NULL,
     "start_time" TIME(6) NOT NULL,
@@ -505,7 +633,6 @@ CREATE TABLE "template"."AttendanceSession" (
     "attendance_mode" "template"."AttendanceMode" NOT NULL,
     "hotspot_ssid" VARCHAR(255),
     "qr_code" VARCHAR(500),
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "session_notes" TEXT,
 
@@ -544,34 +671,33 @@ CREATE TABLE "template"."AttendanceReport" (
 );
 
 -- CreateTable
-CREATE TABLE "template"."RoomMember" (
-    "id" SERIAL NOT NULL,
-    "room_id" INTEGER NOT NULL,
+CREATE TABLE "template"."LearningGroupMember" (
+    "learning_group_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "role" "template"."RoomRole" NOT NULL DEFAULT 'Member',
+    "role" "template"."LearningGroupRole" NOT NULL DEFAULT 'Member',
     "joined_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "RoomMember_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LearningGroupMember_pkey" PRIMARY KEY ("learning_group_id","user_id")
 );
 
 -- CreateTable
-CREATE TABLE "template"."RoomPost" (
+CREATE TABLE "template"."LearningGroupPost" (
     "id" SERIAL NOT NULL,
-    "room_id" INTEGER NOT NULL,
+    "learning_group_id" INTEGER NOT NULL,
     "author_id" INTEGER NOT NULL,
-    "content" TEXT,
     "post_type" "template"."PostType" NOT NULL,
+    "content" TEXT,
+    "due_date" TIMESTAMP(3),
     "is_pinned" BOOLEAN NOT NULL DEFAULT false,
     "is_edited" BOOLEAN NOT NULL DEFAULT false,
-    "due_date" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "RoomPost_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LearningGroupPost_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "template"."RoomPostAttachment" (
+CREATE TABLE "template"."LearningGroupPostAttachment" (
     "id" SERIAL NOT NULL,
     "post_id" INTEGER NOT NULL,
     "file_name" VARCHAR(255) NOT NULL,
@@ -581,44 +707,74 @@ CREATE TABLE "template"."RoomPostAttachment" (
     "file_size" BIGINT,
     "uploaded_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "RoomPostAttachment_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LearningGroupPostAttachment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "template"."RoomPostComment" (
+CREATE TABLE "template"."LearningGroupPostComment" (
     "id" SERIAL NOT NULL,
     "post_id" INTEGER NOT NULL,
     "author_id" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
+    "is_edited" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "RoomPostComment_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "LearningGroupPostComment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "template"."migrations" (
+    "name" TEXT NOT NULL,
+    "applied_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "migrations_pkey" PRIMARY KEY ("name")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "SuperAdmin_username_key" ON "SuperAdmin"("username");
+CREATE UNIQUE INDEX "SuperAdmin_username_key" ON "SuperAdmin"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "SuperAdmin_email_key" ON "SuperAdmin"("email");
+CREATE UNIQUE INDEX "SuperAdmin_email_key" ON "SuperAdmin"("email");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS "idx_superadmin_username" ON "SuperAdmin"("username");
+CREATE INDEX "idx_superadmin_username" ON "SuperAdmin"("username");
 
 -- CreateIndex
-CREATE INDEX IF NOT EXISTS"idx_superadmin_email" ON "SuperAdmin"("email");
+CREATE INDEX "idx_superadmin_email" ON "SuperAdmin"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS"University_name_key" ON "University"("name");
+CREATE UNIQUE INDEX "University_name_key" ON "University"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX IF NOT EXISTS "University_db_schema_key" ON "University"("db_schema");
+CREATE UNIQUE INDEX "University_db_schema_key" ON "University"("db_schema");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UniversitySettings_university_id_key" ON "UniversitySettings"("university_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RefreshToken_token_key" ON "RefreshToken"("token");
+
+-- CreateIndex
+CREATE INDEX "RefreshToken_expires_at_idx" ON "RefreshToken"("expires_at");
+
+-- CreateIndex
+CREATE INDEX "RefreshToken_super_admin_id_idx" ON "RefreshToken"("super_admin_id");
 
 -- CreateIndex
 CREATE INDEX "Job_status_idx" ON "template"."Job"("status");
 
 -- CreateIndex
 CREATE INDEX "Job_created_at_idx" ON "template"."Job"("created_at");
+
+-- CreateIndex
+CREATE INDEX "EnrollmentJob_student_id_semester_id_idx" ON "template"."EnrollmentJob"("student_id", "semester_id");
+
+-- CreateIndex
+CREATE INDEX "EnrollmentJob_status_idx" ON "template"."EnrollmentJob"("status");
+
+-- CreateIndex
+CREATE INDEX "enrollment_windows_facultyId_semesterId_programLevelId_isAc_idx" ON "template"."enrollment_windows"("facultyId", "semesterId", "programLevelId", "isActive", "programId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "template"."User"("username");
@@ -637,6 +793,15 @@ CREATE INDEX "User_username_idx" ON "template"."User"("username");
 
 -- CreateIndex
 CREATE INDEX "User_national_id_idx" ON "template"."User"("national_id");
+
+-- CreateIndex
+CREATE INDEX "Announcement_type_idx" ON "template"."Announcement"("type");
+
+-- CreateIndex
+CREATE INDEX "Announcement_status_idx" ON "template"."Announcement"("status");
+
+-- CreateIndex
+CREATE INDEX "Announcement_created_at_idx" ON "template"."Announcement"("created_at" DESC);
 
 -- CreateIndex
 CREATE INDEX "Staff_position_idx" ON "template"."Staff"("position");
@@ -658,6 +823,15 @@ CREATE INDEX "Program_program_type_idx" ON "template"."Program"("program_type");
 
 -- CreateIndex
 CREATE INDEX "Program_head_id_idx" ON "template"."Program"("head_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Program_name_key" ON "template"."Program"("name");
+
+-- CreateIndex
+CREATE INDEX "ProgramStaff_faculty_id_staff_id_idx" ON "template"."ProgramStaff"("faculty_id", "staff_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProgramStaff_staff_id_program_id_key" ON "template"."ProgramStaff"("staff_id", "program_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_university_student_id_key" ON "template"."Student"("university_student_id");
@@ -693,16 +867,13 @@ CREATE UNIQUE INDEX "ProgramLevel_program_id_level_key" ON "template"."ProgramLe
 CREATE UNIQUE INDEX "ProgramLevel_id_program_id_key" ON "template"."ProgramLevel"("id", "program_id");
 
 -- CreateIndex
-CREATE INDEX "Fee_program_level_id_idx" ON "template"."Fee"("program_level_id");
-
--- CreateIndex
-CREATE INDEX "Fee_semester_id_idx" ON "template"."Fee"("semester_id");
+CREATE INDEX "Fee_semester_number_idx" ON "template"."Fee"("semester_number");
 
 -- CreateIndex
 CREATE INDEX "Fee_fee_type_idx" ON "template"."Fee"("fee_type");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Fee_program_level_id_semester_id_fee_type_key" ON "template"."Fee"("program_level_id", "semester_id", "fee_type");
+CREATE UNIQUE INDEX "Fee_program_level_id_semester_number_fee_type_key" ON "template"."Fee"("program_level_id", "semester_number", "fee_type");
 
 -- CreateIndex
 CREATE INDEX "ProgramTranscriptDefinition_program_id_idx" ON "template"."ProgramTranscriptDefinition"("program_id");
@@ -711,13 +882,10 @@ CREATE INDEX "ProgramTranscriptDefinition_program_id_idx" ON "template"."Program
 CREATE UNIQUE INDEX "ProgramTranscriptDefinition_program_id_grade_letter_key" ON "template"."ProgramTranscriptDefinition"("program_id", "grade_letter");
 
 -- CreateIndex
-CREATE INDEX "AcademicLoadSemester_program_id_idx" ON "template"."AcademicLoadSemester"("program_id");
+CREATE INDEX "AcademicLoadSemester_semester_number_idx" ON "template"."AcademicLoadSemester"("semester_number");
 
 -- CreateIndex
-CREATE INDEX "AcademicLoadSemester_semester_id_idx" ON "template"."AcademicLoadSemester"("semester_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "AcademicLoadSemester_program_id_semester_id_program_level_i_key" ON "template"."AcademicLoadSemester"("program_id", "semester_id", "program_level_id");
+CREATE UNIQUE INDEX "AcademicLoadSemester_program_id_semester_number_program_lev_key" ON "template"."AcademicLoadSemester"("program_id", "semester_number", "program_level_id");
 
 -- CreateIndex
 CREATE INDEX "AcademicLoadGPA_program_id_idx" ON "template"."AcademicLoadGPA"("program_id");
@@ -726,43 +894,55 @@ CREATE INDEX "AcademicLoadGPA_program_id_idx" ON "template"."AcademicLoadGPA"("p
 CREATE UNIQUE INDEX "Course_code_key" ON "template"."Course"("code");
 
 -- CreateIndex
-CREATE INDEX "Course_code_idx" ON "template"."Course"("code");
+CREATE INDEX "Course_name_idx" ON "template"."Course"("name");
+
+-- CreateIndex
+CREATE INDEX "Course_code_name_idx" ON "template"."Course"("code", "name");
 
 -- CreateIndex
 CREATE INDEX "Classroom_building_idx" ON "template"."Classroom"("building");
 
 -- CreateIndex
-CREATE INDEX "Classroom_is_available_idx" ON "template"."Classroom"("is_available");
+CREATE INDEX "Classroom_underMaintenance_idx" ON "template"."Classroom"("underMaintenance");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Classroom_room_number_building_key" ON "template"."Classroom"("room_number", "building");
+CREATE UNIQUE INDEX "Classroom_classroom_number_building_key" ON "template"."Classroom"("classroom_number", "building");
 
 -- CreateIndex
-CREATE INDEX "Room_created_by_idx" ON "template"."Room"("created_by");
+CREATE INDEX "LearningGroup_semester_id_idx" ON "template"."LearningGroup"("semester_id");
 
 -- CreateIndex
-CREATE INDEX "Room_access_code_idx" ON "template"."Room"("access_code");
+CREATE UNIQUE INDEX "LearningGroup_course_id_semester_id_key" ON "template"."LearningGroup"("course_id", "semester_id");
 
 -- CreateIndex
-CREATE INDEX "ClassSession_course_id_idx" ON "template"."ClassSession"("course_id");
+CREATE INDEX "ScheduleSlot_semester_id_day_of_week_idx" ON "template"."ScheduleSlot"("semester_id", "day_of_week");
 
 -- CreateIndex
-CREATE INDEX "ClassSession_teacher_id_idx" ON "template"."ClassSession"("teacher_id");
+CREATE INDEX "ScheduleSlot_classroom_id_day_of_week_idx" ON "template"."ScheduleSlot"("classroom_id", "day_of_week");
 
 -- CreateIndex
-CREATE INDEX "ClassSession_program_id_idx" ON "template"."ClassSession"("program_id");
+CREATE INDEX "ScheduleSlot_teacher_id_semester_id_idx" ON "template"."ScheduleSlot"("teacher_id", "semester_id");
 
 -- CreateIndex
-CREATE INDEX "ClassSession_semester_id_idx" ON "template"."ClassSession"("semester_id");
+CREATE UNIQUE INDEX "ScheduleSlot_semester_id_teacher_id_classroom_id_day_of_wee_key" ON "template"."ScheduleSlot"("semester_id", "teacher_id", "classroom_id", "day_of_week", "start_time", "end_time");
 
 -- CreateIndex
-CREATE INDEX "ClassSession_day_of_week_start_time_idx" ON "template"."ClassSession"("day_of_week", "start_time");
+CREATE INDEX "ScheduleSlotContext_slot_id_idx" ON "template"."ScheduleSlotContext"("slot_id");
 
 -- CreateIndex
-CREATE INDEX "CourseAssessment_class_session_id_idx" ON "template"."CourseAssessment"("class_session_id");
+CREATE INDEX "ScheduleSlotContext_semester_id_program_id_academic_level_idx" ON "template"."ScheduleSlotContext"("semester_id", "program_id", "academic_level");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ScheduleSlotContext_semester_id_slot_id_program_id_key" ON "template"."ScheduleSlotContext"("semester_id", "slot_id", "program_id");
+
+-- CreateIndex
+CREATE INDEX "CourseAssessment_course_id_semester_id_idx" ON "template"."CourseAssessment"("course_id", "semester_id");
 
 -- CreateIndex
 CREATE INDEX "CourseAssessment_assessment_type_idx" ON "template"."CourseAssessment"("assessment_type");
+
+-- CreateIndex
+CREATE INDEX "ProgramCourse_programId_idx" ON "template"."ProgramCourse"("programId");
 
 -- CreateIndex
 CREATE INDEX "ProgramCourse_course_id_idx" ON "template"."ProgramCourse"("course_id");
@@ -771,7 +951,10 @@ CREATE INDEX "ProgramCourse_course_id_idx" ON "template"."ProgramCourse"("course
 CREATE INDEX "ProgramCourse_type_idx" ON "template"."ProgramCourse"("type");
 
 -- CreateIndex
-CREATE INDEX "CoursePrerequisite_prerequisite_id_idx" ON "template"."CoursePrerequisite"("prerequisite_id");
+CREATE UNIQUE INDEX "ProgramCourse_program_level_id_course_id_key" ON "template"."ProgramCourse"("program_level_id", "course_id");
+
+-- CreateIndex
+CREATE INDEX "CoursePrerequisite_prerequisite_id_course_id_idx" ON "template"."CoursePrerequisite"("prerequisite_id", "course_id");
 
 -- CreateIndex
 CREATE INDEX "StudentFeeReport_student_id_idx" ON "template"."StudentFeeReport"("student_id");
@@ -804,7 +987,7 @@ CREATE INDEX "RolePermission_permission_id_idx" ON "template"."RolePermission"("
 CREATE INDEX "CourseRegistration_student_id_idx" ON "template"."CourseRegistration"("student_id");
 
 -- CreateIndex
-CREATE INDEX "CourseRegistration_session_id_idx" ON "template"."CourseRegistration"("session_id");
+CREATE INDEX "CourseRegistration_slot_context_Id_idx" ON "template"."CourseRegistration"("slot_context_Id");
 
 -- CreateIndex
 CREATE INDEX "CourseRegistration_semester_id_idx" ON "template"."CourseRegistration"("semester_id");
@@ -813,7 +996,7 @@ CREATE INDEX "CourseRegistration_semester_id_idx" ON "template"."CourseRegistrat
 CREATE INDEX "CourseRegistration_status_idx" ON "template"."CourseRegistration"("status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CourseRegistration_student_id_session_id_semester_id_key" ON "template"."CourseRegistration"("student_id", "session_id", "semester_id");
+CREATE UNIQUE INDEX "CourseRegistration_student_id_slot_context_Id_semester_id_key" ON "template"."CourseRegistration"("student_id", "slot_context_Id", "semester_id");
 
 -- CreateIndex
 CREATE INDEX "Grade_course_registration_id_idx" ON "template"."Grade"("course_registration_id");
@@ -834,16 +1017,16 @@ CREATE INDEX "Transcript_year_idx" ON "template"."Transcript"("year");
 CREATE UNIQUE INDEX "Transcript_student_id_semester_id_key" ON "template"."Transcript"("student_id", "semester_id");
 
 -- CreateIndex
-CREATE INDEX "AttendanceSession_class_session_id_idx" ON "template"."AttendanceSession"("class_session_id");
+CREATE INDEX "TranscriptJob_semester_id_idx" ON "template"."TranscriptJob"("semester_id");
+
+-- CreateIndex
+CREATE INDEX "TranscriptJob_status_idx" ON "template"."TranscriptJob"("status");
+
+-- CreateIndex
+CREATE INDEX "AttendanceSession_schedule_slot_id_session_date_idx" ON "template"."AttendanceSession"("schedule_slot_id", "session_date");
 
 -- CreateIndex
 CREATE INDEX "AttendanceSession_session_date_idx" ON "template"."AttendanceSession"("session_date");
-
--- CreateIndex
-CREATE INDEX "AttendanceSession_faculty_member_id_idx" ON "template"."AttendanceSession"("faculty_member_id");
-
--- CreateIndex
-CREATE INDEX "AttendanceSession_is_active_idx" ON "template"."AttendanceSession"("is_active");
 
 -- CreateIndex
 CREATE INDEX "StudentAttendance_attendance_session_id_idx" ON "template"."StudentAttendance"("attendance_session_id");
@@ -873,37 +1056,49 @@ CREATE INDEX "AttendanceReport_report_period_start_report_period_end_idx" ON "te
 CREATE UNIQUE INDEX "AttendanceReport_course_id_student_id_report_period_start_r_key" ON "template"."AttendanceReport"("course_id", "student_id", "report_period_start", "report_period_end");
 
 -- CreateIndex
-CREATE INDEX "RoomMember_room_id_idx" ON "template"."RoomMember"("room_id");
+CREATE INDEX "LearningGroupMember_user_id_idx" ON "template"."LearningGroupMember"("user_id");
 
 -- CreateIndex
-CREATE INDEX "RoomMember_user_id_idx" ON "template"."RoomMember"("user_id");
+CREATE INDEX "LearningGroupPost_learning_group_id_post_type_idx" ON "template"."LearningGroupPost"("learning_group_id", "post_type");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "RoomMember_room_id_user_id_key" ON "template"."RoomMember"("room_id", "user_id");
+CREATE INDEX "LearningGroupPost_author_id_idx" ON "template"."LearningGroupPost"("author_id");
 
 -- CreateIndex
-CREATE INDEX "RoomPost_room_id_idx" ON "template"."RoomPost"("room_id");
+CREATE INDEX "LearningGroupPostAttachment_post_id_idx" ON "template"."LearningGroupPostAttachment"("post_id");
 
 -- CreateIndex
-CREATE INDEX "RoomPost_author_id_idx" ON "template"."RoomPost"("author_id");
+CREATE INDEX "LearningGroupPostComment_post_id_idx" ON "template"."LearningGroupPostComment"("post_id");
 
 -- CreateIndex
-CREATE INDEX "RoomPost_created_at_idx" ON "template"."RoomPost"("created_at");
+CREATE INDEX "LearningGroupPostComment_author_id_idx" ON "template"."LearningGroupPostComment"("author_id");
 
--- CreateIndex
-CREATE INDEX "RoomPost_is_pinned_room_id_idx" ON "template"."RoomPost"("is_pinned", "room_id");
+-- AddForeignKey
+ALTER TABLE "UniversitySettings" ADD CONSTRAINT "UniversitySettings_university_id_fkey" FOREIGN KEY ("university_id") REFERENCES "University"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- CreateIndex
-CREATE INDEX "RoomPostAttachment_post_id_idx" ON "template"."RoomPostAttachment"("post_id");
+-- AddForeignKey
+ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_super_admin_id_fkey" FOREIGN KEY ("super_admin_id") REFERENCES "SuperAdmin"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- CreateIndex
-CREATE INDEX "RoomPostComment_post_id_idx" ON "template"."RoomPostComment"("post_id");
+-- AddForeignKey
+ALTER TABLE "template"."EnrollmentJob" ADD CONSTRAINT "EnrollmentJob_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "template"."Student"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- CreateIndex
-CREATE INDEX "RoomPostComment_author_id_idx" ON "template"."RoomPostComment"("author_id");
+-- AddForeignKey
+ALTER TABLE "template"."EnrollmentJob" ADD CONSTRAINT "EnrollmentJob_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- CreateIndex
-CREATE INDEX "RoomPostComment_created_at_idx" ON "template"."RoomPostComment"("created_at");
+-- AddForeignKey
+ALTER TABLE "template"."enrollment_windows" ADD CONSTRAINT "enrollment_windows_facultyId_fkey" FOREIGN KEY ("facultyId") REFERENCES "template"."Faculty"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."enrollment_windows" ADD CONSTRAINT "enrollment_windows_programId_fkey" FOREIGN KEY ("programId") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."enrollment_windows" ADD CONSTRAINT "enrollment_windows_semesterId_fkey" FOREIGN KEY ("semesterId") REFERENCES "template"."Semester"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."enrollment_windows" ADD CONSTRAINT "enrollment_windows_programLevelId_fkey" FOREIGN KEY ("programLevelId") REFERENCES "template"."ProgramLevel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."Announcement" ADD CONSTRAINT "Announcement_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "template"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "template"."Staff" ADD CONSTRAINT "Staff_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "template"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -912,10 +1107,19 @@ ALTER TABLE "template"."Staff" ADD CONSTRAINT "Staff_user_id_fkey" FOREIGN KEY (
 ALTER TABLE "template"."Faculty" ADD CONSTRAINT "Faculty_dean_id_fkey" FOREIGN KEY ("dean_id") REFERENCES "template"."Staff"("user_id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "template"."Program" ADD CONSTRAINT "Program_head_id_fkey" FOREIGN KEY ("head_id") REFERENCES "template"."Staff"("user_id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "template"."Program" ADD CONSTRAINT "Program_faculty_id_fkey" FOREIGN KEY ("faculty_id") REFERENCES "template"."Faculty"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."Program" ADD CONSTRAINT "Program_head_id_fkey" FOREIGN KEY ("head_id") REFERENCES "template"."Staff"("user_id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "template"."ProgramStaff" ADD CONSTRAINT "ProgramStaff_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "template"."Staff"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."ProgramStaff" ADD CONSTRAINT "ProgramStaff_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."ProgramStaff" ADD CONSTRAINT "ProgramStaff_faculty_id_fkey" FOREIGN KEY ("faculty_id") REFERENCES "template"."Faculty"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "template"."Student" ADD CONSTRAINT "Student_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -939,9 +1143,6 @@ ALTER TABLE "template"."ProgramLevel" ADD CONSTRAINT "ProgramLevel_program_id_fk
 ALTER TABLE "template"."Fee" ADD CONSTRAINT "Fee_program_level_id_fkey" FOREIGN KEY ("program_level_id") REFERENCES "template"."ProgramLevel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."Fee" ADD CONSTRAINT "Fee_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "template"."ProgramTranscriptDefinition" ADD CONSTRAINT "ProgramTranscriptDefinition_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -951,40 +1152,46 @@ ALTER TABLE "template"."AcademicLoadSemester" ADD CONSTRAINT "AcademicLoadSemest
 ALTER TABLE "template"."AcademicLoadSemester" ADD CONSTRAINT "AcademicLoadSemester_program_level_id_fkey" FOREIGN KEY ("program_level_id") REFERENCES "template"."ProgramLevel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."AcademicLoadSemester" ADD CONSTRAINT "AcademicLoadSemester_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "template"."AcademicLoadGPA" ADD CONSTRAINT "AcademicLoadGPA_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."Room" ADD CONSTRAINT "Room_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "template"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroup" ADD CONSTRAINT "LearningGroup_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "template"."Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."ClassSession" ADD CONSTRAINT "ClassSession_classroom_id_fkey" FOREIGN KEY ("classroom_id") REFERENCES "template"."Classroom"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroup" ADD CONSTRAINT "LearningGroup_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."ClassSession" ADD CONSTRAINT "ClassSession_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "template"."Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."ScheduleSlot" ADD CONSTRAINT "ScheduleSlot_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "template"."Staff"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."ClassSession" ADD CONSTRAINT "ClassSession_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."ScheduleSlot" ADD CONSTRAINT "ScheduleSlot_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "template"."Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."ClassSession" ADD CONSTRAINT "ClassSession_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "template"."Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."ScheduleSlot" ADD CONSTRAINT "ScheduleSlot_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."ClassSession" ADD CONSTRAINT "ClassSession_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."ScheduleSlot" ADD CONSTRAINT "ScheduleSlot_classroom_id_fkey" FOREIGN KEY ("classroom_id") REFERENCES "template"."Classroom"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."ClassSession" ADD CONSTRAINT "ClassSession_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "template"."Staff"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."ScheduleSlotContext" ADD CONSTRAINT "ScheduleSlotContext_slot_id_fkey" FOREIGN KEY ("slot_id") REFERENCES "template"."ScheduleSlot"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."CourseAssessment" ADD CONSTRAINT "CourseAssessment_class_session_id_fkey" FOREIGN KEY ("class_session_id") REFERENCES "template"."ClassSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."ScheduleSlotContext" ADD CONSTRAINT "ScheduleSlotContext_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."CourseAssessment" ADD CONSTRAINT "CourseAssessment_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "template"."Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."CourseAssessment" ADD CONSTRAINT "CourseAssessment_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."ProgramCourse" ADD CONSTRAINT "ProgramCourse_programId_fkey" FOREIGN KEY ("programId") REFERENCES "template"."Program"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."ProgramCourse" ADD CONSTRAINT "ProgramCourse_program_level_id_fkey" FOREIGN KEY ("program_level_id") REFERENCES "template"."ProgramLevel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "template"."ProgramCourse" ADD CONSTRAINT "ProgramCourse_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "template"."Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "template"."ProgramCourse" ADD CONSTRAINT "ProgramCourse_program_id_fkey" FOREIGN KEY ("program_id") REFERENCES "template"."Program"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "template"."CoursePrerequisite" ADD CONSTRAINT "CoursePrerequisite_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "template"."Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1020,10 +1227,10 @@ ALTER TABLE "template"."RolePermission" ADD CONSTRAINT "RolePermission_role_id_f
 ALTER TABLE "template"."CourseRegistration" ADD CONSTRAINT "CourseRegistration_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."CourseRegistration" ADD CONSTRAINT "CourseRegistration_session_id_fkey" FOREIGN KEY ("session_id") REFERENCES "template"."ClassSession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."CourseRegistration" ADD CONSTRAINT "CourseRegistration_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "template"."Student"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."CourseRegistration" ADD CONSTRAINT "CourseRegistration_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "template"."Student"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."CourseRegistration" ADD CONSTRAINT "CourseRegistration_slot_context_Id_fkey" FOREIGN KEY ("slot_context_Id") REFERENCES "template"."ScheduleSlotContext"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "template"."Grade" ADD CONSTRAINT "Grade_course_assessment_id_fkey" FOREIGN KEY ("course_assessment_id") REFERENCES "template"."CourseAssessment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1038,7 +1245,10 @@ ALTER TABLE "template"."Transcript" ADD CONSTRAINT "Transcript_semester_id_fkey"
 ALTER TABLE "template"."Transcript" ADD CONSTRAINT "Transcript_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "template"."Student"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."AttendanceSession" ADD CONSTRAINT "AttendanceSession_class_session_id_fkey" FOREIGN KEY ("class_session_id") REFERENCES "template"."ClassSession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."TranscriptJob" ADD CONSTRAINT "TranscriptJob_semester_id_fkey" FOREIGN KEY ("semester_id") REFERENCES "template"."Semester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "template"."AttendanceSession" ADD CONSTRAINT "AttendanceSession_schedule_slot_id_fkey" FOREIGN KEY ("schedule_slot_id") REFERENCES "template"."ScheduleSlot"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "template"."AttendanceSession" ADD CONSTRAINT "AttendanceSession_faculty_member_id_fkey" FOREIGN KEY ("faculty_member_id") REFERENCES "template"."Staff"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -1056,22 +1266,22 @@ ALTER TABLE "template"."AttendanceReport" ADD CONSTRAINT "AttendanceReport_cours
 ALTER TABLE "template"."AttendanceReport" ADD CONSTRAINT "AttendanceReport_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "template"."Student"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomMember" ADD CONSTRAINT "RoomMember_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "template"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupMember" ADD CONSTRAINT "LearningGroupMember_learning_group_id_fkey" FOREIGN KEY ("learning_group_id") REFERENCES "template"."LearningGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomMember" ADD CONSTRAINT "RoomMember_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "template"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupMember" ADD CONSTRAINT "LearningGroupMember_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "template"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomPost" ADD CONSTRAINT "RoomPost_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "template"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupPost" ADD CONSTRAINT "LearningGroupPost_learning_group_id_fkey" FOREIGN KEY ("learning_group_id") REFERENCES "template"."LearningGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomPost" ADD CONSTRAINT "RoomPost_room_id_fkey" FOREIGN KEY ("room_id") REFERENCES "template"."Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupPost" ADD CONSTRAINT "LearningGroupPost_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "template"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomPostAttachment" ADD CONSTRAINT "RoomPostAttachment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "template"."RoomPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupPostAttachment" ADD CONSTRAINT "LearningGroupPostAttachment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "template"."LearningGroupPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomPostComment" ADD CONSTRAINT "RoomPostComment_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "template"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupPostComment" ADD CONSTRAINT "LearningGroupPostComment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "template"."LearningGroupPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "template"."RoomPostComment" ADD CONSTRAINT "RoomPostComment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "template"."RoomPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "template"."LearningGroupPostComment" ADD CONSTRAINT "LearningGroupPostComment_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "template"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

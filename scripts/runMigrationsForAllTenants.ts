@@ -24,11 +24,13 @@ export async function runMigrations() {
   const files = getMigrationFiles();
 
   for (const schema of schemas) {
+    if(schema === "ppg") {continue}
     console.log(`\n🚀 Migrating schema: ${schema}`);
     //this makes sure that the tenant has the new table called (migrations) which keep track of applied migrations to this sepcific tenant NOTE(Will be uncessary later)
     await ensureMigrationsTable(schema);
 
     const appliedMigrations = await getAppliedMigrations(schema);
+
 
     //if i find any migration file that is not included in the applied migration for this tenant, then it's a pending migration and i need to apply them
     const pending = files.filter(migration => !appliedMigrations.has(migration));
