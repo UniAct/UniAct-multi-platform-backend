@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from "ws";
-import { IncomingMessage } from "http";
+import { IncomingMessage, Server } from "http";
 import { RedisSubscriber } from "../../Utils/RedisPubSub";
 import { logger } from "../../Utils/Logger";
 import { Channels } from "../../Enums/Channels";
@@ -29,9 +29,24 @@ const RATE_WINDOW = 10_000; // 10 sec
 // Server
 // ─────────────────────────────────────────────
 
-export async function StartEnrollmentWebSocketServer(port: number) {
+type StartEnrollmentWebSocketServerOptions =
+  | number
+  | {
+      port?: number;
+      server?: Server;
+      path?: string;
+    };
+
+export async function StartEnrollmentWebSocketServer(options: StartEnrollmentWebSocketServerOptions) {
+  const serverOptions =
+    typeof options === "number"
+      ? { port: options }
+      : options.server
+        ? { server: options.server, path: options.path }
+        : { port: options.port };
+
   const wss = new WebSocketServer({
-    port,
+    ...serverOptions,
     // verifyClient: ({ req }: { req: IncomingMessage }) => {
     //   const origin = req.headers.origin;
 
@@ -371,5 +386,9 @@ export async function StartEnrollmentWebSocketServer(port: number) {
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
 
-  logger.info({ message: "WebSocket server started", port });
+  logger.info({
+    message: "WebSocket server started",
+    port: typeof options === "number" ? options : options.port,
+    path: typeof options === "number" ? undefined : options.path,
+  });
 }

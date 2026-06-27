@@ -8,6 +8,7 @@ import { GracefulShutdown } from "./Utils/Shutdown";
 import { corsOptions } from "./Utils/CorsConfig";
 import { Environment } from "./Utils/Environment";
 import { StartAiRuntime } from "./Utils/AiRuntime";
+import { StartEnrollmentWebSocketServer } from "./WebSocketServer/Enrollment/EnrollmentWebSocket";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ if (Environment.IsDevelopment()) {
 async function Bootstrap(): Promise<void> {
     process.title = "UniAct Backend System";
     StartAiRuntime();
+    const wsPath = process.env.ENROLLMENT_WS_PATH || "/ws/enrollment";
     const server = app.listen(PORT, "0.0.0.0", () => {
         logger.info({
             process_name: process.title,
@@ -40,8 +42,10 @@ async function Bootstrap(): Promise<void> {
             process_id: process.pid,
             environment: process.env.NODE_ENV,
             url: `http://localhost:${PORT}`,
+            websocketUrl: `ws://localhost:${PORT}${wsPath}`,
         });
     });
+    await StartEnrollmentWebSocketServer({ server, path: wsPath });
     GracefulShutdown(server);
 }
 

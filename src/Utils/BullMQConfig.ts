@@ -1,5 +1,6 @@
 import { Queue, Worker, Job } from 'bullmq';
 import dotenv from 'dotenv';
+import { RedisOptions } from 'ioredis';
 import { logger } from './Logger';
 dotenv.config();
 
@@ -94,8 +95,8 @@ dotenv.config();
 const queues: Record<string, Queue> = {};
 const workers: Record<string, Worker> = {};
 
-function getRedisPort(): number {
-  const port = Number(process.env.REDIS_PORT || 6379);
+function getRedisPort(portValue = process.env.REDIS_PORT || "6379"): number {
+  const port = Number(portValue);
 
   if (!Number.isInteger(port) || port <= 0) {
     throw new Error("REDIS_PORT must be a valid positive integer");
@@ -114,17 +115,41 @@ function getRedisHost(): string {
   return host;
 }
 
-export const RedisConnection = {
-  host: getRedisHost(),
-  port: getRedisPort(),
-  family: 4,
-  connectTimeout: 10000,
-  keepAlive: 30000,
-  maxRetriesPerRequest: null,
-  retryStrategy(times: number) {
-    return Math.min(times * 100, 3000);
-  },
-};
+function getRedisConnection(): RedisOptions {
+  const common: RedisOptions = {
+    family: 4,
+    connectTimeout: 10000,
+    keepAlive: 30000,
+    maxRetriesPerRequest: null,
+    retryStrategy(times: number) {
+      return Math.min(times * 100, 3000);
+    },
+  };
+
+  if (!process.env.REDIS_URL) {
+    return {
+      ...common,
+      host: getRedisHost(),
+      port: getRedisPort(),
+    };
+  }
+
+  const url = new URL(process.env.REDIS_URL);
+  const connection: RedisOptions = {
+    ...common,
+    host: url.hostname,
+    port: getRedisPort(url.port || "6379"),
+  };
+
+  if (url.username) connection.username = decodeURIComponent(url.username);
+  if (url.password) connection.password = decodeURIComponent(url.password);
+  if (url.protocol === "rediss:") connection.tls = {};
+  if (url.pathname.length > 1) connection.db = Number(url.pathname.slice(1));
+
+  return connection;
+}
+
+export const RedisConnection = getRedisConnection();
 
 // ─────────────────────────────────────────────
 // Queue
