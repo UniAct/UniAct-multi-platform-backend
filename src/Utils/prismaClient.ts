@@ -3,6 +3,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { logger } from "./Logger";
 
 type TenantClientCache = Record<string, PrismaClient>;
+const PUBLIC_SCHEMA = "public";
+const TEMPLATE_SCHEMA = "template";
 
 const globalForTenantPrisma = globalThis as typeof globalThis & {
   __tenantPrismaClients?: TenantClientCache;
@@ -45,10 +47,31 @@ export function GetTenantClient(schema: string): PrismaClient {
     { schema: normalizedSchema }
   );
 
-  const client = new PrismaClient({
+  const clientOptions: any = {
     adapter,
     log: ["error"],
-  });
+  };
+
+  const tenantModelSchema =
+    normalizedSchema === PUBLIC_SCHEMA ? TEMPLATE_SCHEMA : normalizedSchema;
+
+  clientOptions.__internal = {
+    configOverride(config: any) {
+      const inlineSchema = String(config.inlineSchema ?? "")
+        .replace(
+          /schemas\s+=\s+\["public",\s*"[^"]+"\]/,
+          `schemas  = ["public", "${tenantModelSchema}"]`
+        )
+        .replace(
+          /@@schema\("(?!public")[^"]+"\)/g,
+          `@@schema("${tenantModelSchema}")`
+        );
+
+      return { ...config, inlineSchema };
+    },
+  };
+
+  const client = new PrismaClient(clientOptions);
 
   prismaClients[normalizedSchema] = client;
   logger.info({ action: "getTenantClient", schema: normalizedSchema, status: "session created" });
