@@ -5,6 +5,7 @@ import { SuperAdmin } from "@prisma/client"
 import { TransactionService } from "./Transaction";
 import { MailService } from "./MailService/MailService";
 import { GetTenantClient } from "../Utils/prismaClient";
+import { NotFoundError } from "../Types/Errors";
 
 class SuperAdminService {
   public static async CreateSuperAdmin(
@@ -79,6 +80,81 @@ class SuperAdminService {
       throw err;
     }
     
+  }
+
+  public static async GetTenantRootAdmins(schema_name: string) {
+    const prisma = GetTenantClient(schema_name);
+    const admins = await SuperAdminRepository.GetTenantRootAdmins(prisma);
+
+    return admins.map((admin) => ({
+      id: admin.id,
+      username: admin.username,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      email: admin.email,
+      phone: admin.phone,
+      isVerified: admin.isVerified,
+      isBlocked: admin.isBlocked,
+      createdAt: admin.createdAt,
+      updatedAt: admin.updatedAt,
+      roles: admin.userRoles.map((entry) => entry.role.name),
+    }));
+  }
+
+  public static async SetTenantRootAdminStatus(
+    schema_name: string,
+    userId: number,
+    data: { isVerified?: boolean; isBlocked?: boolean }
+  ) {
+    const prisma = GetTenantClient(schema_name);
+    const admin = await SuperAdminRepository.GetTenantRootAdminById(userId, prisma);
+    if (!admin) throw new NotFoundError("Root admin not found in this tenant");
+
+    const updated = await SuperAdminRepository.UpdateTenantRootAdminStatus(
+      userId,
+      data,
+      prisma
+    );
+
+    return {
+      id: updated.id,
+      username: updated.username,
+      firstName: updated.firstName,
+      lastName: updated.lastName,
+      email: updated.email,
+      phone: updated.phone,
+      isVerified: updated.isVerified,
+      isBlocked: updated.isBlocked,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
+      roles: updated.userRoles.map((entry) => entry.role.name),
+    };
+  }
+
+  public static async ResetTenantRootAdminPassword(
+    schema_name: string,
+    userId: number,
+    password: string
+  ) {
+    const prisma = GetTenantClient(schema_name);
+    const admin = await SuperAdminRepository.GetTenantRootAdminById(userId, prisma);
+    if (!admin) throw new NotFoundError("Root admin not found in this tenant");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return SuperAdminRepository.UpdateTenantRootAdminPassword(userId, hashedPassword, prisma);
+  }
+
+  public static async ResendTenantRootAdminVerification(
+    schema_name: string,
+    university_name: string,
+    userId: number
+  ) {
+    const prisma = GetTenantClient(schema_name);
+    const admin = await SuperAdminRepository.GetTenantRootAdminById(userId, prisma);
+    if (!admin) throw new NotFoundError("Root admin not found in this tenant");
+
+    await MailService.SendVerificationRootAccountMail(admin.email, university_name);
+    return admin;
   }
 }
 

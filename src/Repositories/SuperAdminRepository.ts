@@ -101,6 +101,106 @@ class SuperAdminRepository {
     return root_account;
   
   }
+
+  public static async GetTenantRootAdmins(prisma: PrismaClient) {
+    return prisma.user.findMany({
+      where: {
+        userRoles: {
+          some: {
+            role: {
+              name: { in: ["Root", "Admin"] },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        isVerified: true,
+        isBlocked: true,
+        createdAt: true,
+        updatedAt: true,
+        userRoles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [{ isBlocked: "asc" }, { username: "asc" }],
+    });
+  }
+
+  public static async UpdateTenantRootAdminStatus(
+    userId: number,
+    data: { isVerified?: boolean; isBlocked?: boolean },
+    prisma: PrismaClient
+  ) {
+    return prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        isVerified: true,
+        isBlocked: true,
+        createdAt: true,
+        updatedAt: true,
+        userRoles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  public static async UpdateTenantRootAdminPassword(
+    userId: number,
+    password: string,
+    prisma: PrismaClient
+  ) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: { password },
+      select: { id: true, username: true, email: true },
+    });
+  }
+
+  public static async GetTenantRootAdminById(userId: number, prisma: PrismaClient) {
+    return prisma.user.findFirst({
+      where: {
+        id: userId,
+        userRoles: {
+          some: {
+            role: {
+              name: { in: ["Root", "Admin"] },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+      },
+    });
+  }
 }
 
 export default SuperAdminRepository;

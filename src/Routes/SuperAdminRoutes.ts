@@ -40,6 +40,44 @@ router.post(
 
 router.get("/", IsAuthenticated, IsSuperAdmin, asyncHandler(SuperAdminController.GetAll));
 
+router.get(
+  "/tenants/:schema/root-admins",
+  IsAuthenticated,
+  IsSuperAdmin,
+  ...SuperAdminValidator.TenantSchemaParam(),
+  ValidateRequest,
+  asyncHandler(SuperAdminController.GetTenantRootAdmins)
+);
+
+router.patch(
+  "/tenants/:schema/root-admins/:userId/status",
+  IsAuthenticated,
+  IsSuperAdmin,
+  ...SuperAdminValidator.RootAdminParams(),
+  ...SuperAdminValidator.RootAdminStatus(),
+  ValidateRequest,
+  asyncHandler(SuperAdminController.UpdateTenantRootAdminStatus)
+);
+
+router.patch(
+  "/tenants/:schema/root-admins/:userId/password",
+  IsAuthenticated,
+  IsSuperAdmin,
+  ...SuperAdminValidator.RootAdminParams(),
+  ...SuperAdminValidator.RootAdminPassword(),
+  ValidateRequest,
+  asyncHandler(SuperAdminController.ResetTenantRootAdminPassword)
+);
+
+router.post(
+  "/tenants/:schema/root-admins/:userId/resend-verification",
+  IsAuthenticated,
+  IsSuperAdmin,
+  ...SuperAdminValidator.RootAdminParams(),
+  ValidateRequest,
+  asyncHandler(SuperAdminController.ResendTenantRootAdminVerification)
+);
+
 router.delete(
   "/:username",
   
