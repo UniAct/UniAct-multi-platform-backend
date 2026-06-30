@@ -38,6 +38,52 @@ class SuperAdminValidator {
     ];
   }
 
+  public static TenantSchemaParam() {
+    return [
+      param("schema")
+        .notEmpty()
+        .withMessage("Tenant schema is required")
+        .matches(/^[a-zA-Z0-9_-]+$/)
+        .withMessage("Tenant schema can only contain letters, numbers, underscores, and hyphens"),
+    ];
+  }
+
+  public static RootAdminParams() {
+    return [
+      ...this.TenantSchemaParam(),
+      param("userId")
+        .isInt({ min: 1 })
+        .withMessage("Root admin user id must be a positive integer"),
+    ];
+  }
+
+  public static RootAdminStatus() {
+    return [
+      body("isVerified")
+        .optional()
+        .isBoolean()
+        .withMessage("isVerified must be a boolean"),
+      body("isBlocked")
+        .optional()
+        .isBoolean()
+        .withMessage("isBlocked must be a boolean"),
+    ];
+  }
+
+  public static RootAdminPassword() {
+    return [
+      body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+        .custom((value) => {
+          const error = ValidatePassword(value);
+          if (error)
+            throw new Error(error);
+          return true;
+        }),
+    ];
+  }
+
   public static Login() {
     return [
       body("email")
