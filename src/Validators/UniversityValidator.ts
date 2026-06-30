@@ -109,7 +109,18 @@ export default class UniversityValidator {
       body("logo_url")
         .optional({ nullable: true })
         .isString()
-        .withMessage("Logo URL must be a string"),
+        .withMessage("Logo URL must be a string")
+        .bail()
+        .custom((value) => {
+          if (value === null || value === "") return true;
+          try {
+            const url = new URL(value);
+            return url.protocol === "https:";
+          } catch {
+            return typeof value === "string" && value.startsWith("/");
+          }
+        })
+        .withMessage("Logo URL must be HTTPS or an internal absolute path"),
     ];
   }
 }

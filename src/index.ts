@@ -9,12 +9,15 @@ import { corsOptions } from "./Utils/CorsConfig";
 import { Environment } from "./Utils/Environment";
 import { StartAiRuntime } from "./Utils/AiRuntime";
 import { StartEnrollmentWebSocketServer } from "./WebSocketServer/Enrollment/EnrollmentWebSocket";
+import { SecurityHeaders } from "./Middlewares/SecurityHeaders";
 
 dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT);
 
+app.disable("x-powered-by");
+app.use(SecurityHeaders);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
