@@ -9,6 +9,7 @@ import JwtService from "../Utils/JwtService";
 import SystemRoles from "../Enums/SystemRoles";
 import { NotFoundError } from "../Types/Errors";
 import { GetFrontendPublicUrl } from "../Utils/PublicUrls";
+import { GetTenantClient } from "../Utils/prismaClient";
 //since all queries here are for super admin so they all belong to the public schema EXCEPT if i am controlling RootAccounts
 const schema_name = "public";
 
@@ -206,6 +207,76 @@ class SuperAdminController {
         message: err.message || "Internal Server Error",
       });
     }
+  }
+
+  private static async ResolveUniversityName(schema: string): Promise<string> {
+    const publicPrisma = GetTenantClient(schema_name);
+    const university = await publicPrisma.university.findUnique({
+      where: { db_schema: schema },
+      select: { name: true },
+    });
+
+    if (!university) {
+      throw new NotFoundError("University tenant not found");
+    }
+
+    return university.name;
+  }
+
+  public static async GetTenantRootAdmins(req: Request, res: Response) {
+    const schema = String(req.params.schema || "").trim();
+    await SuperAdminController.ResolveUniversityName(schema);
+
+    const admins = await SuperAdminService.GetTenantRootAdmins(schema);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: admins,
+    });
+  }
+
+  public static async UpdateTenantRootAdminStatus(req: Request, res: Response) {
+    const schema = String(req.params.schema || "").trim();
+    const userId = Number(req.params.userId);
+    await SuperAdminController.ResolveUniversityName(schema);
+
+    const payload: { isVerified?: boolean; isBlocked?: boolean } = {};
+    if (typeof req.body.isVerified === "boolean") payload.isVerified = req.body.isVerified;
+    if (typeof req.body.isBlocked === "boolean") payload.isBlocked = req.body.isBlocked;
+
+    const admin = await SuperAdminService.SetTenantRootAdminStatus(schema, userId, payload);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      data: admin,
+      message: "Root admin status updated successfully",
+    });
+  }
+
+  public static async ResetTenantRootAdminPassword(req: Request, res: Response) {
+    const schema = String(req.params.schema || "").trim();
+    const userId = Number(req.params.userId);
+    await SuperAdminController.ResolveUniversityName(schema);
+
+    await SuperAdminService.ResetTenantRootAdminPassword(schema, userId, req.body.password);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      message: "Root admin password changed successfully",
+    });
+  }
+
+  public static async ResendTenantRootAdminVerification(req: Request, res: Response) {
+    const schema = String(req.params.schema || "").trim();
+    const userId = Number(req.params.userId);
+    const universityName = await SuperAdminController.ResolveUniversityName(schema);
+
+    await SuperAdminService.ResendTenantRootAdminVerification(schema, universityName, userId);
+
+    res.status(StatusCodes.OK).json({
+      status: JSendStatus.SUCCESS,
+      message: "Verification email sent successfully",
+    });
   }
 }
 
